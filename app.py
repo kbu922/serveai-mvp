@@ -7,20 +7,26 @@ import datetime
 # 1. Page Configuration
 # ==========================================
 st.set_page_config(
-    page_title="ServeAI - AI Tennis Serve & Travel Package",
+    page_title="ServeAI - AI Tennis, Community & Travel Commerce",
     page_icon="🎾",
     layout="wide"
 )
 
 # Initialize Session States
 if "registered_users" not in st.session_state:
-    st.session_state["registered_users"] = {}
+    st.session_state["registered_users"] = {
+        "Alex_Tennis": {"password": "123", "age": 28, "gender": "Male", "address": "Seoul, Korea"},
+        "Elena_R": {"password": "123", "age": 25, "gender": "Female", "address": "New York, USA"}
+    }
 
 if "logged_in_user" not in st.session_state:
     st.session_state["logged_in_user"] = None
 
-if "payment_completed" not in st.session_state:
-    st.session_state["payment_completed"] = False
+if "chat_messages" not in st.session_state:
+    st.session_state["chat_messages"] = [
+        {"user": "Alex_Tennis", "time": "10:15 AM", "comp": "🇺🇸 US Open (New York, USA)", "text": "Hi everyone! Looking for 1 person to share a twin room at Grand Hyatt during US Open week! Cut hotel costs by 50%!"},
+        {"user": "Elena_R", "time": "10:30 AM", "comp": "🇰🇷 Korea Open ATP/WTA (Seoul, South Korea)", "text": "Anyone going to Korea Open in Seoul? Let's make a group order for tickets to get group discount!"}
+    ]
 
 
 # ==========================================
@@ -85,7 +91,7 @@ def calculate_recommended_tension(ntpr_str, current_tension_option, calculated_s
 # ==========================================
 # 3. Sidebar: User Account & Profile Registration
 # ==========================================
-st.sidebar.header("👤 계정 및 프로필 (User Account)")
+st.sidebar.header("👤 계정 및 프로필 (User Profile)")
 
 if st.session_state["logged_in_user"] is None:
     account_mode = st.sidebar.radio("로그인 / 회원가입", ["로그인 (Login)", "회원가입 (Register)"])
@@ -112,8 +118,8 @@ if st.session_state["logged_in_user"] is None:
 
     elif account_mode == "로그인 (Login)":
         st.sidebar.subheader("🔑 로그인")
-        login_id = st.sidebar.text_input("아이디 (ID)")
-        login_pw = st.sidebar.text_input("비밀번호 (Password)", type="password")
+        login_id = st.sidebar.text_input("아이디 (ID)", value="Alex_Tennis")
+        login_pw = st.sidebar.text_input("비밀번호 (Password)", value="123", type="password")
 
         if st.sidebar.button("로그인"):
             users = st.session_state["registered_users"]
@@ -150,8 +156,8 @@ current_tension_input = None if dont_know_tension else st.sidebar.number_input("
 # ==========================================
 # 4. Main Title & Video Analysis Section
 # ==========================================
-st.title("🎾 ServeAI: AI 기반 서브 분석 & 테니스 패키지 결제")
-st.write("단일 영상 AI 서브 분석부터 글로벌/국내 테니스 대회 참가 및 여행 패키지 결제까지 한 번에 이용하세요.")
+st.title("🎾 ServeAI: AI 서브 분석 & 커뮤니티 대회 결제")
+st.write("단일 영상 AI 서브 분석부터 동호인 커뮤니티 매칭, 글로벌/국내 테니스 대회 참가 결제까지 통합 제공합니다.")
 
 st.markdown("---")
 
@@ -163,7 +169,7 @@ if uploaded_file is not None:
     if st.button("🚀 AI 분석 실행"):
         with st.spinner("AI가 영상을 분석 중입니다..."):
             import time
-            time.sleep(1.5)
+            time.sleep(1.2)
             ai_measured_speed = 118.5
             
             user_age, user_gender = 25, "Male"
@@ -208,7 +214,57 @@ st.markdown("---")
 
 
 # ==========================================
-# 5. Competition Package & Visa/Mastercard Payment Engine
+# 5. Community Group Matching Chat Zone (NEW!)
+# ==========================================
+st.header("💬 커뮤니티 & 공동 예약 매칭 존 (Community & Group Matching Zone)")
+st.caption("💡 **Tip**: 혼자 대회에 참가하기 부담스럽다면? 다른 선수들과 방을 함께 쓰고 결제 비용을 절감해보세요!")
+
+col_chat1, col_chat2 = st.columns([2, 1])
+
+with col_chat1:
+    st.subheader("📢 실시간 대회 동오인 매칭 피드 (Live Matching Feed)")
+    for msg in st.session_state["chat_messages"]:
+        with st.chat_message("user"):
+            st.markdown(f"**{msg['user']}** | <small>{msg['time']}</small> | 🏷️ *{msg['comp']}*", unsafe_allow_html=True)
+            st.write(msg["text"])
+
+    st.markdown("#### 💬 매칭글 작성하기 (Post a Matching Request)")
+    target_comp_chat = st.selectbox("참가 예정 대회", [
+        "🇺🇸 US Open (New York, USA)",
+        "🇰🇷 Korea Open ATP/WTA (Seoul, South Korea)",
+        "🇰🇷 Korea National Amateur Cup (Busan, South Korea)"
+    ])
+    new_chat_text = st.text_area("메시지 입력 (예: 함께 숙소シェア/공동예약 하실 분 찾습니다!)", height=70)
+    
+    if st.button("💬 매칭 등록 (Post Message)"):
+        if st.session_state["logged_in_user"] is None:
+            st.error("⚠️ 메시지를 작성하려면 먼저 로그인해주세요!")
+        elif new_chat_text.strip() == "":
+            st.warning("⚠️ 메시지 내용을 입력해주세요.")
+        else:
+            now_time = datetime.datetime.now().strftime("%I:%M %p")
+            st.session_state["chat_messages"].append({
+                "user": st.session_state["logged_in_user"],
+                "time": now_time,
+                "comp": target_comp_chat,
+                "text": new_chat_text
+            })
+            st.success("✅ 매칭글이 등록되었습니다!")
+            st.rerun()
+
+with col_chat2:
+    st.subheader("💡 공동 결제 혜택 (Group Benefits)")
+    st.success("""
+    • **호텔 비용 최대 50% 절감**: 동반 예약 및 룸쉐어로 숙박비 절약.
+    • **공동 단체 예약 할인**: 2인 이상 원스톱 일괄 결제 시 5% 추가 할인 적용.
+    • **현지 훈련/연습 파트너 매칭**: 대회 현지 도착 후 즉시 연습 경기 파트너 확보.
+    """)
+
+st.markdown("---")
+
+
+# ==========================================
+# 6. Competition Package & Visa/Mastercard Payment Engine
 # ==========================================
 st.header("✈️ 테니스 대회 참가 & 여행 패키지 결제 (Tour Booking & Checkout)")
 st.write("원하는 대회를 선택하고 **VISA / Mastercard** 카드 결제(USD / KRW)로 예약을 즉시 완료하세요.")
@@ -258,16 +314,22 @@ with col_tour2:
     hotel_price_per_night = hotel_options[selected_hotel]
     
     nights = st.number_input("3️⃣ 숙박 박수 (Nights)", min_value=1, max_value=14, value=3)
-    people_count = st.number_input("4️⃣ 인원 수 (People)", min_value=1, max_value=5, value=1)
+    people_count = st.number_input("4️⃣ 예약 인원 수 (Group Size / Room Share)", min_value=1, max_value=5, value=2)
 
-# Price Calculations
-EXCHANGE_RATE = 1350  # 1 USD = 1,350 KRW
+# Price Calculations & Group Discount
+EXCHANGE_RATE = 1350
 total_ticket_usd = comp_info['ticket_fee_usd'] * people_count
-total_hotel_usd = hotel_price_per_night * nights * people_count
-grand_total_usd = total_ticket_usd + total_hotel_usd
+total_hotel_usd = hotel_price_per_night * nights
+
+# Apply 5% Group Discount for 2+ people
+discount_factor = 0.95 if people_count >= 2 else 1.0
+grand_total_usd = (total_ticket_usd + total_hotel_usd) * discount_factor
 grand_total_krw = grand_total_usd * EXCHANGE_RATE
 
 st.markdown("### 💰 결제 통화 선택 & 최종 금액 (Summary)")
+if people_count >= 2:
+    st.success("🎉 **공동 예약 5% 할인 (Group Sharing Discount)**이 적용되었습니다!")
+
 pay_currency = st.radio("💳 결제 통화 선택 (Select Payment Currency)", ["USD ($)", "KRW (₩)"], horizontal=True)
 
 if pay_currency == "USD ($)":
@@ -283,12 +345,12 @@ with q_col1:
 with q_col2:
     st.metric(label="호텔 숙박비", value=f"${total_hotel_usd} USD")
 with q_col3:
-    st.metric(label="최종 결제 예정 금액", value=display_price, delta=sub_text)
+    st.metric(label="최종 결제 금액 (할인 포함)", value=display_price, delta=sub_text)
 
 st.markdown("---")
 
 # VISA / MASTERCARD Payment Gateway Form
-st.subheader("💳 해외/국내 신용카드 결제 (Credit Card Checkout)")
+st.subheader("💳 공동 결제 및 신용카드 수단 (Credit Card Checkout)")
 st.caption("🔒 256-bit SSL Secure Encrypted Payment Gateway (VISA / Mastercard / JCB / AMEX)")
 
 with st.form("checkout_payment_form"):
@@ -309,23 +371,23 @@ if submit_pay:
     elif not card_name or not card_number or not card_exp or not card_cvc:
         st.warning("⚠️ 모든 카드 결제 정보를 올바르게 입력해 주세요.")
     else:
-        with st.spinner("💳 신용카드 승인 요청 중... (Processing VISA/Mastercard)"):
+        with st.spinner("💳 신용카드 승인 요청 중... (Processing Group Order)"):
             import time
-            time.sleep(2)
+            time.sleep(1.5)
             
-        st.session_state["payment_completed"] = True
         st.balloons()
-        st.success("🎉 결제가 성공적으로 완료되었습니다! (Payment Approved)")
+        st.success("🎉 공동 결제가 성공적으로 완료되었습니다! (Group Order Approved)")
         
         # Payment Receipt
         st.markdown("---")
-        st.markdown("### 🧾 전자 영수증 (Payment Receipt)")
+        st.markdown("### 🧾 전자 영수증 (Group Order Electronic Receipt)")
         st.info(f"""
-        • **주문 번호 (Order ID)**: SRV-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}
-        • **구매자 (Customer)**: {st.session_state['logged_in_user']} ({card_name})
+        • **주문 번호 (Order ID)**: SRV-GRP-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}
+        • **대표 예약자 (Customer)**: {st.session_state['logged_in_user']} ({card_name})
+        • **인원 수 (Group Size)**: {people_count} 명 (Room Share / Joint Booking)
         • **선택 대회 (Event)**: {selected_comp}
         • **선택 호텔 (Hotel)**: {selected_hotel} ({nights} nights)
-        • **결제 승인 금액**: **{display_price}**
+        • **결제 승인 금액**: **{display_price}** (5% Group Discount Applied)
         • **결제 수단**: VISA / Mastercard (****-****-****-{card_number[-4:] if len(card_number)>=4 else '0000'})
         • **승인 일시**: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         """)
