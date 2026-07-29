@@ -23,17 +23,31 @@ if "admin_logged_in" not in st.session_state:
 if "inquiries" not in st.session_state:
     st.session_state["inquiries"] = [
         {
-            "title": "Room-share matching inquiry",
-            "type": "Tournament & Accommodation",
-            "content": "Will players of the same gender and similar NTRP be paired?",
-            "user": "alex@globaltennis.com",
-            "time": "2026-07-28 14:20",
-            "reply": "Yes! Same gender and similar NTRP ratings are matched together."
+            "id": "INQ-1001",
+            "user_email": "alex@globaltennis.com",
+            "subject": "Room-share matching criteria inquiry",
+            "category": "Tournament & Accommodation",
+            "message": "Are players paired with the same gender and similar NTRP rating for room-sharing?",
+            "status": "Answered",
+            "created_at": "2026-07-28 14:20",
+            "admin_reply": "Yes! We pair players based on the same gender and closely matched NTRP levels."
         }
     ]
 
 if "match_orders" not in st.session_state:
-    st.session_state["match_orders"] = []
+    st.session_state["match_orders"] = [
+        {
+            "order_id": "TOURN-20260728-01",
+            "tournament": "2026 Seoul Amateur Open & Resort Package",
+            "player_name": "Sarah Connor",
+            "phone": "+1-310-555-0142",
+            "email": "sarah@tennis.org",
+            "ntrp": "3.5",
+            "accommodation": "1 Night Single Room (+ $120)",
+            "amount": "$300 USD",
+            "time": "2026-07-28 16:45"
+        }
+    ]
 
 if "estate_orders" not in st.session_state:
     st.session_state["estate_orders"] = [
@@ -42,9 +56,9 @@ if "estate_orders" not in st.session_state:
             "property": "Gangnam Teheran-ro Indoor Tennis Academy",
             "buyer_name": "David Miller",
             "phone": "+1-212-555-0199",
-            "option": "Reservation Deposit ($15,000)",
-            "amount": "$15,000 USD",
-            "card": "4000-****-****-9876",
+            "email": "david@capital.com",
+            "option": "Hold Deposit Only (예약 보증금 결제)",
+            "amount": "$15,000 (₩20,000,000)",
             "time": "2026-07-29 11:30"
         }
     ]
@@ -79,11 +93,16 @@ t = {
         "welcome": "Welcome",
         "err_login": "Invalid email or password.",
         "reg_success": "Registration complete! Please log in.",
-        "back_btn": "⬅️ Back to Property List",
+        "back_btn_tourn": "⬅️ Back to Tournaments List",
+        "back_btn_estate": "⬅️ Back to Property List",
+        "tourn_title": "🏆 Tennis Tournaments & Resort Accommodation Subpage",
+        "tourn_desc": "Register for global amateur tournaments, book partner resort stays, or request room-sharing.",
         "estate_title": "🏢 Tennis Real Estate & Academy Investment Subpage",
         "estate_desc": "Browse indoor court deals, submit purchase/lease orders, and place online reservation deposits.",
         "calc_title": "🎾 AI Tennis NTRP, Serve Speed & Optimal Tension Calculator",
         "calc_desc": "Calculates your optimal string tension (lbs) based on your NTRP level, current tension, and measured AI serve speed.",
+        "support_title": "💬 Customer Support & Ticket Center",
+        "support_desc": "Submit your questions regarding tournaments, real estate, or AI features. Our team will review and reply.",
     },
     "한국어": {
         "nav_title": "📌 메뉴 선택",
@@ -103,11 +122,16 @@ t = {
         "welcome": "환영합니다",
         "err_login": "이메일 또는 비밀번호가 올바르지 않습니다.",
         "reg_success": "가입 완료! 로그인해 주세요.",
-        "back_btn": "⬅️ 전체 부동산 목록으로 돌아가기",
+        "back_btn_tourn": "⬅️ 대회 목록으로 돌아가기",
+        "back_btn_estate": "⬅️ 전체 부동산 목록으로 돌아가기",
+        "tourn_title": "🏆 테니스 대회 & 리조트 숙박 예약 서브페이지",
+        "tourn_desc": "국내외 아마추어 테니스 대회 참가 신청, 전용 리조트 예약 및 룸셰어 패키지를 결제하세요.",
         "estate_title": "🏢 테니스 부동산 & 해외 아카데미 매매/임대 서브페이지",
         "estate_desc": "실내외 코트 매물 및 지분 투자 목록을 확인하고, 예약금 결제 및 상담 주문을 진행하세요.",
         "calc_title": "🎾 AI 테니스 NTRP / 서브 속도 기반 최적 텐션 계산기",
         "calc_desc": "NTRP 레벨, 현재 사용 중인 텐션(모름 포함), AI 측정 서브 속도를 바탕으로 최적의 텐션(lbs)을 정밀 계산합니다.",
+        "support_title": "💬 고객 지원 & 1:1 문의하기",
+        "support_desc": "대회, 부동산 매물, AI 분석 기능 등 궁금하신 점을 작성해 주세요. 관리자 확인 후 즉시 답변드립니다.",
     }
 }[lang]
 
@@ -154,6 +178,43 @@ nav_options = [
 ]
 page_selection = st.sidebar.radio(t["nav_title"], nav_options)
 
+# Tournament Database
+tournaments_db = {
+    "tourn1": {
+        "title_en": "2026 Seoul Amateur Open & Resort Package",
+        "title_kr": "2026 서울 아마추어 오픈 & 리조트 숙박 패키지",
+        "date": "2026-09-12 ~ 2026-09-14",
+        "location_en": "Jangchung Tennis Center & Shilla Hotel Package",
+        "location_kr": "장충 테니스장 & 신라호텔 숙박 연계",
+        "fee_usd": "$180 USD (₩240,000)",
+        "desc_en": "Includes entry fee, tournament jersey, welcome dinner, and 1-night shared twin room at partner hotel.",
+        "desc_kr": "대회 참가비, 공식 유니폼, 웰컴 만찬 및 파트너 호텔 2인 1실 1박 포함.",
+        "badge": "🔥 Registration Open"
+    },
+    "tourn2": {
+        "title_en": "Jeju Island Coastal Tennis Cup & Resort Stay",
+        "title_kr": "제주 오션뷰 테니스 챔피언십 & 해비치 리조트 패키지",
+        "date": "2026-10-03 ~ 2026-10-05",
+        "location_en": "Jeju Ocean Tennis Complex & Haevichi Resort",
+        "location_kr": "제주 해비치 테니스 코트 & 리조트 2박",
+        "fee_usd": "$320 USD (₩430,000)",
+        "desc_en": "3-day singles/doubles tournament. 2 nights ocean resort stay, airport shuttle, and ServeAI analysis.",
+        "desc_kr": "3일간 진행되는 단식/복식 대회. 리조트 2박, 공항 셔틀 및 AI 서브 데이터 분석 포함.",
+        "badge": "✈️ Resort Package"
+    },
+    "tourn3": {
+        "title_en": "Tokyo-Seoul Friendly Match & Travel Tour",
+        "title_kr": "도쿄-서울 교류전 & 3박 4일 프라이빗 테니스 투어",
+        "date": "2026-11-10 ~ 2026-11-13",
+        "location_en": "Ariake Tennis Park, Tokyo, Japan",
+        "location_kr": "일본 도쿄 아리아케 테니스 파크",
+        "fee_usd": "$750 USD (₩1,000,000)",
+        "desc_en": "Cross-border amateur match against Japanese clubs with local accommodation & gala party.",
+        "desc_kr": "일본 현지 클럽과의 국제 교류전. 고급 호텔 3박, 이동 차편, 갈라 파티 포함.",
+        "badge": "🌏 Global Tour"
+    }
+}
+
 # Real Estate & Investment Database
 real_estate_products = {
     "estate1": {
@@ -163,7 +224,7 @@ real_estate_products = {
         "location_kr": "서울시 강남구 역삼동",
         "size_en": "720 sqm (3 Indoor Courts + Full Amenity Shower Rooms)",
         "size_kr": "전용 220평 (코트 3면 + 풀옵션 샤워실)",
-        "desc_en": "Monthly revenue of $35,000. Equiped with ServeAI speed cameras and 300 active members.",
+        "desc_en": "Monthly revenue of $35,000. Equipped with ServeAI speed cameras and 300 active members.",
         "desc_kr": "월 매출 4,500만원 입증 완료. AI 서브 측정 장비 및 회원 300명 양도 포함.",
         "price_deposit_usd": "$15,000 (₩20,000,000)",
         "price_full_usd": "$650,000 (₩850,000,000)",
@@ -199,6 +260,7 @@ real_estate_products = {
 
 # Dynamic URL Params Routing
 query_params = st.query_params
+selected_tourn = query_params.get("tourn", None)
 selected_estate = query_params.get("estate", None)
 
 # ==========================================
@@ -259,17 +321,11 @@ elif page_selection == t["nav_2"]:
         )
 
     if st.button("🎯 Calculate Optimal Tension (최적 텐션 산출)"):
-        # Optimal Tension Calculation Algorithm
         base_tension = 48.0
-        
-        # NTRP Adjustment
         ntrp_val = float(ntrp.replace("+", ""))
         ntrp_adj = (ntrp_val - 3.0) * 1.5
-        
-        # Speed Adjustment
         speed_adj = (serve_speed - 130) * 0.1
         
-        # Current Tension Adjustment
         tension_adj = 0.0
         if "Low" in current_tension_opt:
             tension_adj = -2.0
@@ -277,7 +333,7 @@ elif page_selection == t["nav_2"]:
             tension_adj = 2.0
             
         rec_main = round(base_tension + ntrp_adj + speed_adj + tension_adj)
-        rec_cross = rec_main - 2  # 2 lbs lower for cross strings by default
+        rec_cross = rec_main - 2
         
         st.markdown("---")
         st.subheader("💡 AI Optimal String Tension Report (최적 텐션 산출 리포트)")
@@ -299,12 +355,99 @@ elif page_selection == t["nav_2"]:
             """)
 
 # ==========================================
-# 5. Feature 4: Real Estate & Investment Subpage with Checkout
+# 5. Feature 3: Tournaments & Accommodation Subpage
+# ==========================================
+elif page_selection == t["nav_3"]:
+    if selected_tourn in tournaments_db:
+        tr = tournaments_db[selected_tourn]
+        if st.button(t["back_btn_tourn"]):
+            st.query_params.clear()
+            st.rerun()
+
+        title_curr = tr["title_en"] if lang == "English" else tr["title_kr"]
+        loc_curr = tr["location_en"] if lang == "English" else tr["location_kr"]
+        desc_curr = tr["desc_en"] if lang == "English" else tr["desc_kr"]
+
+        st.markdown(f"## 🏆 [{tr['badge']}] {title_curr}")
+        st.info(f"📅 **Date**: {tr['date']} | 📍 **Venue & Resort**: {loc_curr}")
+        st.write(desc_curr)
+        
+        col_form, col_summary = st.columns([1, 1])
+        
+        with col_form:
+            st.subheader("1️⃣ Player & Room Registration Form")
+            p_name = st.text_input("Player Name (참가자 성명)", placeholder="John Smith")
+            p_phone = st.text_input("Phone Number (연락처)", placeholder="+1 555-0192 / 010-9876-5432")
+            p_email = st.text_input("Email (이메일)", value=st.session_state["logged_in_user"] or "")
+            p_ntrp = st.selectbox("Your NTRP Rating (NTRP 레벨)", ["2.5", "3.0", "3.5", "4.0", "4.5", "5.0+"])
+            
+            p_acc = st.radio(
+                "Accommodation Option (숙박 선택)",
+                [
+                    "Standard Room-share Twin (2인 1실 룸쉐어 매칭) [Included]",
+                    "Private Single Room Upgrade (+ $120 / ₩150,000)",
+                    "No Accommodation / Entry Only (- $50 / ₩60,000)"
+                ]
+            )
+
+        with col_summary:
+            st.subheader("2️⃣ Registration Fee & Payment Checkout")
+            st.metric("Total Package Entry Fee", tr["fee_usd"])
+
+            with st.form("tourn_checkout_form"):
+                card_no = st.text_input("Credit Card Number (결제 카드번호)", placeholder="4000-0000-0000-0000")
+                special_req = st.text_area("Special Request (e.g., Preferred roommate or diet)")
+                submit_tourn = st.form_submit_button("💳 Pay & Complete Registration")
+
+            if submit_tourn:
+                if p_name and p_phone and card_no:
+                    t_ord_id = f"TOURN-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
+                    
+                    st.session_state["match_orders"].append({
+                        "order_id": t_ord_id,
+                        "tournament": title_curr,
+                        "player_name": p_name,
+                        "phone": p_phone,
+                        "email": p_email,
+                        "ntrp": p_ntrp,
+                        "accommodation": p_acc,
+                        "amount": tr["fee_usd"],
+                        "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+                    })
+                    st.balloons()
+                    st.success("🎉 Registration & Resort Booking Complete! Your receipt is logged in the backend.")
+                else:
+                    st.error("⚠️ Please fill in all required fields (Name, Phone, Card Number).")
+
+    else:
+        st.title(t["tourn_title"])
+        st.write(t["tourn_desc"])
+        st.markdown("---")
+
+        for key, tr in tournaments_db.items():
+            title_curr = tr["title_en"] if lang == "English" else tr["title_kr"]
+            loc_curr = tr["location_en"] if lang == "English" else tr["location_kr"]
+            desc_curr = tr["desc_en"] if lang == "English" else tr["desc_kr"]
+
+            with st.container(border=True):
+                c_left, c_right = st.columns([3, 1])
+                with c_left:
+                    st.subheader(f"[{tr['badge']}] {title_curr}")
+                    st.write(f"📅 **Date**: {tr['date']} | 📍 {loc_curr}")
+                    st.write(f"💰 **Entry & Accommodation**: {tr['fee_usd']}")
+                    st.caption(desc_curr)
+                with c_right:
+                    if st.button("📝 Register & Pay", key=f"tourn_btn_{key}"):
+                        st.query_params["tourn"] = key
+                        st.rerun()
+
+# ==========================================
+# 6. Feature 4: Real Estate & Investment Subpage with Checkout
 # ==========================================
 elif page_selection == t["nav_4"]:
     if selected_estate in real_estate_products:
         est = real_estate_products[selected_estate]
-        if st.button(t["back_btn"]):
+        if st.button(t["back_btn_estate"]):
             st.query_params.clear()
             st.rerun()
 
@@ -322,7 +465,7 @@ elif page_selection == t["nav_4"]:
             st.subheader("1️⃣ Buyer / Investor Contact Details")
             b_name = st.text_input("Full Name (성명)", placeholder="John Doe / 홍길동")
             b_phone = st.text_input("Phone Number (연락처)", placeholder="+1 234 567 8900 / 010-1234-5678")
-            b_email = st.text_input("Email (이메일)", placeholder="investor@domain.com")
+            b_email = st.text_input("Email (이메일)", value=st.session_state["logged_in_user"] or "")
             
             pay_option = st.radio(
                 "Select Transaction Option (결제/주문 옵션 선택)",
@@ -347,7 +490,6 @@ elif page_selection == t["nav_4"]:
                 if b_name and b_phone and card_num:
                     new_ord_id = f"EST-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
                     
-                    # Store order into session state for Backend Management
                     st.session_state["estate_orders"].append({
                         "order_id": new_ord_id,
                         "property": title_curr,
@@ -356,8 +498,6 @@ elif page_selection == t["nav_4"]:
                         "email": b_email,
                         "option": pay_option,
                         "amount": amt_display,
-                        "card": card_num,
-                        "notes": inq_notes,
                         "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
                     })
                     st.balloons()
@@ -389,7 +529,74 @@ elif page_selection == t["nav_4"]:
                         st.rerun()
 
 # ==========================================
-# 6. Feature 6: Admin Dashboard Synchronization
+# 7. Feature 5: Support & Inquiries (Messaging System)
+# ==========================================
+elif page_selection == t["nav_5"]:
+    st.title(t["support_title"])
+    st.write(t["support_desc"])
+    st.markdown("---")
+
+    col_send, col_history = st.columns([1, 1])
+
+    with col_send:
+        st.subheader("📬 Submit a New Message / Support Ticket")
+        with st.form("support_ticket_form"):
+            inq_email = st.text_input("Your Email Address (이메일 주소)", value=st.session_state["logged_in_user"] or "")
+            inq_category = st.selectbox(
+                "Category (문의 유형)",
+                [
+                    "Tournament & Accommodation (대회 및 숙박)",
+                    "Tennis Real Estate Investment (부동산 매매/임대)",
+                    "AI Serve Analysis & Racket Calculator (AI 측정 및 라켓)",
+                    "General & Account Support (일반 및 계정 문의)"
+                ]
+            )
+            inq_subject = st.text_input("Subject (제목)", placeholder="e.g. Room-share matching query")
+            inq_msg = st.text_area("Message Detail (문의 내용)", placeholder="Type your detailed message here...", height=150)
+            
+            submit_ticket = st.form_submit_button("📤 Submit Message")
+
+        if submit_ticket:
+            if inq_email and inq_subject and inq_msg:
+                ticket_id = f"INQ-{datetime.datetime.now().strftime('%M%S')}"
+                st.session_state["inquiries"].append({
+                    "id": ticket_id,
+                    "user_email": inq_email,
+                    "subject": inq_subject,
+                    "category": inq_category,
+                    "message": inq_msg,
+                    "status": "Pending Admin Reply",
+                    "created_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
+                    "admin_reply": ""
+                })
+                st.success(f"✅ Message submitted successfully! Reference ID: {ticket_id}")
+            else:
+                st.error("⚠️ Please complete all input fields.")
+
+    with col_history:
+        st.subheader("📜 Ticket Inbox & Admin Replies")
+        
+        # Filter tickets by user's email if logged in, or show all for demo
+        user_tickets = st.session_state["inquiries"]
+        if st.session_state["logged_in_user"]:
+            user_tickets = [q for q in st.session_state["inquiries"] if q["user_email"] == st.session_state["logged_in_user"]]
+
+        if len(user_tickets) == 0:
+            st.info("No tickets or messages found for your account.")
+        else:
+            for ticket in reversed(user_tickets):
+                with st.expander(f"📌 [{ticket['status']}] {ticket['subject']} ({ticket['created_at']})"):
+                    st.write(f"**Category**: {ticket['category']}")
+                    st.write(f"**From**: {ticket['user_email']}")
+                    st.write(f"**Message**: {ticket['message']}")
+                    
+                    if ticket["admin_reply"]:
+                        st.success(f"💬 **Admin Reply**: {ticket['admin_reply']}")
+                    else:
+                        st.warning("⏳ Pending response from support backend.")
+
+# ==========================================
+# 8. Feature 6: Admin Dashboard Synchronization & Replies
 # ==========================================
 elif page_selection == t["nav_6"]:
     st.title("🔒 Admin / Backend Dashboard")
@@ -418,28 +625,44 @@ elif page_selection == t["nav_6"]:
         st.markdown("---")
         
         tab1, tab2, tab3 = st.tabs([
-            "🏢 Real Estate Purchase Orders & Payments",
-            "🏆 Tournament Orders",
-            "📩 Message Support Inbox"
+            "🏢 Real Estate Purchase Orders",
+            "🏆 Tournament & Resort Orders",
+            "📩 Support Ticket Inbox & Reply Tool"
         ])
 
         with tab1:
-            st.subheader("🏢 Tennis Real Estate Order Database (실시간 부동산 결제/주문 내역)")
+            st.subheader("🏢 Real Estate Transactions Database (부동산 실시간 주문)")
             if len(st.session_state["estate_orders"]) == 0:
                 st.info("No real estate orders submitted yet.")
             else:
                 st.dataframe(st.session_state["estate_orders"], use_container_width=True)
 
         with tab2:
-            st.subheader("🏆 Tournament Orders Database")
+            st.subheader("🏆 Tournament & Accommodation Registration Database")
             if len(st.session_state["match_orders"]) == 0:
                 st.info("No tournament orders submitted yet.")
             else:
                 st.dataframe(st.session_state["match_orders"], use_container_width=True)
 
         with tab3:
-            st.subheader("📩 Messages & Support Requests")
-            st.dataframe(st.session_state["inquiries"], use_container_width=True)
+            st.subheader("📩 Support Messages & Reply Portal")
+            if len(st.session_state["inquiries"]) == 0:
+                st.info("No user messages in backend.")
+            else:
+                for idx, ticket in enumerate(st.session_state["inquiries"]):
+                    with st.expander(f"✉️ Ticket {ticket['id']}: {ticket['subject']} - From {ticket['user_email']}"):
+                        st.write(f"**Category**: {ticket['category']}")
+                        st.write(f"**Date**: {ticket['created_at']}")
+                        st.write(f"**User Message**: {ticket['message']}")
+                        st.write(f"**Current Status**: `{ticket['status']}`")
+
+                        # Admin Reply Interface
+                        reply_input = st.text_area(f"Reply to {ticket['user_email']}", value=ticket['admin_reply'], key=f"reply_area_{idx}")
+                        if st.button("💬 Send / Update Reply", key=f"reply_btn_{idx}"):
+                            st.session_state["inquiries"][idx]["admin_reply"] = reply_input
+                            st.session_state["inquiries"][idx]["status"] = "Answered"
+                            st.success("Reply saved! The user can now view it in their Support Inbox.")
+                            st.rerun()
 
 # Navigation Fallback
 else:
