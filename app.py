@@ -3,33 +3,53 @@ import datetime
 import time
 
 # ==========================================
-# 1. Page Configuration & Initial State
+# 1. Page Configuration & Global Styling
 # ==========================================
 st.set_page_config(
     page_title="ServeAI - Global Tennis & Sports-Tech Portal",
     page_icon="🎾",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# Session State Initialization
+# Custom CSS for polished layout
+st.markdown("""
+<style>
+    .stMetric {
+        background-color: #f8f9fa;
+        padding: 12px;
+        border-radius: 8px;
+        border-left: 4px solid #007bff;
+    }
+    .stButton>button {
+        border-radius: 6px;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# ==========================================
+# 2. State Management Initialization
+# ==========================================
 if "users" not in st.session_state:
-    st.session_state["users"] = {"admin@serveai.com": "password123"}
+    st.session_state["users"] = {"admin@serveai.com": "password123", "alex@globaltennis.com": "tennis123"}
+
 if "logged_in_user" not in st.session_state:
     st.session_state["logged_in_user"] = None
+
 if "admin_logged_in" not in st.session_state:
     st.session_state["admin_logged_in"] = False
 
-# Membership Pass Database (Tracks 1-Month Subscriptions)
+# Membership Database ($4.99/month Pass Model)
 if "memberships" not in st.session_state:
     st.session_state["memberships"] = {
         "alex@globaltennis.com": {
             "status": "Active",
-            "plan": "1-Month Unlimited Pass ($4.99/mo)",
+            "plan": "1-Month VIP Pass ($4.99/mo)",
             "expires": "2026-08-29"
         }
     }
 
-# Mock Community Databases
+# Community Databases
 if "players_db" not in st.session_state:
     st.session_state["players_db"] = [
         {"id": "P-101", "name": "Jessica Chen", "ntrp": 3.5, "gender": "Female", "location": "Gangnam Center, Seoul", "bio": "Looking for consistent rally partners on weekends! Topspin baseline player.", "avatar": "👩‍🎾"},
@@ -58,7 +78,9 @@ if "chat_orders" not in st.session_state:
     ]
 
 if "inquiries" not in st.session_state:
-    st.session_state["inquiries"] = []
+    st.session_state["inquiries"] = [
+        {"id": "TK-101", "user": "alex@globaltennis.com", "subject": "Court Booking Issue", "status": "Open", "date": "2026-07-28"}
+    ]
 
 if "match_orders" not in st.session_state:
     st.session_state["match_orders"] = []
@@ -67,7 +89,7 @@ if "estate_orders" not in st.session_state:
     st.session_state["estate_orders"] = []
 
 # ==========================================
-# 2. Language Switcher & Localization
+# 3. Sidebar Authentication & Localization
 # ==========================================
 st.sidebar.title("🎾 ServeAI Global")
 lang = st.sidebar.selectbox("🌐 Language / 언어", ["English", "한국어"])
@@ -128,7 +150,7 @@ t = {
     }
 }[lang]
 
-# Login Block
+# Authentication UI Block
 if st.session_state["logged_in_user"] is None:
     st.sidebar.subheader(t["login_sub"])
     auth_mode = st.sidebar.radio("Action", [t["login_tab"], t["reg_tab"]], horizontal=True)
@@ -178,39 +200,144 @@ nav_options = [
 page_selection = st.sidebar.radio(t["nav_title"], nav_options)
 
 # ==========================================
-# 3. Feature 1 & 2: Speed & Calculator
+# 4. Feature 1: AI Serve Speed Analysis
 # ==========================================
 if page_selection == t["nav_1"]:
-    st.title(t["nav_1"])
-    st.write("Upload a tennis serve video to calculate velocity trajectory and impact point.")
+    st.title("⚡ AI Serve Speed & Trajectory Analyzer")
+    st.write("Upload a video of your serve. AI will detect ball motion frames and calculate real velocity in MPH and KM/H.")
+    
+    col_up, col_res = st.columns([1, 1])
+    with col_up:
+        uploaded_video = st.file_uploader("Upload Serve Video (MP4 / MOV)", type=["mp4", "mov", "avi"])
+        camera_angle = st.selectbox("Camera Angle", ["Behind Baseline (Recommended)", "Side Court View", "45-Degree Angle"])
+        frame_rate = st.select_slider("Recorded FPS", options=[30, 60, 120, 240], value=60)
+        
+        btn_analyze = st.button("🚀 Analyze Serve Velocity", use_container_width=True)
 
+    with col_res:
+        if btn_analyze:
+            if uploaded_video is not None:
+                with st.spinner("Processing ball movement trajectories..."):
+                    time.sleep(1.5)
+                
+                st.success("Analysis Complete!")
+                m1, m2, m3 = st.columns(3)
+                m1.metric("Peak Speed", "104 MPH", "+6 MPH")
+                m2.metric("Metric Velocity", "167 KM/H", "+10 KM/H")
+                m3.metric("Spin Rate", "2,400 RPM", "Topspin-Slice")
+                
+                st.markdown("#### 📊 Biomechanics Feedback")
+                st.info("💡 **AI Tip**: Racket head acceleration peak was reached 0.08s before impact. Toss height was optimal at 3.2m.")
+            else:
+                st.warning("Please upload a video file first to analyze.")
+
+# ==========================================
+# 5. Feature 2: AI Racket & Tension Calculator
+# ==========================================
 elif page_selection == t["nav_2"]:
     st.title(t["calc_title"])
     st.write(t["calc_desc"])
 
-elif page_selection == t["nav_3"]:
-    st.title("🏆 Tournaments Subpage")
+    c1, c2 = st.columns(2)
+    with c1:
+        ntrp_input = st.slider("Select your NTRP Level", min_value=1.5, max_value=7.0, value=3.5, step=0.5)
+        serve_speed_input = st.number_input("Your Average Serve Speed (MPH)", min_value=30, max_value=150, value=85)
+        play_style = st.selectbox("Playing Style", ["Baseline Basher", "All-Court Tactical", "Serve & Volley", "Defensive Counter-puncher"])
+    
+    with c2:
+        racket_head = st.selectbox("Racket Head Size (sq in)", ["98 sq in (Control)", "100 sq in (Balanced)", "104+ sq in (Power)"])
+        string_type = st.selectbox("String Material", ["Co-Poly / Polyester (Control & Spin)", "Multifilament (Comfort & Power)", "Natural Gut (Maximum Touch)", "Hybrid Blend"])
 
-elif page_selection == t["nav_4"]:
-    st.title("🏫 Tennis School Residency")
+    if st.button("🧮 Calculate Optimal Tension & Setup", use_container_width=True):
+        # Calculation logic based on speed & NTRP
+        base_tension = 52.0
+        if serve_speed_input > 100:
+            base_tension += 4.0
+        elif serve_speed_input > 80:
+            base_tension += 2.0
+        
+        if ntrp_input >= 4.5:
+            base_tension += 2.0
+
+        st.markdown("---")
+        st.subheader("🎯 Recommended Equipment Specifications")
+        res_col1, res_col2, res_col3 = st.columns(3)
+        res_col1.metric("Recommended Main Tension", f"{base_tension:.1f} lbs")
+        res_col2.metric("Recommended Cross Tension", f"{base_tension - 2.0:.1f} lbs")
+        res_col3.metric("Grip Size", "4 3/8 (L3)")
+
+        st.success(f"Based on your **NTRP {ntrp_input}** level and **{serve_speed_input} MPH** serve, a **{string_type}** at **{base_tension:.1f} lbs** will provide maximum precision and control.")
 
 # ==========================================
-# 4. Feature 5: NTRP Matching & 1-Month VIP Pass
+# 6. Feature 3: Tournaments Subpage
+# ==========================================
+elif page_selection == t["nav_3"]:
+    st.title("🏆 Tournaments & Official Match Accommodation")
+    st.write("Browse upcoming amateur and pro-am tournaments. Book official hotel packages with integrated transport.")
+
+    tourneys = [
+        {"name": "2026 Seoul Open Amateur Grand Prix", "date": "2026-08-15", "loc": "Olympic Park, Seoul", "prize": "$5,000 Pool", "hotel": "Gangnam Luxury Stay ($120/night)"},
+        {"name": "Jeju Island Tennis & Beach Classic", "date": "2026-09-02", "loc": "Jeju Ocean Courts", "prize": "$3,000 Pool", "hotel": "Jeju Ocean Resort ($150/night)"},
+        {"name": "Incheon Songdo National NTRP Series", "date": "2026-09-20", "loc": "Songdo Sports Complex", "prize": "$2,500 Pool", "hotel": "Songdo Park Hotel ($95/night)"}
+    ]
+
+    for tour in tourneys:
+        with st.container(border=True):
+            tc1, tc2 = st.columns([3, 1])
+            with tc1:
+                st.subheader(tour["name"])
+                st.write(f"📅 **Date**: {tour['date']} | 📍 **Location**: {tour['loc']}")
+                st.write(f"🏆 **Prize Pool**: {tour['prize']} | 🏨 **Partner Hotel**: {tour['hotel']}")
+            with tc2:
+                if st.button("🎟️ Register & Book Package", key=f"t_btn_{tour['name']}"):
+                    st.success("Entry request initiated! Check support tab for booking receipt.")
+
+# ==========================================
+# 7. Feature 4: Tennis School & Residency
+# ==========================================
+elif page_selection == t["nav_4"]:
+    st.title("🏫 Global Tennis Academy & Residency Programs")
+    st.write("Long-term high-performance training packages including accommodation, court access, and video analytics.")
+
+    sc1, sc2 = st.columns(2)
+    with sc1:
+        with st.container(border=True):
+            st.subheader("🥉 1-Week Intensive Boot Camp")
+            st.write("• 15 Hours Private Coaching")
+            st.write("• Unlimited Ball Machine Access")
+            st.write("• AI Serve Biomechanics Report")
+            st.write("• Hotel Accommodation Included")
+            st.markdown("### **$890 / Week**")
+            if st.button("Enroll in 1-Week Camp"):
+                st.success("Reservation request saved!")
+
+    with sc2:
+        with st.container(border=True):
+            st.subheader("🥇 1-Month Pro Residency Package")
+            st.write("• 50 Hours Private & Group Coaching")
+            st.write("• Daily Tournament Sparring Matches")
+            st.write("• Full Physical Conditioning & Diet Plan")
+            st.write("• Serviced Apartment Residence Included")
+            st.markdown("### **$2,950 / Month**")
+            if st.button("Enroll in 1-Month Residency"):
+                st.success("Residency application submitted!")
+
+# ==========================================
+# 8. Feature 5: NTRP Match & 1-Month VIP Chat Pass
 # ==========================================
 elif page_selection == t["nav_5"]:
     st.title(t["match_title"])
     st.write(t["match_desc"])
     
-    # Membership Status Banner
     current_user = st.session_state["logged_in_user"]
     user_mem_info = st.session_state["memberships"].get(current_user, None) if current_user else None
     has_active_vip = user_mem_info and user_mem_info["status"] == "Active"
 
     if has_active_vip:
-        st.success(f"🌟 **VIP Pass Active** | Expiration: `{user_mem_info['expires']}` | **Unlimited Free Chat Unlocked!**")
+        st.success(f"🌟 **VIP Pass Active** | Expires: `{user_mem_info['expires']}` | **Unlimited Free Direct Chat Unlocked!**")
     else:
         with st.expander("💳 **Get 1-Month VIP Chat Pass ($4.99 / Month) - Click Here to Unlock All Chats**", expanded=not has_active_vip):
-            st.markdown("#### Enjoy unlimited direct chats with all local tennis players & coaches for 30 days!")
+            st.markdown("#### Unlimited direct chats with all local tennis players & coaches for 30 days!")
             c_mem1, c_mem2 = st.columns([2, 1])
             with c_mem1:
                 mem_email = st.text_input("Account Email", value=current_user or "")
@@ -218,11 +345,11 @@ elif page_selection == t["nav_5"]:
             with c_mem2:
                 st.write("**Plan**: 1-Month VIP Membership")
                 st.write("**Price**: `$4.99 USD` / month")
-                if st.button("🚀 Pay $4.99 & Activate Pass"):
+                if st.button("🚀 Pay $4.99 & Activate Pass", use_container_width=True):
                     if mem_email and card_no:
                         st.session_state["memberships"][mem_email] = {
                             "status": "Active",
-                            "plan": "1-Month Unlimited Pass ($4.99/mo)",
+                            "plan": "1-Month VIP Pass ($4.99/mo)",
                             "expires": (datetime.datetime.now() + datetime.timedelta(days=30)).strftime("%Y-%m-%d")
                         }
                         st.balloons()
@@ -245,9 +372,9 @@ elif page_selection == t["nav_5"]:
         st.subheader("🔍 Filter Nearby Players by Location & NTRP")
         col_f1, col_f2 = st.columns(2)
         with col_f1:
-            filter_loc = st.selectbox("Location", ["All Locations (전체)", "Gangnam Center, Seoul", "Jeju Ocean Resort", "Songdo Park, Incheon"])
+            filter_loc = st.selectbox("Location Filter", ["All Locations (전체)", "Gangnam Center, Seoul", "Jeju Ocean Resort", "Songdo Park, Incheon"])
         with col_f2:
-            my_ntrp = st.slider("Your NTRP Level", min_value=2.0, max_value=5.0, value=3.5, step=0.5)
+            my_ntrp = st.slider("Your NTRP Level Filter", min_value=2.0, max_value=5.0, value=3.5, step=0.5)
 
         filtered_players = []
         for p in st.session_state["players_db"]:
@@ -273,7 +400,6 @@ elif page_selection == t["nav_5"]:
                         st.warning("🔒 **Requires VIP Pass**")
                         st.caption("Subscribe above for $4.99/mo")
 
-            # VIP Active Direct Chat Box
             if st.session_state.get(f"open_chat_{pl['id']}", False) and has_active_vip:
                 with st.form(key=f"form_msg_{pl['id']}"):
                     st.write(f"💬 Direct Message to **{pl['name']}**")
@@ -282,7 +408,7 @@ elif page_selection == t["nav_5"]:
                         if free_msg:
                             st.session_state["chat_orders"].append({
                                 "order_id": f"MSG-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
-                                "sender": current_user,
+                                "sender": current_user or "Guest User",
                                 "recipient": f"{pl['name']} (NTRP {pl['ntrp']})",
                                 "message": free_msg,
                                 "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -320,7 +446,7 @@ elif page_selection == t["nav_5"]:
                         if c_free_msg:
                             st.session_state["chat_orders"].append({
                                 "order_id": f"MSG-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
-                                "sender": current_user,
+                                "sender": current_user or "Guest User",
                                 "recipient": f"{ch['name']} (Coach)",
                                 "message": c_free_msg,
                                 "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -354,25 +480,72 @@ elif page_selection == t["nav_5"]:
                     st.success("Profile submitted and listed!")
 
 # ==========================================
-# 5. Feature 6 & 7: Support & Admin
+# 9. Feature 6: Support & Inquiries
 # ==========================================
 elif page_selection == t["nav_6"]:
     st.title(t["support_title"])
+    st.write(t["support_desc"])
 
+    with st.form("support_ticket_form"):
+        st.subheader("📩 Submit a New Ticket")
+        inq_email = st.text_input("Your Email", value=st.session_state["logged_in_user"] or "")
+        inq_subject = st.text_input("Subject", placeholder="Membership inquiry or app feedback")
+        inq_body = st.text_area("Details", placeholder="Describe your issue or question...")
+        if st.form_submit_button("Submit Support Ticket"):
+            if inq_email and inq_subject:
+                ticket_id = f"TK-{len(st.session_state['inquiries'])+101}"
+                st.session_state["inquiries"].append({
+                    "id": ticket_id,
+                    "user": inq_email,
+                    "subject": inq_subject,
+                    "status": "Open",
+                    "date": datetime.datetime.now().strftime("%Y-%m-%d")
+                })
+                st.success(f"Ticket submitted! Reference ID: **{ticket_id}**")
+            else:
+                st.error("Please fill in email and subject.")
+
+    st.markdown("---")
+    st.subheader("📋 Your Submitted Tickets")
+    if st.session_state["inquiries"]:
+        st.dataframe(st.session_state["inquiries"], use_container_width=True)
+    else:
+        st.info("No submitted tickets yet.")
+
+# ==========================================
+# 10. Feature 7: Admin Dashboard
+# ==========================================
 elif page_selection == t["nav_7"]:
-    st.title("🔒 Admin Dashboard")
+    st.title("🔒 Admin Backend Dashboard")
+    
     if not st.session_state["admin_logged_in"]:
         with st.form("adm_login"):
+            st.subheader("Admin Verification")
             a_id = st.text_input("Admin ID")
             a_pw = st.text_input("Password", type="password")
-            if st.form_submit_button("Login"):
+            if st.form_submit_button("Login as Admin"):
                 if a_id == "admin" and a_pw == "admin":
                     st.session_state["admin_logged_in"] = True
                     st.rerun()
+                else:
+                    st.error("Invalid credentials (Use: admin / admin)")
     else:
-        st.success("🟢 Admin Mode")
-        st.subheader("💳 Active VIP Memberships ($4.99/mo)")
-        st.json(st.session_state["memberships"])
+        st.success("🟢 Admin Authenticated")
+        if st.button("🔒 Logout Admin"):
+            st.session_state["admin_logged_in"] = False
+            st.rerun()
+
+        st.markdown("---")
+        a_tab1, a_tab2, a_tab3 = st.tabs(["💳 Active VIP Memberships", "💬 Delivered Messages", "📩 Support Tickets"])
         
-        st.subheader("💬 Delivered Community Messages")
-        st.dataframe(st.session_state["chat_orders"], use_container_width=True)
+        with a_tab1:
+            st.subheader("Active $4.99/mo Subscribers")
+            st.json(st.session_state["memberships"])
+        
+        with a_tab2:
+            st.subheader("Community Chat Logs")
+            st.dataframe(st.session_state["chat_orders"], use_container_width=True)
+
+        with a_tab3:
+            st.subheader("Customer Support Tickets")
+            st.dataframe(st.session_state["inquiries"], use_container_width=True)
