@@ -3,15 +3,15 @@ import datetime
 import time
 
 # ==========================================
-# 1. Page Configuration
+# 1. Page Configuration & Initial State
 # ==========================================
 st.set_page_config(
-    page_title="ServeAI - Global Tennis Portal",
+    page_title="ServeAI - Global Tennis & Real Estate Portal",
     page_icon="🎾",
     layout="wide"
 )
 
-# Initialize Session State
+# Session State Initialization
 if "users" not in st.session_state:
     st.session_state["users"] = {"admin@serveai.com": "password123"}
 if "logged_in_user" not in st.session_state:
@@ -19,27 +19,38 @@ if "logged_in_user" not in st.session_state:
 if "admin_logged_in" not in st.session_state:
     st.session_state["admin_logged_in"] = False
 
-# Global Databases
+# Backend Databases
 if "inquiries" not in st.session_state:
     st.session_state["inquiries"] = [
         {
-            "title": "Room-share matching for international players",
+            "title": "Room-share matching inquiry",
             "type": "Tournament & Accommodation",
-            "content": "Will players of the same gender and similar NTRP be matched?",
+            "content": "Will players of the same gender and similar NTRP be paired?",
             "user": "alex@globaltennis.com",
             "time": "2026-07-28 14:20",
-            "reply": "Yes! Same gender and similar NTRP levels are automatically paired."
+            "reply": "Yes! Same gender and similar NTRP ratings are matched together."
         }
     ]
 
 if "match_orders" not in st.session_state:
     st.session_state["match_orders"] = []
 
-if "investment_inquiries" not in st.session_state:
-    st.session_state["investment_inquiries"] = []
+if "estate_orders" not in st.session_state:
+    st.session_state["estate_orders"] = [
+        {
+            "order_id": "EST-20260729-01",
+            "property": "Gangnam Teheran-ro Indoor Tennis Academy",
+            "buyer_name": "David Miller",
+            "phone": "+1-212-555-0199",
+            "option": "Reservation Deposit ($15,000)",
+            "amount": "$15,000 USD",
+            "card": "4000-****-****-9876",
+            "time": "2026-07-29 11:30"
+        }
+    ]
 
 # ==========================================
-# 2. Sidebar: Language Switcher & Authentication
+# 2. Language Switcher & Localization
 # ==========================================
 st.sidebar.title("🎾 ServeAI Global")
 
@@ -48,16 +59,16 @@ lang = st.sidebar.selectbox("🌐 Language / 언어", ["English", "한국어"])
 
 st.sidebar.markdown("---")
 
-# Dictionary for Multi-language UI Strings
+# UI String Translations
 t = {
     "English": {
         "nav_title": "📌 Navigation",
         "nav_1": "⚡ AI Serve Speed Analysis",
-        "nav_2": "🎾 AI Tennis Gear Recommender",
-        "nav_3": "🏆 Tournaments & Accommodation",
-        "nav_4": "🏢 Tennis Real Estate & Investment",
+        "nav_2": "🎾 AI Racket & Tension Calculator",
+        "nav_3": "🏆 Tournaments & Accommodation Subpage",
+        "nav_4": "🏢 Tennis Real Estate Subpage & Orders",
         "nav_5": "💬 Support & Inquiries",
-        "nav_6": "🔒 Admin Dashboard",
+        "nav_6": "🔒 Admin / Backend Dashboard",
         "login_sub": "👤 User Account",
         "login_tab": "Login",
         "reg_tab": "Register",
@@ -68,36 +79,18 @@ t = {
         "welcome": "Welcome",
         "err_login": "Invalid email or password.",
         "reg_success": "Registration complete! Please log in.",
-        "speed_title": "⚡ AI Computer Vision Serve Speed Analysis",
-        "speed_desc": "Upload a serve video to analyze trajectory, impact height, and peak speed (km/h).",
-        "upload_lbl": "Upload Serve Video (MP4, MOV)",
-        "btn_analyze": "🚀 Run AI Analysis",
-        "speed_peak": "Peak Speed",
-        "speed_height": "Impact Height",
-        "speed_rpm": "Spin Rate",
-        "tourney_title": "🏆 Global Tennis Tournaments & Booking",
-        "tourney_desc": "Browse international and domestic tournaments, register, and book player room-share packages.",
-        "back_btn": "⬅️ Back to List",
-        "player_info": "1️⃣ Player Information",
-        "name_lbl": "Full Name",
-        "phone_lbl": "Phone Number",
-        "pkg_lbl": "Select Package",
-        "pay_sec": "2️⃣ Online Checkout",
-        "total_pay": "Total Amount",
-        "card_lbl": "Credit Card Number",
-        "btn_pay": "🚀 Pay & Register Now",
-        "pay_ok": "🎉 Registration & Payment Successful! Recorded in admin database.",
-        "estate_title": "🏢 Global Tennis Real Estate & Overseas Academy Investments",
-        "estate_desc": "Discover court leases, facility acquisitions, and international tennis academy equity shares.",
-        "inq_title": "💬 Customer Support & Inquiries",
-        "admin_title": "🔒 Admin Dashboard",
+        "back_btn": "⬅️ Back to Property List",
+        "estate_title": "🏢 Tennis Real Estate & Academy Investment Subpage",
+        "estate_desc": "Browse indoor court deals, submit purchase/lease orders, and place online reservation deposits.",
+        "calc_title": "🎾 AI Tennis NTRP, Serve Speed & Optimal Tension Calculator",
+        "calc_desc": "Calculates your optimal string tension (lbs) based on your NTRP level, current tension, and measured AI serve speed.",
     },
     "한국어": {
         "nav_title": "📌 메뉴 선택",
         "nav_1": "⚡ AI 서브 속도 분석",
-        "nav_2": "🎾 AI 테니스 용구 추천",
-        "nav_3": "🏆 테니스 대회 & 숙박 예약",
-        "nav_4": "🏢 테니스 부동산 & 해외 투자",
+        "nav_2": "🎾 AI 라켓 & 텐션 추천 계산기",
+        "nav_3": "🏆 테니스 대회 & 숙박 서브페이지",
+        "nav_4": "🏢 테니스 부동산 & 투자 서브페이지",
         "nav_5": "💬 고객 지원 & 문의",
         "nav_6": "🔒 백엔드 관리자 대시보드",
         "login_sub": "👤 회원 계정",
@@ -110,33 +103,15 @@ t = {
         "welcome": "환영합니다",
         "err_login": "이메일 또는 비밀번호가 올바르지 않습니다.",
         "reg_success": "가입 완료! 로그인해 주세요.",
-        "speed_title": "⚡ AI 컴퓨터 비전 서브 속도 분석",
-        "speed_desc": "서브 동영상을 업로드하면 AI가 최고 속도(km/h)와 궤적을 분석합니다.",
-        "upload_lbl": "서브 분석용 영상 업로드 (MP4, MOV)",
-        "btn_analyze": "🚀 AI 속도 분석 시작",
-        "speed_peak": "최고 속도",
-        "speed_height": "임팩트 타점 높이",
-        "speed_rpm": "볼 회전수",
-        "tourney_title": "🏆 국내외 테니스 대회 & 숙박 예약 포털",
-        "tourney_desc": "해외 원정 및 국내 대회 참가 신청과 선수 전용 룸셰어 패키지 결제 서비스를 제공합니다.",
-        "back_btn": "⬅️ 전체 목록으로 돌아가기",
-        "player_info": "1️⃣ 참가자 정보 입력",
-        "name_lbl": "선수 성명",
-        "phone_lbl": "연락처",
-        "pkg_lbl": "신청 상품 선택",
-        "pay_sec": "2️⃣ 온라인 결제",
-        "total_pay": "최종 결제 금액",
-        "card_lbl": "신용카드 번호",
-        "btn_pay": "🚀 결제 및 참가 신청",
-        "pay_ok": "🎉 결제 완료! 관리자 대시보드에 정상 등록되었습니다.",
-        "estate_title": "🏢 테니스 부동산 & 해외 아카데미 지분 투자",
-        "estate_desc": "국내외 테니스장 매매, 임대 및 글로벌 프랜차이즈 지분 투자 기회를 확인하세요.",
-        "inq_title": "💬 고객 센터 & 1:1 문의",
-        "admin_title": "🔒 백엔드 관리자 대시보드",
+        "back_btn": "⬅️ 전체 부동산 목록으로 돌아가기",
+        "estate_title": "🏢 테니스 부동산 & 해외 아카데미 매매/임대 서브페이지",
+        "estate_desc": "실내외 코트 매물 및 지분 투자 목록을 확인하고, 예약금 결제 및 상담 주문을 진행하세요.",
+        "calc_title": "🎾 AI 테니스 NTRP / 서브 속도 기반 최적 텐션 계산기",
+        "calc_desc": "NTRP 레벨, 현재 사용 중인 텐션(모름 포함), AI 측정 서브 속도를 바탕으로 최적의 텐션(lbs)을 정밀 계산합니다.",
     }
 }[lang]
 
-# Login Section
+# Login / Registration Block
 if st.session_state["logged_in_user"] is None:
     st.sidebar.subheader(t["login_sub"])
     auth_mode = st.sidebar.radio("Action", [t["login_tab"], t["reg_tab"]], horizontal=True)
@@ -168,7 +143,7 @@ else:
 
 st.sidebar.markdown("---")
 
-# Dynamic Navigation Options
+# Navigation Routing
 nav_options = [
     t["nav_1"],
     t["nav_2"],
@@ -177,173 +152,296 @@ nav_options = [
     t["nav_5"],
     t["nav_6"]
 ]
-
 page_selection = st.sidebar.radio(t["nav_title"], nav_options)
 
-# Localized Tournament Product Database
-tournament_products = {
-    "match1": {
-        "season": "2026 Season #1",
-        "title_en": "2026 Seoul International Amateur Tennis Open",
-        "title_kr": "2026 서울 국제 아마추어 테니스 오픈",
-        "date_en": "August 15, 2026 - August 16, 2026",
-        "date_kr": "2026년 8월 15일 ~ 8월 16일",
-        "location_en": "Seoul Olympic Park Tennis Center",
-        "location_kr": "서울 올림픽공원 테니스장",
-        "desc_en": "Includes entry qualification, live AI speed tracking, and foreign athlete hotel room-sharing.",
-        "desc_kr": "대회 참가 자격, 현장 AI 서브 측정 및 외국인/원정 선수 전용 호텔 룸셰어 제공.",
-        "price_single": "$45 USD (₩60,000)",
-        "price_pkg": "$160 USD (₩210,000)",
-        "badge": "🟢 OPEN"
+# Real Estate & Investment Database
+real_estate_products = {
+    "estate1": {
+        "title_en": "Gangnam Teheran-ro Indoor Tennis Academy",
+        "title_kr": "강남 테헤란로 실내 테니스 아카데미",
+        "location_en": "Gangnam-gu, Seoul, South Korea",
+        "location_kr": "서울시 강남구 역삼동",
+        "size_en": "720 sqm (3 Indoor Courts + Full Amenity Shower Rooms)",
+        "size_kr": "전용 220평 (코트 3면 + 풀옵션 샤워실)",
+        "desc_en": "Monthly revenue of $35,000. Equiped with ServeAI speed cameras and 300 active members.",
+        "desc_kr": "월 매출 4,500만원 입증 완료. AI 서브 측정 장비 및 회원 300명 양도 포함.",
+        "price_deposit_usd": "$15,000 (₩20,000,000)",
+        "price_full_usd": "$650,000 (₩850,000,000)",
+        "badge": "🔥 Featured Deal"
     },
-    "match2": {
-        "season": "2026 Season #2",
-        "title_en": "2026 Tokyo-Jeju Global Amateur Exchange Cup",
-        "title_kr": "2026 도쿄-제주 글로벌 아마추어 교류전",
-        "date_en": "September 12, 2026 - September 13, 2026",
-        "date_kr": "2026년 9월 12일 ~ 9월 13일",
-        "location_en": "Jeju Seogwipo International Tennis Court",
-        "location_kr": "제주 서귀포 국제 테니스장",
-        "desc_en": "Jeju away tournament! Entry fee, ocean-view hotel room share, and ServeAI analysis included.",
-        "desc_kr": "제주 원정 테니스 대회! 참가비, 오션뷰 호텔 2인 룸셰어 숙박 및 ServeAI 진단 서비스 포함.",
-        "price_single": "$50 USD (₩68,000)",
-        "price_pkg": "$210 USD (₩280,000)",
-        "badge": "🟢 OPEN"
+    "estate2": {
+        "title_en": "Bundang Jeongja-dong Modern Indoor Facility Lease",
+        "title_kr": "분당 정자동 최신식 실내 테니스장 롱텀 임대",
+        "location_en": "Bundang-gu, Seongnam, South Korea",
+        "location_kr": "경기도 성남시 분당구 정자동",
+        "size_en": "500 sqm (2 Indoor Courts, 8m High Ceiling)",
+        "size_kr": "전용 150평 (실내 2면, 높은 층고 8m)",
+        "desc_en": "Parking for 50 cars. Soundproofed structure. Ready for immediate academy operation.",
+        "desc_kr": "주차 50대 가능. 층간소음 방지 설계 완료. 즉시 아카데미 영업 가능.",
+        "price_deposit_usd": "$7,500 (₩10,000,000)",
+        "price_full_usd": "$75,000 (₩100,000,000)",
+        "badge": "🟢 Available"
+    },
+    "estate3": {
+        "title_en": "ServeAI Branch #2 'Incheon Songdo Tennis Park' Equity Share",
+        "title_kr": "ServeAI 2호점 '인천 송도 테니스 파크' 프랜차이즈 지분 투자",
+        "location_en": "Songdo-dong, Incheon, South Korea",
+        "location_kr": "인천 연수구 송도동",
+        "size_en": "4 Outdoor Courts + 2 Indoor Courts Major Complex",
+        "size_kr": "야외 4면 + 실내 2면 대형 클럽",
+        "desc_en": "Tennis academy venture equipped with ServeAI computer vision tech. Share investment per slot.",
+        "desc_kr": "ServeAI 기술이 탑재된 테니스 전문 학교 설립 사업. 최소 1 구좌부터 지분 참여 가능.",
+        "price_deposit_usd": "$2,500 (₩3,300,000)",
+        "price_full_usd": "$25,000 (₩33,000,000)",
+        "badge": "💎 Equity Share"
     }
 }
 
+# Dynamic URL Params Routing
 query_params = st.query_params
-selected_tournament = query_params.get("item", None)
+selected_estate = query_params.get("estate", None)
 
 # ==========================================
-# 3. Feature 1: AI Speed Analysis
+# 3. Feature 1: AI Serve Speed Analysis
 # ==========================================
 if page_selection == t["nav_1"]:
-    st.title(t["speed_title"])
-    st.write(t["speed_desc"])
+    st.title(t["nav_1"])
+    st.write("Upload a tennis serve video to calculate velocity trajectory and impact point.")
     
-    uploaded_file = st.file_uploader(t["upload_lbl"], type=["mp4", "mov", "avi"])
-    
+    uploaded_file = st.file_uploader("Upload Video (MP4, MOV)", type=["mp4", "mov", "avi"])
     if uploaded_file is not None:
         st.video(uploaded_file)
-        if st.button(t["btn_analyze"]):
-            with st.spinner("🔍 Tracking trajectory & speed..."):
-                time.sleep(1.5)
-            
+        if st.button("🚀 Run AI Analysis"):
+            with st.spinner("🔍 Tracking serve trajectory & calculating speed..."):
+                time.sleep(1.2)
             st.balloons()
-            st.success("Complete!")
-            
+            st.success("Analysis Complete!")
             col1, col2, col3 = st.columns(3)
-            col1.metric(t["speed_peak"], "184 km/h", "+12 km/h")
-            col2.metric(t["speed_height"], "2.78 m", "Optimal")
-            col3.metric(t["speed_rpm"], "2,450 RPM", "Good Spin")
-
-            st.line_chart([20, 60, 110, 155, 184, 160, 120, 40])
+            col1.metric("Peak Speed", "184 km/h", "+12 km/h")
+            col2.metric("Impact Height", "2.78 m", "Optimal")
+            col3.metric("Spin Rate", "2,450 RPM", "Topspin")
 
 # ==========================================
-# 4. Feature 3: Tournament & Booking Sub-Page
+# 4. Feature 2: AI Racket & Tension Calculator
 # ==========================================
-elif page_selection == t["nav_3"]:
-    if selected_tournament in tournament_products:
-        item = tournament_products[selected_tournament]
+elif page_selection == t["nav_2"]:
+    st.title(t["calc_title"])
+    st.write(t["calc_desc"])
+    
+    st.markdown("---")
+    
+    col_in1, col_in2, col_in3 = st.columns(3)
+    
+    with col_in1:
+        ntrp = st.select_slider(
+            "1️⃣ Player NTRP Level (NTRP 레벨)",
+            options=["2.0", "2.5", "3.0", "3.5", "4.0", "4.5", "5.0+"]
+        )
+    
+    with col_in2:
+        current_tension_opt = st.selectbox(
+            "2️⃣ Current String Tension (현재 사용 텐션)",
+            [
+                "Unknown / Don't Know (모름 / 정보없음)",
+                "Low (40 - 45 lbs)",
+                "Medium (46 - 52 lbs)",
+                "High (53 - 58 lbs)"
+            ]
+        )
+    
+    with col_in3:
+        serve_speed = st.number_input(
+            "3️⃣ Measured AI Serve Speed (AI 측정 서브 속도 km/h)",
+            min_value=60,
+            max_value=250,
+            value=145,
+            step=5
+        )
+
+    if st.button("🎯 Calculate Optimal Tension (최적 텐션 산출)"):
+        # Optimal Tension Calculation Algorithm
+        base_tension = 48.0
+        
+        # NTRP Adjustment
+        ntrp_val = float(ntrp.replace("+", ""))
+        ntrp_adj = (ntrp_val - 3.0) * 1.5
+        
+        # Speed Adjustment
+        speed_adj = (serve_speed - 130) * 0.1
+        
+        # Current Tension Adjustment
+        tension_adj = 0.0
+        if "Low" in current_tension_opt:
+            tension_adj = -2.0
+        elif "High" in current_tension_opt:
+            tension_adj = 2.0
+            
+        rec_main = round(base_tension + ntrp_adj + speed_adj + tension_adj)
+        rec_cross = rec_main - 2  # 2 lbs lower for cross strings by default
+        
+        st.markdown("---")
+        st.subheader("💡 AI Optimal String Tension Report (최적 텐션 산출 리포트)")
+        
+        res_col1, res_col2 = st.columns([1, 1])
+        with res_col1:
+            st.metric("Recommended Main Tension (메인 텐션)", f"{rec_main} lbs")
+            st.metric("Recommended Cross Tension (크로스 텐션)", f"{rec_cross} lbs")
+            
+        with res_col2:
+            st.info(f"""
+            **Diagnostic Summary (진단요약)**:
+            • **NTRP**: {ntrp}  
+            • **Measured Serve Speed**: {serve_speed} km/h  
+            • **Previous Tension**: {current_tension_opt.split('(')[0]}  
+            
+            **Recommendation Note**:
+            A main tension of **{rec_main} lbs** combined with a cross tension of **{rec_cross} lbs** provides optimal control without over-stressing your elbow joint at your current serve velocity.
+            """)
+
+# ==========================================
+# 5. Feature 4: Real Estate & Investment Subpage with Checkout
+# ==========================================
+elif page_selection == t["nav_4"]:
+    if selected_estate in real_estate_products:
+        est = real_estate_products[selected_estate]
         if st.button(t["back_btn"]):
             st.query_params.clear()
             st.rerun()
 
-        title_curr = item["title_en"] if lang == "English" else item["title_kr"]
-        date_curr = item["date_en"] if lang == "English" else item["date_kr"]
-        loc_curr = item["location_en"] if lang == "English" else item["location_kr"]
-        desc_curr = item["desc_en"] if lang == "English" else item["desc_kr"]
+        title_curr = est["title_en"] if lang == "English" else est["title_kr"]
+        loc_curr = est["location_en"] if lang == "English" else est["location_kr"]
+        size_curr = est["size_en"] if lang == "English" else est["size_kr"]
+        desc_curr = est["desc_en"] if lang == "English" else est["desc_kr"]
 
-        st.markdown(f"## 🏆 {item['season']}: {title_curr}")
-        st.info(f"📅 **Date**: {date_curr} | 📍 **Location**: {loc_curr}")
+        st.markdown(f"## 🏢 [{est['badge']}] {title_curr}")
+        st.info(f"📍 **Location**: {loc_curr} | 📐 **Size**: {size_curr}")
         st.write(desc_curr)
         
         col_info, col_pay = st.columns([1, 1])
         with col_info:
-            st.subheader(t["player_info"])
-            p_name = st.text_input(t["name_lbl"])
-            p_phone = st.text_input(t["phone_lbl"])
-            pkg_opt = st.radio(t["pkg_lbl"], ["Entry Only Pass", "Entry + Hotel Room-Share Package"])
+            st.subheader("1️⃣ Buyer / Investor Contact Details")
+            b_name = st.text_input("Full Name (성명)", placeholder="John Doe / 홍길동")
+            b_phone = st.text_input("Phone Number (연락처)", placeholder="+1 234 567 8900 / 010-1234-5678")
+            b_email = st.text_input("Email (이메일)", placeholder="investor@domain.com")
+            
+            pay_option = st.radio(
+                "Select Transaction Option (결제/주문 옵션 선택)",
+                [
+                    "Option A: Hold Deposit Only (예약 보증금 결제)",
+                    "Option B: Full Acquisition / Rent Contract Booking (전액 매수/계약 주문)"
+                ]
+            )
 
         with col_pay:
-            st.subheader(t["pay_sec"])
-            amt = item["price_single"] if "Only" in pkg_opt else item["price_pkg"]
-            st.metric(t["total_pay"], amt)
+            st.subheader("2️⃣ Real Estate Order & Payment Checkout")
+            
+            amt_display = est["price_deposit_usd"] if "Option A" in pay_option else est["price_full_usd"]
+            st.metric("Total Order / Checkout Amount", amt_display)
 
-            with st.form("pay_form"):
-                card_num = st.text_input(t["card_lbl"])
-                submit_pay = st.form_submit_button(t["btn_pay"])
+            with st.form("estate_checkout_form"):
+                card_num = st.text_input("Credit Card Number (카드번호)", placeholder="4000-1234-5678-9010")
+                inq_notes = st.text_area("Inquiry Notes / Requested On-site Tour Date")
+                submit_est_order = st.form_submit_button("🚀 Submit Order & Pay Reservation")
 
-            if submit_pay:
-                if p_name and p_phone and card_num:
-                    new_ord_id = f"ORD-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
-                    st.session_state["match_orders"].append({
+            if submit_est_order:
+                if b_name and b_phone and card_num:
+                    new_ord_id = f"EST-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
+                    
+                    # Store order into session state for Backend Management
+                    st.session_state["estate_orders"].append({
                         "order_id": new_ord_id,
-                        "event": title_curr,
-                        "name": p_name,
-                        "phone": p_phone,
-                        "package": pkg_opt,
-                        "amount": amt,
+                        "property": title_curr,
+                        "buyer_name": b_name,
+                        "phone": b_phone,
+                        "email": b_email,
+                        "option": pay_option,
+                        "amount": amt_display,
                         "card": card_num,
+                        "notes": inq_notes,
                         "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
                     })
                     st.balloons()
-                    st.success(t["pay_ok"])
+                    st.success("🎉 Property Order & Reservation Payment Submitted! Order recorded in Backend Management.")
                 else:
-                    st.error("Please fill in all required fields.")
+                    st.error("⚠️ Please fill in all required fields (Name, Phone, Card Number).")
+
     else:
-        st.title(t["tourney_title"])
-        st.write(t["tourney_desc"])
+        st.title(t["estate_title"])
+        st.write(t["estate_desc"])
         st.markdown("---")
 
-        for key, item in tournament_products.items():
-            title_curr = item["title_en"] if lang == "English" else item["title_kr"]
-            date_curr = item["date_en"] if lang == "English" else item["date_kr"]
-            loc_curr = item["location_en"] if lang == "English" else item["location_kr"]
-            desc_curr = item["desc_en"] if lang == "English" else item["desc_kr"]
+        for key, est in real_estate_products.items():
+            title_curr = est["title_en"] if lang == "English" else est["title_kr"]
+            loc_curr = est["location_en"] if lang == "English" else est["location_kr"]
+            size_curr = est["size_en"] if lang == "English" else est["size_kr"]
+            desc_curr = est["desc_en"] if lang == "English" else est["desc_kr"]
 
             with st.container(border=True):
                 c_left, c_right = st.columns([3, 1])
                 with c_left:
-                    st.subheader(f"{item['season']}: {title_curr}")
-                    st.write(f"📅 {date_curr} | 📍 {loc_curr}")
+                    st.subheader(f"[{est['badge']}] {title_curr}")
+                    st.write(f"📍 {loc_curr} | 📐 {size_curr}")
+                    st.write(f"💰 **Deposit**: {est['price_deposit_usd']} | **Full Value**: {est['price_full_usd']}")
                     st.caption(desc_curr)
                 with c_right:
-                    if st.button(f"👉 Select {item['season']}", key=f"tourn_{key}"):
-                        st.query_params["item"] = key
+                    if st.button("🔎 Details & Order Checkout", key=f"est_sub_{key}"):
+                        st.query_params["estate"] = key
                         st.rerun()
 
 # ==========================================
-# 5. Feature 6: Admin Dashboard
+# 6. Feature 6: Admin Dashboard Synchronization
 # ==========================================
 elif page_selection == t["nav_6"]:
-    st.title(t["admin_title"])
+    st.title("🔒 Admin / Backend Dashboard")
 
     if not st.session_state["admin_logged_in"]:
-        with st.form("admin_login"):
+        st.warning("⚠️ Admin credentials required.")
+        with st.form("admin_login_form"):
             admin_id = st.text_input("Admin ID", placeholder="admin")
             admin_pw = st.text_input("Password", type="password", placeholder="admin")
-            if st.form_submit_button("Login to Dashboard"):
+            if st.form_submit_button("Unlock Dashboard"):
                 if admin_id == "admin" and admin_pw == "admin":
                     st.session_state["admin_logged_in"] = True
+                    st.success("Authenticated!")
                     st.rerun()
                 else:
                     st.error("Invalid credentials (admin/admin)")
     else:
-        st.success("🟢 Authenticated as Admin")
-        if st.button("Logout Admin"):
-            st.session_state["admin_logged_in"] = False
-            st.rerun()
+        col_t, col_l = st.columns([4, 1])
+        with col_t:
+            st.success("🟢 Authenticated as Backend Administrator")
+        with col_l:
+            if st.button("Logout"):
+                st.session_state["admin_logged_in"] = False
+                st.rerun()
 
         st.markdown("---")
-        st.subheader("💳 Registered Orders Database")
-        st.dataframe(st.session_state["match_orders"], use_container_width=True)
         
-        st.subheader("📩 Messages & Support Requests")
-        st.dataframe(st.session_state["inquiries"], use_container_width=True)
+        tab1, tab2, tab3 = st.tabs([
+            "🏢 Real Estate Purchase Orders & Payments",
+            "🏆 Tournament Orders",
+            "📩 Message Support Inbox"
+        ])
 
-# Placeholder fallback for remaining nav items
+        with tab1:
+            st.subheader("🏢 Tennis Real Estate Order Database (실시간 부동산 결제/주문 내역)")
+            if len(st.session_state["estate_orders"]) == 0:
+                st.info("No real estate orders submitted yet.")
+            else:
+                st.dataframe(st.session_state["estate_orders"], use_container_width=True)
+
+        with tab2:
+            st.subheader("🏆 Tournament Orders Database")
+            if len(st.session_state["match_orders"]) == 0:
+                st.info("No tournament orders submitted yet.")
+            else:
+                st.dataframe(st.session_state["match_orders"], use_container_width=True)
+
+        with tab3:
+            st.subheader("📩 Messages & Support Requests")
+            st.dataframe(st.session_state["inquiries"], use_container_width=True)
+
+# Navigation Fallback
 else:
     st.title(page_selection)
-    st.info("Feature active. Selected language: " + lang)
+    st.info("Feature active.")
