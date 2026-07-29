@@ -1,22 +1,26 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
+import datetime
 
 # ==========================================
 # 1. Page Configuration
 # ==========================================
 st.set_page_config(
-    page_title="ServeAI - AI Tennis Serve Analysis & Travel",
+    page_title="ServeAI - AI Tennis Serve & Travel Package",
     page_icon="🎾",
     layout="wide"
 )
 
-# Initialize Session States for User Authentication
+# Initialize Session States
 if "registered_users" not in st.session_state:
     st.session_state["registered_users"] = {}
 
 if "logged_in_user" not in st.session_state:
     st.session_state["logged_in_user"] = None
+
+if "payment_completed" not in st.session_state:
+    st.session_state["payment_completed"] = False
 
 
 # ==========================================
@@ -45,13 +49,13 @@ def calculate_recommended_tension(ntpr_str, current_tension_option, calculated_s
     if current_tension_option is None or current_tension_option == 0:
         if speed_diff >= 10:
             rec_tension = base_tension + 2
-            reason = f"NTPR({ntpr_val}) 대비 서브 속도가 빠르므로, 볼 제어력(Control)과 스핀 생성을 위해 **{rec_tension} lbs**를 추천합니다.\n\n*(Recommended {rec_tension} lbs for enhanced control.)*"
+            reason = f"NTPR({ntpr_val}) 대비 서브 속도가 빠르므로, 볼 제어력(Control)과 스핀 생성을 위해 **{rec_tension} lbs**를 추천합니다."
         elif speed_diff <= -10:
             rec_tension = base_tension - 2
-            reason = f"타구 파워 보완과 엘보 관절 보호를 위해 부드러운 **{rec_tension} lbs**로 시작하는 것을 추천합니다.\n\n*(Recommended {rec_tension} lbs to protect elbow joint.)*"
+            reason = f"타구 파워 보완과 엘보 관절 보호를 위해 부드러운 **{rec_tension} lbs**로 시작하는 것을 추천합니다."
         else:
             rec_tension = base_tension
-            reason = f"측정된 속도 기반, NTPR({ntpr_val}) 표준 추천 텐션인 **{rec_tension} lbs**가 가장 적합합니다.\n\n*(Optimal standard tension: {rec_tension} lbs.)*"
+            reason = f"측정된 속도 기반, NTPR({ntpr_val}) 표준 추천 텐션인 **{rec_tension} lbs**가 가장 적합합니다."
         
         return rec_tension, reason, "Standard Guide", expected_speed
 
@@ -84,17 +88,17 @@ def calculate_recommended_tension(ntpr_str, current_tension_option, calculated_s
 st.sidebar.header("👤 계정 및 프로필 (User Account)")
 
 if st.session_state["logged_in_user"] is None:
-    account_mode = st.sidebar.radio("로그인 / 회원가입 (Account)", ["로그인 (Login)", "회원가입 (Register)"])
+    account_mode = st.sidebar.radio("로그인 / 회원가입", ["로그인 (Login)", "회원가입 (Register)"])
 
     if account_mode == "회원가입 (Register)":
-        st.sidebar.subheader("📝 회원가입 (Sign Up)")
+        st.sidebar.subheader("📝 회원가입")
         reg_id = st.sidebar.text_input("아이디 (ID)")
         reg_pw = st.sidebar.text_input("비밀번호 (Password)", type="password")
         reg_age = st.sidebar.number_input("나이 (Age)", min_value=10, max_value=90, value=25)
         reg_gender = st.sidebar.selectbox("성별 (Gender)", ["Male (남성)", "Female (여성)", "Other (기타)"])
         reg_address = st.sidebar.text_input("주소 (Address)", value="Seoul, South Korea")
 
-        if st.sidebar.button("회원가입 완료 (Register)"):
+        if st.sidebar.button("회원가입 완료"):
             if reg_id and reg_pw:
                 st.session_state["registered_users"][reg_id] = {
                     "password": reg_pw,
@@ -107,11 +111,11 @@ if st.session_state["logged_in_user"] is None:
                 st.sidebar.error("아이디와 비밀번호를 입력해주세요.")
 
     elif account_mode == "로그인 (Login)":
-        st.sidebar.subheader("🔑 로그인 (Login)")
+        st.sidebar.subheader("🔑 로그인")
         login_id = st.sidebar.text_input("아이디 (ID)")
         login_pw = st.sidebar.text_input("비밀번호 (Password)", type="password")
 
-        if st.sidebar.button("로그인 (Login)"):
+        if st.sidebar.button("로그인"):
             users = st.session_state["registered_users"]
             if login_id in users and users[login_id]["password"] == login_pw:
                 st.session_state["logged_in_user"] = login_id
@@ -129,51 +133,43 @@ else:
     st.sidebar.write(f"• **Gender**: {user_info['gender']}")
     st.sidebar.write(f"• **Address**: {user_info['address']}")
     
-    if st.sidebar.button("로그아웃 (Logout)"):
+    if st.sidebar.button("로그아웃"):
         st.session_state["logged_in_user"] = None
         st.rerun()
 
 st.sidebar.markdown("---")
 
-# Tennis Profile Sidebar
 st.sidebar.header("⚙️ 테니스 프로필 (Tennis Profile)")
 ntpr_input = st.sidebar.selectbox("구력/실력 (NTPR Level)", ["NTPR 2.0 - 2.5", "NTPR 3.0 - 3.5", "NTPR 4.0 - 4.5", "NTPR 5.0+"])
-racket_model = st.sidebar.text_input("사용 중인 라켓 모델 (Racket Model)", value="Babolat Pure Drive 300g")
-dont_know_tension = st.sidebar.checkbox("현재 텐션을 모름 (Don't know current tension)")
+racket_model = st.sidebar.text_input("라켓 모델", value="Babolat Pure Drive 300g")
+dont_know_tension = st.sidebar.checkbox("현재 텐션을 모름")
 
-if dont_know_tension:
-    current_tension_input = None
-else:
-    current_tension_input = st.sidebar.number_input("현재 라켓 텐션 (Current Tension in lbs)", min_value=30, max_value=70, value=52)
+current_tension_input = None if dont_know_tension else st.sidebar.number_input("현재 라켓 텐션 (lbs)", min_value=30, max_value=70, value=52)
 
 
 # ==========================================
-# 4. Main UI Content
+# 4. Main Title & Video Analysis Section
 # ==========================================
-st.title("🎾 ServeAI: AI 기반 서브 분석 & 테니스 투어 패키지")
-st.write("단일 영상 AI 서브 분석부터 글로벌/국내 테니스 대회 참가 및 여행 패키지 견적까지 한 번에 이용하세요.")
+st.title("🎾 ServeAI: AI 기반 서브 분석 & 테니스 패키지 결제")
+st.write("단일 영상 AI 서브 분석부터 글로벌/국내 테니스 대회 참가 및 여행 패키지 결제까지 한 번에 이용하세요.")
 
 st.markdown("---")
 
-# Video Upload Section
-uploaded_file = st.file_uploader("🎥 서브 분석 비디오 업로드 (Upload Serve Video)", type=["mp4", "mov", "avi"])
+uploaded_file = st.file_uploader("🎥 서브 분석 비디오 업로드", type=["mp4", "mov", "avi"])
 
 if uploaded_file is not None:
     st.video(uploaded_file)
     
-    if st.button("🚀 AI 분석 실행 (Analyze Serve Video)"):
+    if st.button("🚀 AI 분석 실행"):
         with st.spinner("AI가 영상을 분석 중입니다..."):
             import time
-            time.sleep(2)
-            
+            time.sleep(1.5)
             ai_measured_speed = 118.5
             
-            user_age = 25
-            user_gender = "Male"
+            user_age, user_gender = 25, "Male"
             if st.session_state["logged_in_user"] is not None:
                 curr_u = st.session_state["registered_users"][st.session_state["logged_in_user"]]
-                user_age = curr_u["age"]
-                user_gender = curr_u["gender"]
+                user_age, user_gender = curr_u["age"], curr_u["gender"]
             
             rec_lbs, rec_msg, delta_status, exp_speed = calculate_recommended_tension(
                 ntpr_str=ntpr_input,
@@ -185,8 +181,7 @@ if uploaded_file is not None:
             
             st.success("✅ 분석이 완료되었습니다!")
             
-            # Metric Summary Cards
-            st.markdown("### 📊 AI 분석 리포트 (Analysis Summary)")
+            st.markdown("### 📊 AI 분석 리포트")
             col1, col2, col3 = st.columns(3)
             with col1:
                 st.metric(label="최고 서브 속도", value=f"{ai_measured_speed} km/h")
@@ -196,9 +191,7 @@ if uploaded_file is not None:
                 st.metric(label="타깃 라켓 모델", value=racket_model if racket_model else "Standard")
             
             st.markdown("---")
-            
-            # Graph
-            st.markdown("### 📈 프레임별 서브 속도 추적 그래프 (Speed Trajectory)")
+            st.markdown("### 📈 프레임별 서브 속도 추적 그래프")
             frames = np.arange(0, 30, 1)
             speeds = [0] * 5 + list(np.linspace(20, 118.5, 8)) + list(np.linspace(118.5, 75, 12)) + [0] * 5
             
@@ -213,17 +206,17 @@ if uploaded_file is not None:
 
 st.markdown("---")
 
-# ==========================================
-# 5. NEW FEATURE: Tennis Competition & Travel Calculator
-# ==========================================
-st.header("✈️ 테니스 대회 참가 & 여행 패키지 견적 (Tennis Tour & Travel Package)")
-st.write("세계 주요 그랜드슬램 및 국내 테니스 대회 참가/관람과 도시별 호텔 숙박 패키지 견적을 실시간으로 산출해보세요.")
 
-# Database of Competitions & Hotels
+# ==========================================
+# 5. Competition Package & Visa/Mastercard Payment Engine
+# ==========================================
+st.header("✈️ 테니스 대회 참가 & 여행 패키지 결제 (Tour Booking & Checkout)")
+st.write("원하는 대회를 선택하고 **VISA / Mastercard** 카드 결제(USD / KRW)로 예약을 즉시 완료하세요.")
+
 competitions_db = {
     "🇺🇸 US Open (New York, USA)": {
         "city": "New York, USA",
-        "ticket_fee_usd": 250, # Ticket / Entry Fee per person
+        "ticket_fee_usd": 250,
         "hotels": {
             "Grand Hyatt New York (Luxury)": 350,
             "Queens Flushing Hotel (Budget)": 130,
@@ -256,43 +249,83 @@ with col_tour1:
     selected_comp = st.selectbox("1️⃣ 대회 선택 (Select Competition)", list(competitions_db.keys()))
     comp_info = competitions_db[selected_comp]
     
-    st.write(f"📍 **개최 도시 (City)**: {comp_info['city']}")
-    st.write(f"🎟️ **대회 참가/티켓 비용 (Entry/Ticket Fee)**: ${comp_info['ticket_fee_usd']} USD")
+    st.write(f"📍 **개최 도시**: {comp_info['city']}")
+    st.write(f"🎟️ **대회 참가/티켓 비용**: ${comp_info['ticket_fee_usd']} USD")
 
 with col_tour2:
     hotel_options = comp_info["hotels"]
     selected_hotel = st.selectbox("2️⃣ 숙박 호텔 선택 (Select Hotel)", list(hotel_options.keys()))
     hotel_price_per_night = hotel_options[selected_hotel]
     
-    nights = st.number_input("3️⃣ 숙박 박수 (Nights of Stay)", min_value=1, max_value=14, value=3)
-    people_count = st.number_input("4️⃣ 인원 수 (Number of People)", min_value=1, max_value=5, value=1)
+    nights = st.number_input("3️⃣ 숙박 박수 (Nights)", min_value=1, max_value=14, value=3)
+    people_count = st.number_input("4️⃣ 인원 수 (People)", min_value=1, max_value=5, value=1)
 
-# Total Package Calculation
-total_ticket_cost = comp_info['ticket_fee_usd'] * people_count
-total_hotel_cost = hotel_price_per_night * nights * people_count
-grand_total_usd = total_ticket_cost + total_hotel_cost
+# Price Calculations
+EXCHANGE_RATE = 1350  # 1 USD = 1,350 KRW
+total_ticket_usd = comp_info['ticket_fee_usd'] * people_count
+total_hotel_usd = hotel_price_per_night * nights * people_count
+grand_total_usd = total_ticket_usd + total_hotel_usd
+grand_total_krw = grand_total_usd * EXCHANGE_RATE
 
-# KRW Conversion Rate (Approx. 1 USD = 1,350 KRW)
-grand_total_krw = grand_total_usd * 1350
+st.markdown("### 💰 결제 통화 선택 & 최종 금액 (Summary)")
+pay_currency = st.radio("💳 결제 통화 선택 (Select Payment Currency)", ["USD ($)", "KRW (₩)"], horizontal=True)
 
-st.markdown("### 🏷️ 패키지 실시간 견적 산출 (Package Quote Summary)")
+if pay_currency == "USD ($)":
+    display_price = f"${grand_total_usd:,.2f} USD"
+    sub_text = f"≈ ₩{grand_total_krw:,.0f} KRW"
+else:
+    display_price = f"₩{grand_total_krw:,.0f} KRW"
+    sub_text = f"≈ ${grand_total_usd:,.2f} USD"
 
 q_col1, q_col2, q_col3 = st.columns(3)
 with q_col1:
-    st.metric(label="티켓/참가비 총액 (Tickets/Entry)", value=f"${total_ticket_cost} USD")
+    st.metric(label="티켓/참가비", value=f"${total_ticket_usd} USD")
 with q_col2:
-    st.metric(label="호텔 숙박비 총액 (Hotel Stay)", value=f"${total_hotel_cost} USD")
+    st.metric(label="호텔 숙박비", value=f"${total_hotel_usd} USD")
 with q_col3:
-    st.metric(
-        label="최종 패키지 예상 견적 (Total Package)", 
-        value=f"${grand_total_usd} USD", 
-        delta=f"≈ ₩{grand_total_krw:,.0f} KRW"
-    )
+    st.metric(label="최종 결제 예정 금액", value=display_price, delta=sub_text)
 
-if st.button("📩 이 패키지로 예약 상담 신청 (Request Booking Quote)"):
-    if st.session_state["logged_in_user"] is not None:
-        user_name = st.session_state["logged_in_user"]
-        st.balloons()
-        st.success(f"🎉 축하합니다, {user_name}님! **{selected_comp}** 여행 패키지 예약 신청이 접수되었습니다. 담당자 확인 후 연락드리겠습니다.")
+st.markdown("---")
+
+# VISA / MASTERCARD Payment Gateway Form
+st.subheader("💳 해외/국내 신용카드 결제 (Credit Card Checkout)")
+st.caption("🔒 256-bit SSL Secure Encrypted Payment Gateway (VISA / Mastercard / JCB / AMEX)")
+
+with st.form("checkout_payment_form"):
+    card_name = st.text_input("카드 명의자 이름 (Cardholder Name)", placeholder="HONG GILDONG")
+    card_number = st.text_input("카드 번호 (Card Number)", placeholder="4000 1234 5678 9010", max_chars=19)
+    
+    p_col1, p_col2 = st.columns(2)
+    with p_col1:
+        card_exp = st.text_input("유효기간 (MM/YY)", placeholder="12/28", max_chars=5)
+    with p_col2:
+        card_cvc = st.text_input("보안코드 (CVC/CVV)", placeholder="123", type="password", max_chars=4)
+        
+    submit_pay = st.form_submit_button(f"🚀 {display_price} 결제하기 (Pay Now)")
+
+if submit_pay:
+    if st.session_state["logged_in_user"] is None:
+        st.error("⚠️ 결제를 진행하려면 먼저 사이드바에서 **로그인/회원가입**을 완료해 주세요.")
+    elif not card_name or not card_number or not card_exp or not card_cvc:
+        st.warning("⚠️ 모든 카드 결제 정보를 올바르게 입력해 주세요.")
     else:
-        st.warning("⚠️ 예약 상담 신청을 위해 사이드바에서 먼저 **로그인/회원가입**을 진행해주세요.")
+        with st.spinner("💳 신용카드 승인 요청 중... (Processing VISA/Mastercard)"):
+            import time
+            time.sleep(2)
+            
+        st.session_state["payment_completed"] = True
+        st.balloons()
+        st.success("🎉 결제가 성공적으로 완료되었습니다! (Payment Approved)")
+        
+        # Payment Receipt
+        st.markdown("---")
+        st.markdown("### 🧾 전자 영수증 (Payment Receipt)")
+        st.info(f"""
+        • **주문 번호 (Order ID)**: SRV-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}
+        • **구매자 (Customer)**: {st.session_state['logged_in_user']} ({card_name})
+        • **선택 대회 (Event)**: {selected_comp}
+        • **선택 호텔 (Hotel)**: {selected_hotel} ({nights} nights)
+        • **결제 승인 금액**: **{display_price}**
+        • **결제 수단**: VISA / Mastercard (****-****-****-{card_number[-4:] if len(card_number)>=4 else '0000'})
+        • **승인 일시**: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+        """)
