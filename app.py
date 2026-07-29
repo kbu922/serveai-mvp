@@ -58,7 +58,8 @@ if "estate_orders" not in st.session_state:
             "phone": "+1-212-555-0199",
             "email": "david@capital.com",
             "option": "Hold Deposit Only (예약 보증금 결제)",
-            "amount": "$15,000 (₩20,000,000)",
+            "tax_service": "Yes (+ $1,200 Tax Advisory)",
+            "amount": "$16,200 USD",
             "time": "2026-07-29 11:30"
         }
     ]
@@ -127,7 +128,7 @@ t = {
         "tourn_title": "🏆 테니스 대회 & 리조트 숙박 예약 서브페이지",
         "tourn_desc": "국내외 아마추어 테니스 대회 참가 신청, 전용 리조트 예약 및 룸셰어 패키지를 결제하세요.",
         "estate_title": "🏢 테니스 부동산 & 해외 아카데미 매매/임대 서브페이지",
-        "estate_desc": "실내외 코트 매물 및 지분 투자 목록을 확인하고, 예약금 결제 및 상담 주문을 진행하세요.",
+        "estate_desc": "실내외 코트 매물 및 지분 투자 목록을 확인하고, 세무 자문 옵션 선택 및 예약금 결제를 진행하세요.",
         "calc_title": "🎾 AI 테니스 NTRP / 서브 속도 기반 최적 텐션 계산기",
         "calc_desc": "NTRP 레벨, 현재 사용 중인 텐션(모름 포함), AI 측정 서브 속도를 바탕으로 최적의 텐션(lbs)을 정밀 계산합니다.",
         "support_title": "💬 고객 지원 & 1:1 문의하기",
@@ -226,7 +227,9 @@ real_estate_products = {
         "size_kr": "전용 220평 (코트 3면 + 풀옵션 샤워실)",
         "desc_en": "Monthly revenue of $35,000. Equipped with ServeAI speed cameras and 300 active members.",
         "desc_kr": "월 매출 4,500만원 입증 완료. AI 서브 측정 장비 및 회원 300명 양도 포함.",
+        "price_deposit_num": 15000,
         "price_deposit_usd": "$15,000 (₩20,000,000)",
+        "price_full_num": 650000,
         "price_full_usd": "$650,000 (₩850,000,000)",
         "badge": "🔥 Featured Deal"
     },
@@ -239,7 +242,9 @@ real_estate_products = {
         "size_kr": "전용 150평 (실내 2면, 높은 층고 8m)",
         "desc_en": "Parking for 50 cars. Soundproofed structure. Ready for immediate academy operation.",
         "desc_kr": "주차 50대 가능. 층간소음 방지 설계 완료. 즉시 아카데미 영업 가능.",
+        "price_deposit_num": 7500,
         "price_deposit_usd": "$7,500 (₩10,000,000)",
+        "price_full_num": 75000,
         "price_full_usd": "$75,000 (₩100,000,000)",
         "badge": "🟢 Available"
     },
@@ -252,7 +257,9 @@ real_estate_products = {
         "size_kr": "야외 4면 + 실내 2면 대형 클럽",
         "desc_en": "Tennis academy venture equipped with ServeAI computer vision tech. Share investment per slot.",
         "desc_kr": "ServeAI 기술이 탑재된 테니스 전문 학교 설립 사업. 최소 1 구좌부터 지분 참여 가능.",
+        "price_deposit_num": 2500,
         "price_deposit_usd": "$2,500 (₩3,300,000)",
+        "price_full_num": 25000,
         "price_full_usd": "$25,000 (₩33,000,000)",
         "badge": "💎 Equity Share"
     }
@@ -442,7 +449,7 @@ elif page_selection == t["nav_3"]:
                         st.rerun()
 
 # ==========================================
-# 6. Feature 4: Real Estate & Investment Subpage with Checkout
+# 6. Feature 4: Real Estate & Tax Service Choice Subpage
 # ==========================================
 elif page_selection == t["nav_4"]:
     if selected_estate in real_estate_products:
@@ -475,11 +482,26 @@ elif page_selection == t["nav_4"]:
                 ]
             )
 
+            # Plus Choice: Professional Tax Service
+            st.markdown("---")
+            st.subheader("📑 Plus Choice Add-On (부가 서비스 선택)")
+            include_tax_service = st.checkbox(
+                "🏛️ Include Professional Real Estate Tax & Legal Advisory Service (+ $1,200 USD / ₩1,500,000)\n"
+                "(부동산 매매/임대 계약 관련 전담 세무 자문 및 법률 검토 서비스 추가)",
+                value=True
+            )
+
         with col_pay:
             st.subheader("2️⃣ Real Estate Order & Payment Checkout")
             
-            amt_display = est["price_deposit_usd"] if "Option A" in pay_option else est["price_full_usd"]
-            st.metric("Total Order / Checkout Amount", amt_display)
+            # Dynamic Price Calculation with Tax Service
+            base_amt = est["price_deposit_num"] if "Option A" in pay_option else est["price_full_num"]
+            tax_fee = 1200 if include_tax_service else 0
+            total_amt = base_amt + tax_fee
+            
+            total_display_str = f"${total_amt:,} USD"
+            
+            st.metric("Total Order / Checkout Amount", total_display_str, delta=f"+$1,200 Tax Service" if include_tax_service else "No Tax Service")
 
             with st.form("estate_checkout_form"):
                 card_num = st.text_input("Credit Card Number (카드번호)", placeholder="4000-1234-5678-9010")
@@ -497,7 +519,8 @@ elif page_selection == t["nav_4"]:
                         "phone": b_phone,
                         "email": b_email,
                         "option": pay_option,
-                        "amount": amt_display,
+                        "tax_service": "Included (+ $1,200)" if include_tax_service else "Not Selected",
+                        "amount": total_display_str,
                         "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
                     })
                     st.balloons()
@@ -522,6 +545,7 @@ elif page_selection == t["nav_4"]:
                     st.subheader(f"[{est['badge']}] {title_curr}")
                     st.write(f"📍 {loc_curr} | 📐 {size_curr}")
                     st.write(f"💰 **Deposit**: {est['price_deposit_usd']} | **Full Value**: {est['price_full_usd']}")
+                    st.write("🏛️ **Plus Choice Available**: Professional Real Estate Tax Advisory (+ $1,200)")
                     st.caption(desc_curr)
                 with c_right:
                     if st.button("🔎 Details & Order Checkout", key=f"est_sub_{key}"):
@@ -547,11 +571,12 @@ elif page_selection == t["nav_5"]:
                 [
                     "Tournament & Accommodation (대회 및 숙박)",
                     "Tennis Real Estate Investment (부동산 매매/임대)",
+                    "Tax & Legal Advisory Service (세무 및 법률 자문)",
                     "AI Serve Analysis & Racket Calculator (AI 측정 및 라켓)",
                     "General & Account Support (일반 및 계정 문의)"
                 ]
             )
-            inq_subject = st.text_input("Subject (제목)", placeholder="e.g. Room-share matching query")
+            inq_subject = st.text_input("Subject (제목)", placeholder="e.g. Real estate acquisition tax consultation")
             inq_msg = st.text_area("Message Detail (문의 내용)", placeholder="Type your detailed message here...", height=150)
             
             submit_ticket = st.form_submit_button("📤 Submit Message")
@@ -576,7 +601,6 @@ elif page_selection == t["nav_5"]:
     with col_history:
         st.subheader("📜 Ticket Inbox & Admin Replies")
         
-        # Filter tickets by user's email if logged in, or show all for demo
         user_tickets = st.session_state["inquiries"]
         if st.session_state["logged_in_user"]:
             user_tickets = [q for q in st.session_state["inquiries"] if q["user_email"] == st.session_state["logged_in_user"]]
@@ -596,7 +620,7 @@ elif page_selection == t["nav_5"]:
                         st.warning("⏳ Pending response from support backend.")
 
 # ==========================================
-# 8. Feature 6: Admin Dashboard Synchronization & Replies
+# 8. Feature 6: Admin Dashboard Synchronization
 # ==========================================
 elif page_selection == t["nav_6"]:
     st.title("🔒 Admin / Backend Dashboard")
@@ -625,13 +649,13 @@ elif page_selection == t["nav_6"]:
         st.markdown("---")
         
         tab1, tab2, tab3 = st.tabs([
-            "🏢 Real Estate Purchase Orders",
+            "🏢 Real Estate Purchase Orders & Tax Options",
             "🏆 Tournament & Resort Orders",
             "📩 Support Ticket Inbox & Reply Tool"
         ])
 
         with tab1:
-            st.subheader("🏢 Real Estate Transactions Database (부동산 실시간 주문)")
+            st.subheader("🏢 Real Estate Transactions Database (부동산 실시간 주문 및 세무 옵션)")
             if len(st.session_state["estate_orders"]) == 0:
                 st.info("No real estate orders submitted yet.")
             else:
@@ -656,7 +680,6 @@ elif page_selection == t["nav_6"]:
                         st.write(f"**User Message**: {ticket['message']}")
                         st.write(f"**Current Status**: `{ticket['status']}`")
 
-                        # Admin Reply Interface
                         reply_input = st.text_area(f"Reply to {ticket['user_email']}", value=ticket['admin_reply'], key=f"reply_area_{idx}")
                         if st.button("💬 Send / Update Reply", key=f"reply_btn_{idx}"):
                             st.session_state["inquiries"][idx]["admin_reply"] = reply_input
