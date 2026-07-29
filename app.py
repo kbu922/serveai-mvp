@@ -1,393 +1,241 @@
 import streamlit as st
-import numpy as np
-import pandas as pd
 import datetime
 
 # ==========================================
-# 1. Page Configuration
+# 1. 페이지 기본 설정 (Page Config)
 # ==========================================
 st.set_page_config(
-    page_title="ServeAI - AI Tennis, Community & Travel Commerce",
+    page_title="ServeAI 테니스 대회 및 패키지 신청 포털",
     page_icon="🎾",
     layout="wide"
 )
 
-# Initialize Session States
-if "registered_users" not in st.session_state:
-    st.session_state["registered_users"] = {
-        "Alex_Tennis": {"password": "123", "age": 28, "gender": "Male", "address": "Seoul, Korea"},
-        "Elena_R": {"password": "123", "age": 25, "gender": "Female", "address": "New York, USA"}
-    }
-
-if "logged_in_user" not in st.session_state:
-    st.session_state["logged_in_user"] = None
-
-if "chat_messages" not in st.session_state:
-    st.session_state["chat_messages"] = [
-        {"user": "Alex_Tennis", "time": "10:15 AM", "comp": "🇺🇸 US Open (New York, USA)", "text": "Hi everyone! Looking for 1 person to share a twin room at Grand Hyatt during US Open week! Cut hotel costs by 50%!"},
-        {"user": "Elena_R", "time": "10:30 AM", "comp": "🇰🇷 Korea Open ATP/WTA (Seoul, South Korea)", "text": "Anyone going to Korea Open in Seoul? Let's make a group order for tickets to get group discount!"}
-    ]
-
+# 세션 스토리지 (결제 및 참가 신청 데이터 저장)
+if "match_orders" not in st.session_state:
+    st.session_state["match_orders"] = []
 
 # ==========================================
-# 2. Recommendation Logic Engine
+# 2. 테니스 대회 및 상품 Schedule 데이터베이스
 # ==========================================
-def calculate_recommended_tension(ntpr_str, current_tension_option, calculated_speed_kmh, age=30, gender="Male"):
-    try:
-        ntpr_val = float(ntpr_str.split(" ")[1])
-    except:
-        ntpr_val = 2.5
-
-    standard_baseline_map = {2.0: 48, 2.5: 50, 3.0: 51, 3.5: 52, 4.0: 53, 4.5: 54, 5.0: 55}
-    expected_speed_map = {2.0: 80.0, 2.5: 95.0, 3.0: 110.0, 3.5: 125.0, 4.0: 140.0, 4.5: 155.0, 5.0: 170.0}
-
-    base_tension = standard_baseline_map.get(ntpr_val, 50)
-    expected_speed = expected_speed_map.get(ntpr_val, 100.0)
-    
-    if gender == "Female":
-        expected_speed -= 10.0
-        base_tension -= 2
-    if age >= 50:
-        base_tension -= 2
-
-    speed_diff = calculated_speed_kmh - expected_speed
-
-    if current_tension_option is None or current_tension_option == 0:
-        if speed_diff >= 10:
-            rec_tension = base_tension + 2
-            reason = f"NTPR({ntpr_val}) 대비 서브 속도가 빠르므로, 볼 제어력(Control)과 스핀 생성을 위해 **{rec_tension} lbs**를 추천합니다."
-        elif speed_diff <= -10:
-            rec_tension = base_tension - 2
-            reason = f"타구 파워 보완과 엘보 관절 보호를 위해 부드러운 **{rec_tension} lbs**로 시작하는 것을 추천합니다."
-        else:
-            rec_tension = base_tension
-            reason = f"측정된 속도 기반, NTPR({ntpr_val}) 표준 추천 텐션인 **{rec_tension} lbs**가 가장 적합합니다."
-        
-        return rec_tension, reason, "Standard Guide", expected_speed
-
-    else:
-        current_tension = int(current_tension_option)
-        if speed_diff >= 15:
-            rec_tension = current_tension + 3
-            reason = "서브 속도가 매우 빠릅니다! 정밀한 코스 공략을 위해 텐션을 +3 lbs 올려보세요."
-        elif 5 <= speed_diff < 15:
-            rec_tension = current_tension + 2
-            reason = "우수한 타구 파워를 보유하고 있습니다. 안정적인 컨트롤을 위해 +2 lbs를 추천합니다."
-        elif -5 <= speed_diff < 5:
-            rec_tension = current_tension
-            reason = "현재 텐션(lbs)이 사용자의 서브 속도 및 NTPR 레벨과 완벽하게 매칭됩니다!"
-        elif -15 <= speed_diff < -5:
-            rec_tension = current_tension - 2
-            reason = "비거리 확보를 위해 텐션을 -2 lbs 낮춰 라켓의 '트램펄린 효과'를 활용해보세요."
-        else:
-            rec_tension = current_tension - 3
-            reason = "관절 부담을 줄이고 적은 힘으로 비거리를 늘리기 위해 -3 lbs를 추천합니다."
-        
-        delta_val = rec_tension - current_tension
-        delta_str = f"{delta_val:+d} lbs" if delta_val != 0 else "Optimal"
-        return rec_tension, reason, delta_str, expected_speed
-
-
-# ==========================================
-# 3. Sidebar: User Account & Profile Registration
-# ==========================================
-st.sidebar.header("👤 계정 및 프로필 (User Profile)")
-
-if st.session_state["logged_in_user"] is None:
-    account_mode = st.sidebar.radio("로그인 / 회원가입", ["로그인 (Login)", "회원가입 (Register)"])
-
-    if account_mode == "회원가입 (Register)":
-        st.sidebar.subheader("📝 회원가입")
-        reg_id = st.sidebar.text_input("아이디 (ID)")
-        reg_pw = st.sidebar.text_input("비밀번호 (Password)", type="password")
-        reg_age = st.sidebar.number_input("나이 (Age)", min_value=10, max_value=90, value=25)
-        reg_gender = st.sidebar.selectbox("성별 (Gender)", ["Male (남성)", "Female (여성)", "Other (기타)"])
-        reg_address = st.sidebar.text_input("주소 (Address)", value="Seoul, South Korea")
-
-        if st.sidebar.button("회원가입 완료"):
-            if reg_id and reg_pw:
-                st.session_state["registered_users"][reg_id] = {
-                    "password": reg_pw,
-                    "age": reg_age,
-                    "gender": "Female" if "Female" in reg_gender else "Male",
-                    "address": reg_address
-                }
-                st.sidebar.success("🎉 회원가입 성공! 로그인 해주세요.")
-            else:
-                st.sidebar.error("아이디와 비밀번호를 입력해주세요.")
-
-    elif account_mode == "로그인 (Login)":
-        st.sidebar.subheader("🔑 로그인")
-        login_id = st.sidebar.text_input("아이디 (ID)", value="Alex_Tennis")
-        login_pw = st.sidebar.text_input("비밀번호 (Password)", value="123", type="password")
-
-        if st.sidebar.button("로그인"):
-            users = st.session_state["registered_users"]
-            if login_id in users and users[login_id]["password"] == login_pw:
-                st.session_state["logged_in_user"] = login_id
-                st.sidebar.success(f"Welcome back, {login_id}!")
-                st.rerun()
-            else:
-                st.sidebar.error("아이디 또는 비밀번호가 올바르지 않습니다.")
-
-else:
-    user_id = st.session_state["logged_in_user"]
-    user_info = st.session_state["registered_users"][user_id]
-    
-    st.sidebar.success(f"🟢 **{user_id}** 님 로그인 중")
-    st.sidebar.write(f"• **Age**: {user_info['age']}")
-    st.sidebar.write(f"• **Gender**: {user_info['gender']}")
-    st.sidebar.write(f"• **Address**: {user_info['address']}")
-    
-    if st.sidebar.button("로그아웃"):
-        st.session_state["logged_in_user"] = None
-        st.rerun()
-
-st.sidebar.markdown("---")
-
-st.sidebar.header("⚙️ 테니스 프로필 (Tennis Profile)")
-ntpr_input = st.sidebar.selectbox("구력/실력 (NTPR Level)", ["NTPR 2.0 - 2.5", "NTPR 3.0 - 3.5", "NTPR 4.0 - 4.5", "NTPR 5.0+"])
-racket_model = st.sidebar.text_input("라켓 모델", value="Babolat Pure Drive 300g")
-dont_know_tension = st.sidebar.checkbox("현재 텐션을 모름")
-
-current_tension_input = None if dont_know_tension else st.sidebar.number_input("현재 라켓 텐션 (lbs)", min_value=30, max_value=70, value=52)
-
-
-# ==========================================
-# 4. Main Title & Video Analysis Section
-# ==========================================
-st.title("🎾 ServeAI: AI 서브 분석 & 커뮤니티 대회 결제")
-st.write("단일 영상 AI 서브 분석부터 동호인 커뮤니티 매칭, 글로벌/국내 테니스 대회 참가 결제까지 통합 제공합니다.")
-
-st.markdown("---")
-
-uploaded_file = st.file_uploader("🎥 서브 분석 비디오 업로드", type=["mp4", "mov", "avi"])
-
-if uploaded_file is not None:
-    st.video(uploaded_file)
-    
-    if st.button("🚀 AI 분석 실행"):
-        with st.spinner("AI가 영상을 분석 중입니다..."):
-            import time
-            time.sleep(1.2)
-            ai_measured_speed = 118.5
-            
-            user_age, user_gender = 25, "Male"
-            if st.session_state["logged_in_user"] is not None:
-                curr_u = st.session_state["registered_users"][st.session_state["logged_in_user"]]
-                user_age, user_gender = curr_u["age"], curr_u["gender"]
-            
-            rec_lbs, rec_msg, delta_status, exp_speed = calculate_recommended_tension(
-                ntpr_str=ntpr_input,
-                current_tension_option=current_tension_input,
-                calculated_speed_kmh=ai_measured_speed,
-                age=user_age,
-                gender=user_gender
-            )
-            
-            st.success("✅ 분석이 완료되었습니다!")
-            
-            st.markdown("### 📊 AI 분석 리포트")
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.metric(label="최고 서브 속도", value=f"{ai_measured_speed} km/h")
-            with col2:
-                st.metric(label="추천 라켓 텐션", value=f"{rec_lbs} lbs", delta=delta_status)
-            with col3:
-                st.metric(label="타깃 라켓 모델", value=racket_model if racket_model else "Standard")
-            
-            st.markdown("---")
-            st.markdown("### 📈 프레임별 서브 속도 추적 그래프")
-            frames = np.arange(0, 30, 1)
-            speeds = [0] * 5 + list(np.linspace(20, 118.5, 8)) + list(np.linspace(118.5, 75, 12)) + [0] * 5
-            
-            chart_data = pd.DataFrame({
-                "Frame": frames[:len(speeds)],
-                "Ball Speed (km/h)": speeds,
-                "NTPR Average Speed": [exp_speed] * len(speeds)
-            }).set_index("Frame")
-            
-            st.line_chart(chart_data)
-            st.info(f"💡 **AI 피드백**:\n\n{rec_msg}")
-
-st.markdown("---")
-
-
-# ==========================================
-# 5. Community Group Matching Chat Zone (NEW!)
-# ==========================================
-st.header("💬 커뮤니티 & 공동 예약 매칭 존 (Community & Group Matching Zone)")
-st.caption("💡 **Tip**: 혼자 대회에 참가하기 부담스럽다면? 다른 선수들과 방을 함께 쓰고 결제 비용을 절감해보세요!")
-
-col_chat1, col_chat2 = st.columns([2, 1])
-
-with col_chat1:
-    st.subheader("📢 실시간 대회 동오인 매칭 피드 (Live Matching Feed)")
-    for msg in st.session_state["chat_messages"]:
-        with st.chat_message("user"):
-            st.markdown(f"**{msg['user']}** | <small>{msg['time']}</small> | 🏷️ *{msg['comp']}*", unsafe_allow_html=True)
-            st.write(msg["text"])
-
-    st.markdown("#### 💬 매칭글 작성하기 (Post a Matching Request)")
-    target_comp_chat = st.selectbox("참가 예정 대회", [
-        "🇺🇸 US Open (New York, USA)",
-        "🇰🇷 Korea Open ATP/WTA (Seoul, South Korea)",
-        "🇰🇷 Korea National Amateur Cup (Busan, South Korea)"
-    ])
-    new_chat_text = st.text_area("메시지 입력 (예: 함께 숙소シェア/공동예약 하실 분 찾습니다!)", height=70)
-    
-    if st.button("💬 매칭 등록 (Post Message)"):
-        if st.session_state["logged_in_user"] is None:
-            st.error("⚠️ 메시지를 작성하려면 먼저 로그인해주세요!")
-        elif new_chat_text.strip() == "":
-            st.warning("⚠️ 메시지 내용을 입력해주세요.")
-        else:
-            now_time = datetime.datetime.now().strftime("%I:%M %p")
-            st.session_state["chat_messages"].append({
-                "user": st.session_state["logged_in_user"],
-                "time": now_time,
-                "comp": target_comp_chat,
-                "text": new_chat_text
-            })
-            st.success("✅ 매칭글이 등록되었습니다!")
-            st.rerun()
-
-with col_chat2:
-    st.subheader("💡 공동 결제 혜택 (Group Benefits)")
-    st.success("""
-    • **호텔 비용 최대 50% 절감**: 동반 예약 및 룸쉐어로 숙박비 절약.
-    • **공동 단체 예약 할인**: 2인 이상 원스톱 일괄 결제 시 5% 추가 할인 적용.
-    • **현지 훈련/연습 파트너 매칭**: 대회 현지 도착 후 즉시 연습 경기 파트너 확보.
-    """)
-
-st.markdown("---")
-
-
-# ==========================================
-# 6. Competition Package & Visa/Mastercard Payment Engine
-# ==========================================
-st.header("✈️ 테니스 대회 참가 & 여행 패키지 결제 (Tour Booking & Checkout)")
-st.write("원하는 대회를 선택하고 **VISA / Mastercard** 카드 결제(USD / KRW)로 예약을 즉시 완료하세요.")
-
-competitions_db = {
-    "🇺🇸 US Open (New York, USA)": {
-        "city": "New York, USA",
-        "ticket_fee_usd": 250,
-        "hotels": {
-            "Grand Hyatt New York (Luxury)": 350,
-            "Queens Flushing Hotel (Budget)": 130,
-            "Courtyard by Marriott NYC (Mid-Range)": 220
-        }
+tournament_products = {
+    "match1": {
+        "season": "제 1 회 (1st Event)",
+        "title": "2026 서울 아마추어 테니스 오픈 · 참가 및 룸셰어 패키지",
+        "date": "2026년 8월 15일 ~ 8월 16일 (토/일)",
+        "location": "서울 올림픽공원 테니스장",
+        "desc": "대회 참가 자격, 현장 AI 서브 속도 측정 및 선수촌/호텔 룸셰어 매칭 서비스가 포함된 패키지입니다.",
+        "price_single_krw": 50000,
+        "price_single_usd": 40.0,
+        "price_pkg_krw": 180000,
+        "price_pkg_usd": 140.0,
+        "badge": "🟢 접수중 (Open)"
     },
-    "🇰🇷 Korea Open ATP/WTA (Seoul, South Korea)": {
-        "city": "Seoul, Korea",
-        "ticket_fee_usd": 60,
-        "hotels": {
-            "Grand InterContinental Seoul (Luxury)": 280,
-            "L7 Gangnam by LOTTE (Mid-Range)": 140,
-            "Seoul Olympic Parktel (Budget)": 80
-        }
+    "match2": {
+        "season": "제 2 회 (2nd Event)",
+        "title": "2026 제주도 테니스 투어 · 참가 및 숙박 통합 패키지",
+        "date": "2026년 9월 12일 ~ 9월 13일 (토/일)",
+        "location": "제주 서귀포 테니스장",
+        "desc": "제주 원정 테니스 대회! 참가비, 오션뷰 호텔 2인 룸셰어 숙박 및 ServeAI 진단 서비스가 포함되어 있습니다.",
+        "price_single_krw": 60000,
+        "price_single_usd": 48.0,
+        "price_pkg_krw": 250000,
+        "price_pkg_usd": 195.0,
+        "badge": "🟢 접수중 (Open)"
     },
-    "🇰🇷 Korea National Amateur Cup (Busan, South Korea)": {
-        "city": "Busan, Korea",
-        "ticket_fee_usd": 40,
-        "hotels": {
-            "Paradise Hotel Busan (Luxury)": 260,
-            "Haeundae Centum Hotel (Mid-Range)": 110,
-            "Busan Toyoko Inn (Budget)": 65
-        }
+    "match3": {
+        "season": "제 3 회 (3rd Event)",
+        "title": "2026 부산 해운대 가을 마스터스 · 참가 신청",
+        "date": "2026년 10월 17일 ~ 10월 18일 (토/일)",
+        "location": "부산 스포원파크 테니스장",
+        "desc": "부산 최대 규모 아마추어 대회로, 초급부(NTRP 2.5-3.0) 및 고급부(NTRP 3.5+) 부문으로 진행됩니다.",
+        "price_single_krw": 55000,
+        "price_single_usd": 43.0,
+        "price_pkg_krw": 210000,
+        "price_pkg_usd": 165.0,
+        "badge": "🟡 얼리버드 예약"
+    },
+    "match4": {
+        "season": "제 4 회 (4th Event)",
+        "title": "2026 인천 국제 동호인 테니스 교류전",
+        "date": "2026년 11월 14일 ~ 11월 15일 (토/일)",
+        "location": "인천 열우물테니스경기장",
+        "desc": "국제 아마추어 테니스 교류전으로, 국내외 카드를 위한 VISA/Mastercard 간편 결제를 지원합니다.",
+        "price_single_krw": 50000,
+        "price_single_usd": 40.0,
+        "price_pkg_krw": 190000,
+        "price_pkg_usd": 150.0,
+        "badge": "⚪ 오픈 예정"
     }
 }
 
-col_tour1, col_tour2 = st.columns(2)
+# ==========================================
+# 3. 개별 URL 라우팅 (예: ?item=match1)
+# ==========================================
+query_params = st.query_params
+selected_item_key = query_params.get("item", None)
 
-with col_tour1:
-    selected_comp = st.selectbox("1️⃣ 대회 선택 (Select Competition)", list(competitions_db.keys()))
-    comp_info = competitions_db[selected_comp]
+# ==========================================
+# 4. 사이드바: 대회 Schedule 및 개별 링크 생성
+# ==========================================
+st.sidebar.title("🎾 ServeAI 대회 일정")
+st.sidebar.caption("아래 회차를 선택하면 해당 대회의 독립 신청/결제 페이지로 이동합니다:")
+
+nav_choice = st.sidebar.radio(
+    "대회 회차 선택:",
+    options=["📅 전체 대회 Schedule 목록"] + [f"{item['season']} - {item['title']}" for item in tournament_products.values()]
+)
+
+st.sidebar.markdown("---")
+st.sidebar.subheader("🔗 독립 상품 링크 파라미터")
+for key, item in tournament_products.items():
+    st.sidebar.markdown(f"**[{item['season']}]** `?item={key}`")
+
+# ==========================================
+# 5. 뷰 A: 개별 대회 신청 및 신용카드 결제 페이지
+# ==========================================
+def render_item_checkout(item_key):
+    item = tournament_products[item_key]
     
-    st.write(f"📍 **개최 도시**: {comp_info['city']}")
-    st.write(f"🎟️ **대회 참가/티켓 비용**: ${comp_info['ticket_fee_usd']} USD")
+    # 상단 목록 돌아가기 버튼
+    if st.button("⬅️ 대회 Schedule 목록으로 돌아가기"):
+        st.query_params.clear()
+        st.rerun()
 
-with col_tour2:
-    hotel_options = comp_info["hotels"]
-    selected_hotel = st.selectbox("2️⃣ 숙박 호텔 선택 (Select Hotel)", list(hotel_options.keys()))
-    hotel_price_per_night = hotel_options[selected_hotel]
+    st.markdown(f"## 🏆 {item['season']}: {item['title']}")
+    st.info(f"📅 **대회 일정**: {item['date']} | 📍 **대회 장소**: {item['location']}")
+    st.write(item["desc"])
     
-    nights = st.number_input("3️⃣ 숙박 박수 (Nights)", min_value=1, max_value=14, value=3)
-    people_count = st.number_input("4️⃣ 예약 인원 수 (Group Size / Room Share)", min_value=1, max_value=5, value=2)
-
-# Price Calculations & Group Discount
-EXCHANGE_RATE = 1350
-total_ticket_usd = comp_info['ticket_fee_usd'] * people_count
-total_hotel_usd = hotel_price_per_night * nights
-
-# Apply 5% Group Discount for 2+ people
-discount_factor = 0.95 if people_count >= 2 else 1.0
-grand_total_usd = (total_ticket_usd + total_hotel_usd) * discount_factor
-grand_total_krw = grand_total_usd * EXCHANGE_RATE
-
-st.markdown("### 💰 결제 통화 선택 & 최종 금액 (Summary)")
-if people_count >= 2:
-    st.success("🎉 **공동 예약 5% 할인 (Group Sharing Discount)**이 적용되었습니다!")
-
-pay_currency = st.radio("💳 결제 통화 선택 (Select Payment Currency)", ["USD ($)", "KRW (₩)"], horizontal=True)
-
-if pay_currency == "USD ($)":
-    display_price = f"${grand_total_usd:,.2f} USD"
-    sub_text = f"≈ ₩{grand_total_krw:,.0f} KRW"
-else:
-    display_price = f"₩{grand_total_krw:,.0f} KRW"
-    sub_text = f"≈ ${grand_total_usd:,.2f} USD"
-
-q_col1, q_col2, q_col3 = st.columns(3)
-with q_col1:
-    st.metric(label="티켓/참가비", value=f"${total_ticket_usd} USD")
-with q_col2:
-    st.metric(label="호텔 숙박비", value=f"${total_hotel_usd} USD")
-with q_col3:
-    st.metric(label="최종 결제 금액 (할인 포함)", value=display_price, delta=sub_text)
-
-st.markdown("---")
-
-# VISA / MASTERCARD Payment Gateway Form
-st.subheader("💳 공동 결제 및 신용카드 수단 (Credit Card Checkout)")
-st.caption("🔒 256-bit SSL Secure Encrypted Payment Gateway (VISA / Mastercard / JCB / AMEX)")
-
-with st.form("checkout_payment_form"):
-    card_name = st.text_input("카드 명의자 이름 (Cardholder Name)", placeholder="HONG GILDONG")
-    card_number = st.text_input("카드 번호 (Card Number)", placeholder="4000 1234 5678 9010", max_chars=19)
+    st.markdown("---")
     
-    p_col1, p_col2 = st.columns(2)
-    with p_col1:
-        card_exp = st.text_input("유효기간 (MM/YY)", placeholder="12/28", max_chars=5)
-    with p_col2:
-        card_cvc = st.text_input("보안코드 (CVC/CVV)", placeholder="123", type="password", max_chars=4)
+    col_info, col_pay = st.columns([1, 1])
+
+    # 좌측: 참가자 정보 입력 및 패키지 선택
+    with col_info:
+        st.subheader("1️⃣ 참가 선수 정보 입력")
+        p_name = st.text_input("선수 성명 (Full Name)", placeholder="홍길동")
+        p_phone = st.text_input("연락처 (Phone Number)", placeholder="010-1234-5678")
+        p_passport = st.text_input("생년월일 또는 여권번호 (ID/Passport No.)", placeholder="900101 또는 M12345678")
+        p_category = st.selectbox("참가 종목", ["남자 단식 (Men's Singles)", "여자 단식 (Women's Singles)", "남자 복식 (Men's Doubles)", "혼합 복식 (Mixed Doubles)"])
         
-    submit_pay = st.form_submit_button(f"🚀 {display_price} 결제하기 (Pay Now)")
-
-if submit_pay:
-    if st.session_state["logged_in_user"] is None:
-        st.error("⚠️ 결제를 진행하려면 먼저 사이드바에서 **로그인/회원가입**을 완료해 주세요.")
-    elif not card_name or not card_number or not card_exp or not card_cvc:
-        st.warning("⚠️ 모든 카드 결제 정보를 올바르게 입력해 주세요.")
-    else:
-        with st.spinner("💳 신용카드 승인 요청 중... (Processing Group Order)"):
-            import time
-            time.sleep(1.5)
-            
-        st.balloons()
-        st.success("🎉 공동 결제가 성공적으로 완료되었습니다! (Group Order Approved)")
-        
-        # Payment Receipt
         st.markdown("---")
-        st.markdown("### 🧾 전자 영수증 (Group Order Electronic Receipt)")
-        st.info(f"""
-        • **주문 번호 (Order ID)**: SRV-GRP-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}
-        • **대표 예약자 (Customer)**: {st.session_state['logged_in_user']} ({card_name})
-        • **인원 수 (Group Size)**: {people_count} 명 (Room Share / Joint Booking)
-        • **선택 대회 (Event)**: {selected_comp}
-        • **선택 호텔 (Hotel)**: {selected_hotel} ({nights} nights)
-        • **결제 승인 금액**: **{display_price}** (5% Group Discount Applied)
-        • **결제 수단**: VISA / Mastercard (****-****-****-{card_number[-4:] if len(card_number)>=4 else '0000'})
-        • **승인 일시**: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-        """)
+        st.subheader("📦 신청 상품 및 패키지 선택")
+        pkg_option = st.radio(
+            "상품 선택:",
+            ["대회 참가권 단품 (Single Entry Fee)", "대회 참가권 + 룸셰어 숙박 패키지 (Entry + Room-Share Package)"],
+            help="룸셰어 패키지 선택 시 동일 권역 참가자와 자동으로 호텔 숙박 매칭이 진행됩니다."
+        )
+
+    # 우측: 신용카드 결제
+    with col_pay:
+        st.subheader("2️⃣ 온라인 수강/참가비 결제")
+        
+        currency = st.radio("결제 화폐 (Currency)", ["KRW (₩)", "USD ($)"], horizontal=True)
+        
+        # 동적 금액 계산
+        if "대회 참가권 단품" in pkg_option:
+            amount_krw = item["price_single_krw"]
+            amount_usd = item["price_single_usd"]
+            pkg_title = "대회 참가권 단품"
+        else:
+            amount_krw = item["price_pkg_krw"]
+            amount_usd = item["price_pkg_usd"]
+            pkg_title = "대회 참가권 + 룸셰어 숙박 패키지"
+
+        if currency == "KRW (₩)":
+            pay_str = f"₩{amount_krw:,} KRW"
+        else:
+            pay_str = f"${amount_usd:.2f} USD"
+
+        st.metric(label=f"최종 결제 금액 ({pkg_title})", value=pay_str)
+        st.caption("🔒 256-bit SSL 보안 결제 (국내 모든 신용카드 및 해외 VISA / Mastercard 지원)")
+
+        with st.form(key=f"pay_form_{item_key}"):
+            card_name = st.text_input("카드 명의자 성명", placeholder="HONG GILDONG")
+            card_num = st.text_input("카드 번호", placeholder="4000 1234 5678 9010", max_chars=19)
+            
+            c1, c2 = st.columns(2)
+            with c1:
+                card_exp = st.text_input("유효기간 (MM/YY)", placeholder="12/28", max_chars=5)
+            with c2:
+                card_cvc = st.text_input("CVC/CVV 번호", placeholder="123", type="password", max_chars=4)
+
+            submit_btn = st.form_submit_button(f"🚀 {pay_str} 결제하기")
+
+        if submit_btn:
+            if not p_name or not p_phone or not p_passport:
+                st.error("⚠️ 선수 성명, 연락처, 생년월일/여권번호를 모두 입력해 주세요.")
+            elif not card_name or not card_num or not card_exp or not card_cvc:
+                st.error("⚠️ 결제 카드 정보를 정확히 입력해 주세요.")
+            else:
+                with st.spinner("💳 결제 승인 및 참가 확정 처리 중..."):
+                    import time
+                    time.sleep(1.2)
+
+                order_id = f"SERVEAI-{item_key.upper()}-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
+                st.session_state["match_orders"].append({
+                    "order_id": order_id,
+                    "season": item["season"],
+                    "match": item["title"],
+                    "player": p_name,
+                    "phone": p_phone,
+                    "passport": p_passport,
+                    "package": pkg_title,
+                    "amount": pay_str,
+                    "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                })
+
+                st.balloons()
+                st.success("🎉 대회 신청 및 결제가 성공적으로 완료되었습니다! 확정 안내가 문자로 발송됩니다.")
+
+                st.markdown("### 🧾 대회 참가 및 결제 확인서 (Receipt)")
+                st.info(f"""
+                • **주문 번호**: {order_id}
+                • **신청 회차**: {item['season']} - {item['title']}
+                • **대회 일정**: {item['date']}
+                • **선수 성명**: {p_name}
+                • **연락처**: {p_phone}
+                • **선택 상품**: {pkg_title}
+                • **결제 금액**: **{pay_str}**
+                """)
+
+# ==========================================
+# 6. 뷰 B: 전체 대회 Schedule 목록 (Main Portal)
+# ==========================================
+def render_schedule_portal():
+    st.title("🎾 ServeAI 테니스 대회 & 패키지 Schedule")
+    st.write("원하시는 회차의 대회 상품을 선택하시면 개별 참가 신청 및 온라인 결제 페이지로 이동합니다.")
+    st.markdown("---")
+
+    for key, item in tournament_products.items():
+        with st.container(border=True):
+            col_left, col_right = st.columns([3, 1])
+            with col_left:
+                st.subheader(f"🏆 {item['season']}: {item['title']}")
+                st.write(f"📅 **일정**: `{item['date']}` | 📍 **장소**: {item['location']}")
+                st.write(f"🏷️ **상태**: {item['badge']} | **참가비**: ₩{item['price_single_krw']:,} (${item['price_single_usd']})")
+                st.caption(item["desc"])
+            
+            with col_right:
+                st.write("")
+                st.write("")
+                if st.button(f"👉 {item['season']} 신청하기", key=f"btn_nav_{key}"):
+                    st.query_params["item"] = key
+                    st.rerun()
+
+    if len(st.session_state["match_orders"]) > 0:
+        st.markdown("---")
+        st.subheader("📊 실시간 참가 신청 및 결제 관리 내역 (관리자용)")
+        st.dataframe(st.session_state["match_orders"])
+
+# ==========================================
+# 7. 메인 라우터 제어
+# ==========================================
+if selected_item_key in tournament_products:
+    render_item_checkout(selected_item_key)
+elif nav_choice != "📅 전체 대회 Schedule 목록":
+    for k, v in tournament_products.items():
+        if f"{v['season']} - {v['title']}" == nav_choice:
+            render_item_checkout(k)
+            break
+else:
+    render_schedule_portal()
