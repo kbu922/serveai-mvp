@@ -113,6 +113,17 @@ t = {
         "reg_success": "Registration complete! Please log in.",
         "vip_active": "⭐ VIP Pass Active (Unlimited Chat)",
         "basic_acct": "⚪ Basic Account (Chat Locked)",
+        # Shared Booking Form Labels
+        "pay_form_header": "💳 Checkout & Reservation Details",
+        "full_name": "Full Customer Name",
+        "passport_id": "Passport ID Number",
+        "contact_phone": "Contact Phone Number",
+        "card_type": "Payment Method",
+        "card_no": "Card Number (Visa / Mastercard)",
+        "exp_date": "Expiration Date (MM/YY)",
+        "cvv": "CVV Code",
+        "btn_complete_pay": "💳 Complete Payment & Book Now",
+        "pay_err_fields": "Please fill in all customer and payment fields.",
         # Feature 1: Serve AI
         "f1_title": "⚡ AI Serve Speed & Trajectory Analyzer",
         "f1_desc": "Upload a video of your serve. AI will detect ball motion frames and calculate real velocity in MPH and KM/H.",
@@ -150,7 +161,7 @@ t = {
         "f3_prize": "Prize Pool",
         "f3_hotel": "Partner Hotel",
         "f3_btn": "🎟️ Register & Book Package",
-        "f3_success": "Entry request initiated! Ticket created in Support tab for booking receipt.",
+        "f3_success": "Payment Successful! Tournament booking receipt generated in Support tab.",
         # Feature 4: School
         "f4_title": "🏫 Global Tennis Academy & Residency Programs",
         "f4_desc": "Long-term high-performance training packages including accommodation, court access, and video analytics.",
@@ -168,7 +179,7 @@ t = {
         "f4_m1_f4": "• Serviced Apartment Residence Included",
         "f4_m1_price": "### $2,950 / Month",
         "f4_m1_btn": "Enroll in 1-Month Residency",
-        "f4_res_success": "Residency application submitted! Added to Support Center.",
+        "f4_res_success": "Residency payment complete! Enrollment confirmation ticket created in Support tab.",
         # Feature 5: Matching & Pass
         "f5_title": "🤝 Community NTRP Matching & Unlimited VIP Chat Pass",
         "f5_desc": "Subscribe for $4.99/month to get unlimited free direct messaging with local coaches and NTRP hitting partners!",
@@ -216,7 +227,7 @@ t = {
         "f6_btn": "Submit Support Ticket",
         "f6_success": "Ticket submitted! Reference ID: ",
         "f6_err": "Please fill in email and subject.",
-        "f6_list_title": "📋 Your Submitted Tickets",
+        "f6_list_title": "📋 Your Submitted Tickets & Booking Receipts",
         "f6_no_tickets": "No submitted tickets yet.",
         # Feature 7: Admin
         "f7_title": "🔒 Admin Backend Dashboard",
@@ -250,6 +261,17 @@ t = {
         "reg_success": "가입 완료! 로그인해 주세요.",
         "vip_active": "⭐ VIP 패스 활성화 (무제한 채팅 가능)",
         "basic_acct": "⚪ 일반 계정 (채팅 잠김)",
+        # Shared Booking Form Labels
+        "pay_form_header": "💳 결제 및 예약자 여권/개인정보 입력",
+        "full_name": "예약자 실명 (Full Name)",
+        "passport_id": "여권 번호 (Passport ID)",
+        "contact_phone": "비상 연락처 (전화번호)",
+        "card_type": "결제 카드 종류",
+        "card_no": "카드 번호 (Visa / Mastercard)",
+        "exp_date": "유효기간 (MM/YY)",
+        "cvv": "보안코드 (CVV)",
+        "btn_complete_pay": "💳 결제 완료 및 예약확정",
+        "pay_err_fields": "모든 개인정보 및 카드 결제 정보를 입력해 주세요.",
         # Feature 1: Serve AI
         "f1_title": "⚡ AI 서브 속도 및 궤적 분석기",
         "f1_desc": "서브 동영상을 업로드하세요. AI가 공의 움직임을 감지하여 MPH 및 KM/H 단위로 실제 속도를 계산합니다.",
@@ -287,7 +309,7 @@ t = {
         "f3_prize": "총 상금",
         "f3_hotel": "제휴 호텔",
         "f3_btn": "🎟️ 대회 참가 및 패키지 신청",
-        "f3_success": "참가 신청이 완료되었습니다! [고객 지원] 탭에서 예약 영수증 접수 내역을 확인하실 수 있습니다.",
+        "f3_success": "결제가 성공적으로 완료되었습니다! [고객 지원] 탭에서 대회 참가 확인서가 발급되었습니다.",
         # Feature 4: School
         "f4_title": "🏫 글로벌 테니스 스쿨 서비스 & 장기 레지던시",
         "f4_desc": "숙박, 코트 이용, 비디오 분석이 포함된 장기 집중 훈련 패키지입니다.",
@@ -302,10 +324,10 @@ t = {
         "f4_m1_f1": "• 50시간 개인 & 그룹 코칭",
         "f4_m1_f2": "• 매일 대회 실전 스파링 매치",
         "f4_m1_f3": "• 피지컬 트레이닝 및 식이요법",
-        "f4_m1_f4": "• 레지던스 레지던스 레지던트 제공",
+        "f4_m1_f4": "• 레지던스 객실 제공",
         "f4_m1_price": "### 월 $2,950 (약 380만원)",
         "f4_m1_btn": "1개월 레지던시 신청하기",
-        "f4_res_success": "레지던시 신청이 접수되었습니다! [고객 지원] 센터 문의로 추가되었습니다.",
+        "f4_res_success": "레지던시 결제가 완료되었습니다! [고객 지원] 탭에서 등록 확인서를 확인하실 수 있습니다.",
         # Feature 5: Matching & Pass
         "f5_title": "🤝 커뮤니티 NTRP 매칭 & 1개월 무제한 VIP 멤버십",
         "f5_desc": "월 $4.99(약 6,500원) 멤버십 구독 시, 주변 모든 NTRP 파트너 및 검증 코치와 무제한 무료 대화가 가능합니다!",
@@ -353,7 +375,7 @@ t = {
         "f6_btn": "문의 티켓 제출",
         "f6_success": "문의가 성공적으로 접수되었습니다! 티켓 번호: ",
         "f6_err": "이메일과 제목을 입력해 주세요.",
-        "f6_list_title": "📋 내 문의 및 대회/캠프 예약 내역",
+        "f6_list_title": "📋 내 문의 및 대회/캠프 결제 내역",
         "f6_no_tickets": "접수된 문의 내역이 없습니다.",
         # Feature 7: Admin
         "f7_title": "🔒 백엔드 관리자 대시보드",
@@ -485,16 +507,16 @@ elif page_selection == t["nav_2"]:
         st.success(formatted_msg)
 
 # ==========================================
-# 6. Feature 3: Tournaments Subpage
+# 6. Feature 3: Tournaments Subpage (With Passport & Payment Form)
 # ==========================================
 elif page_selection == t["nav_3"]:
     st.title(t["f3_title"])
     st.write(t["f3_desc"])
 
     tourneys = [
-        {"name": "2026 Seoul Open Amateur Grand Prix", "date": "2026-08-15", "loc": "Olympic Park, Seoul", "prize": "$5,000 Pool", "hotel": "Gangnam Luxury Stay ($120/night)"},
-        {"name": "Jeju Island Tennis & Beach Classic", "date": "2026-09-02", "loc": "Jeju Ocean Courts", "prize": "$3,000 Pool", "hotel": "Jeju Ocean Resort ($150/night)"},
-        {"name": "Incheon Songdo National NTRP Series", "date": "2026-09-20", "loc": "Songdo Sports Complex", "prize": "$2,500 Pool", "hotel": "Songdo Park Hotel ($95/night)"}
+        {"id": "TR-01", "name": "2026 Seoul Open Amateur Grand Prix", "date": "2026-08-15", "loc": "Olympic Park, Seoul", "prize": "$5,000 Pool", "hotel": "Gangnam Luxury Stay ($120/night)"},
+        {"id": "TR-02", "name": "Jeju Island Tennis & Beach Classic", "date": "2026-09-02", "loc": "Jeju Ocean Courts", "prize": "$3,000 Pool", "hotel": "Jeju Ocean Resort ($150/night)"},
+        {"id": "TR-03", "name": "Incheon Songdo National NTRP Series", "date": "2026-09-20", "loc": "Songdo Sports Complex", "prize": "$2,500 Pool", "hotel": "Songdo Park Hotel ($95/night)"}
     ]
 
     for tour in tourneys:
@@ -505,28 +527,59 @@ elif page_selection == t["nav_3"]:
                 st.write(f"📅 **{t['f3_date']}**: {tour['date']} | 📍 **{t['f3_loc']}**: {tour['loc']}")
                 st.write(f"🏆 **{t['f3_prize']}**: {tour['prize']} | 🏨 **{t['f3_hotel']}**: {tour['hotel']}")
             with tc2:
-                if st.button(t["f3_btn"], key=f"t_btn_{tour['name']}"):
-                    current_u = st.session_state["logged_in_user"] or "Guest User"
-                    ticket_id = f"TK-{len(st.session_state['inquiries'])+101}"
-                    
-                    # Real connection to Support Tickets Data
-                    st.session_state["inquiries"].append({
-                        "id": ticket_id,
-                        "user": current_u,
-                        "subject": f"Registration Receipt: {tour['name']}",
-                        "status": "Confirmed / Paid",
-                        "date": datetime.datetime.now().strftime("%Y-%m-%d")
-                    })
-                    st.success(t["f3_success"])
+                if st.button(t["f3_btn"], key=f"t_btn_{tour['id']}"):
+                    st.session_state[f"book_tour_{tour['id']}"] = not st.session_state.get(f"book_tour_{tour['id']}", False)
+
+            # Interactive Checkout Panel
+            if st.session_state.get(f"book_tour_{tour['id']}", False):
+                st.markdown("---")
+                st.subheader(f"{t['pay_form_header']} - {tour['name']}")
+                with st.form(key=f"pay_form_tour_{tour['id']}"):
+                    fc1, fc2 = st.columns(2)
+                    with fc1:
+                        cust_name = st.text_input(t["full_name"], placeholder="John Doe")
+                        passport_no = st.text_input(t["passport_id"], placeholder="M12345678")
+                        cust_email = st.text_input(t["email_lbl"], value=st.session_state["logged_in_user"] or "")
+                    with fc2:
+                        cust_phone = st.text_input(t["contact_phone"], placeholder="+82 10-1234-5678")
+                        card_brand = st.selectbox(t["card_type"], ["Mastercard", "Visa", "American Express"])
+                        card_no = st.text_input(t["card_no"], placeholder="5412 7500 0000 0000")
+                        c_col1, c_col2 = st.columns(2)
+                        with c_col1:
+                            exp = st.text_input(t["exp_date"], placeholder="12/28")
+                        with c_col2:
+                            cvv = st.text_input(t["cvv"], type="password", placeholder="123")
+
+                    if st.form_submit_button(t["btn_complete_pay"], use_container_width=True):
+                        if cust_name and passport_no and cust_email and cust_phone and card_no:
+                            with st.spinner("Processing payment via Gateway..."):
+                                time.sleep(1.2)
+                            
+                            ticket_id = f"TK-{len(st.session_state['inquiries'])+101}"
+                            st.session_state["inquiries"].append({
+                                "id": ticket_id,
+                                "user": cust_email,
+                                "subject": f"CONFIRMED PAYMENT: {tour['name']}",
+                                "status": "Confirmed / Paid",
+                                "date": datetime.datetime.now().strftime("%Y-%m-%d"),
+                                "details": f"Passenger: {cust_name} | Passport: {passport_no} | Phone: {cust_phone} | Paid via {card_brand} ending in {card_no[-4:] if len(card_no)>=4 else '****'}"
+                            })
+                            st.balloons()
+                            st.success(t["f3_success"])
+                            st.session_state[f"book_tour_{tour['id']}"] = False
+                        else:
+                            st.error(t["pay_err_fields"])
 
 # ==========================================
-# 7. Feature 4: Tennis School & Residency
+# 7. Feature 4: Tennis School & Residency (With Passport & Payment Form)
 # ==========================================
 elif page_selection == t["nav_4"]:
     st.title(t["f4_title"])
     st.write(t["f4_desc"])
 
     sc1, sc2 = st.columns(2)
+    
+    # 1-Week Camp Block
     with sc1:
         with st.container(border=True):
             st.subheader(t["f4_w1_title"])
@@ -535,17 +588,37 @@ elif page_selection == t["nav_4"]:
             st.write(t["f4_w1_f3"])
             st.write(t["f4_w1_f4"])
             st.markdown(t["f4_w1_price"])
-            if st.button(t["f4_w1_btn"]):
-                current_u = st.session_state["logged_in_user"] or "Guest User"
-                st.session_state["inquiries"].append({
-                    "id": f"TK-{len(st.session_state['inquiries'])+101}",
-                    "user": current_u,
-                    "subject": "Enrollment: 1-Week Intensive Boot Camp",
-                    "status": "Application Pending",
-                    "date": datetime.datetime.now().strftime("%Y-%m-%d")
-                })
-                st.success(t["f4_res_success"])
+            if st.button(t["f4_w1_btn"], key="btn_open_w1"):
+                st.session_state["show_w1_pay"] = not st.session_state.get("show_w1_pay", False)
 
+        if st.session_state.get("show_w1_pay", False):
+            with st.form("pay_form_w1"):
+                st.subheader(f"{t['pay_form_header']} ($890 USD)")
+                w1_name = st.text_input(t["full_name"], placeholder="Alex Mercer")
+                w1_pass = st.text_input(t["passport_id"], placeholder="P98765432")
+                w1_email = st.text_input(t["email_lbl"], value=st.session_state["logged_in_user"] or "")
+                w1_phone = st.text_input(t["contact_phone"], placeholder="+1 555-0192")
+                w1_card_type = st.selectbox(t["card_type"], ["Mastercard", "Visa", "American Express"])
+                w1_card_no = st.text_input(t["card_no"], placeholder="4000 1234 5678 9010")
+                if st.form_submit_button(t["btn_complete_pay"], use_container_width=True):
+                    if w1_name and w1_pass and w1_email and w1_card_no:
+                        with st.spinner("Processing registration..."):
+                            time.sleep(1.2)
+                        st.session_state["inquiries"].append({
+                            "id": f"TK-{len(st.session_state['inquiries'])+101}",
+                            "user": w1_email,
+                            "subject": "CONFIRMED PAYMENT: 1-Week Intensive Boot Camp ($890)",
+                            "status": "Paid & Enrolled",
+                            "date": datetime.datetime.now().strftime("%Y-%m-%d"),
+                            "details": f"Student: {w1_name} | Passport: {w1_pass} | Phone: {w1_phone}"
+                        })
+                        st.balloons()
+                        st.success(t["f4_res_success"])
+                        st.session_state["show_w1_pay"] = False
+                    else:
+                        st.error(t["pay_err_fields"])
+
+    # 1-Month Residency Block
     with sc2:
         with st.container(border=True):
             st.subheader(t["f4_m1_title"])
@@ -554,16 +627,35 @@ elif page_selection == t["nav_4"]:
             st.write(t["f4_m1_f3"])
             st.write(t["f4_m1_f4"])
             st.markdown(t["f4_m1_price"])
-            if st.button(t["f4_m1_btn"]):
-                current_u = st.session_state["logged_in_user"] or "Guest User"
-                st.session_state["inquiries"].append({
-                    "id": f"TK-{len(st.session_state['inquiries'])+101}",
-                    "user": current_u,
-                    "subject": "Enrollment: 1-Month Pro Residency Package",
-                    "status": "Application Pending",
-                    "date": datetime.datetime.now().strftime("%Y-%m-%d")
-                })
-                st.success(t["f4_res_success"])
+            if st.button(t["f4_m1_btn"], key="btn_open_m1"):
+                st.session_state["show_m1_pay"] = not st.session_state.get("show_m1_pay", False)
+
+        if st.session_state.get("show_m1_pay", False):
+            with st.form("pay_form_m1"):
+                st.subheader(f"{t['pay_form_header']} ($2,950 USD)")
+                m1_name = st.text_input(t["full_name"], placeholder="Alex Mercer")
+                m1_pass = st.text_input(t["passport_id"], placeholder="P98765432")
+                m1_email = st.text_input(t["email_lbl"], value=st.session_state["logged_in_user"] or "")
+                m1_phone = st.text_input(t["contact_phone"], placeholder="+1 555-0192")
+                m1_card_type = st.selectbox(t["card_type"], ["Mastercard", "Visa", "American Express"])
+                m1_card_no = st.text_input(t["card_no"], placeholder="5412 0000 1111 2222")
+                if st.form_submit_button(t["btn_complete_pay"], use_container_width=True):
+                    if m1_name and m1_pass and m1_email and m1_card_no:
+                        with st.spinner("Processing residency booking..."):
+                            time.sleep(1.2)
+                        st.session_state["inquiries"].append({
+                            "id": f"TK-{len(st.session_state['inquiries'])+101}",
+                            "user": m1_email,
+                            "subject": "CONFIRMED PAYMENT: 1-Month Pro Residency ($2,950)",
+                            "status": "Paid & Enrolled",
+                            "date": datetime.datetime.now().strftime("%Y-%m-%d"),
+                            "details": f"Student: {m1_name} | Passport: {m1_pass} | Phone: {m1_phone}"
+                        })
+                        st.balloons()
+                        st.success(t["f4_res_success"])
+                        st.session_state["show_m1_pay"] = False
+                    else:
+                        st.error(t["pay_err_fields"])
 
 # ==========================================
 # 8. Feature 5: NTRP Match & 1-Month VIP Chat Pass
@@ -741,7 +833,8 @@ elif page_selection == t["nav_6"]:
                     "user": inq_email,
                     "subject": inq_subject,
                     "status": "Open",
-                    "date": datetime.datetime.now().strftime("%Y-%m-%d")
+                    "date": datetime.datetime.now().strftime("%Y-%m-%d"),
+                    "details": inq_body
                 })
                 st.success(f"{t['f6_success']} **{ticket_id}**")
             else:
