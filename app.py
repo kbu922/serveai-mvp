@@ -6,7 +6,7 @@ import time
 # 1. Page Configuration & Initial State
 # ==========================================
 st.set_page_config(
-    page_title="ServeAI - Global Tennis & Real Estate Portal",
+    page_title="ServeAI - Global Tennis & Sports-Tech Portal",
     page_icon="🎾",
     layout="wide"
 )
@@ -52,14 +52,14 @@ if "match_orders" not in st.session_state:
 if "estate_orders" not in st.session_state:
     st.session_state["estate_orders"] = [
         {
-            "order_id": "EST-20260729-01",
-            "property": "Gangnam Teheran-ro Indoor Tennis Academy",
+            "order_id": "SCH-20260729-01",
+            "property": "Gangnam Premium AI Tennis Academy Center",
             "buyer_name": "David Miller",
             "phone": "+1-212-555-0199",
             "email": "david@capital.com",
-            "option": "Hold Deposit Only (예약 보증금 결제)",
+            "option": "1 Year All-Inclusive Residency Membership",
             "tax_service": "Yes (+ $1,200 Tax Advisory)",
-            "amount": "$16,200 USD",
+            "amount": "$33,200 USD",
             "time": "2026-07-29 11:30"
         }
     ]
@@ -81,7 +81,7 @@ t = {
         "nav_1": "⚡ AI Serve Speed Analysis",
         "nav_2": "🎾 AI Racket & Tension Calculator",
         "nav_3": "🏆 Tournaments & Accommodation Subpage",
-        "nav_4": "🏢 Tennis Real Estate Subpage & Orders",
+        "nav_4": "🏫 Tennis School Service & Training Packages",
         "nav_5": "💬 Support & Inquiries",
         "nav_6": "🔒 Admin / Backend Dashboard",
         "login_sub": "👤 User Account",
@@ -95,22 +95,22 @@ t = {
         "err_login": "Invalid email or password.",
         "reg_success": "Registration complete! Please log in.",
         "back_btn_tourn": "⬅️ Back to Tournaments List",
-        "back_btn_estate": "⬅️ Back to Property List",
+        "back_btn_estate": "⬅️ Back to Tennis School Locations",
         "tourn_title": "🏆 Tennis Tournaments & Resort Accommodation Subpage",
         "tourn_desc": "Register for global amateur tournaments, book partner resort stays, or request room-sharing.",
-        "estate_title": "🏢 Tennis Real Estate & Academy Investment Subpage",
-        "estate_desc": "Browse indoor court deals, submit purchase/lease orders, and place online reservation deposits.",
+        "estate_title": "🏫 Global Tennis School Residency & Training Service",
+        "estate_desc": "Book long-term AI-powered tennis academy packages with full court access, housing, and pro coaching across premium venues.",
         "calc_title": "🎾 AI Tennis NTRP, Serve Speed & Optimal Tension Calculator",
         "calc_desc": "Calculates your optimal string tension (lbs) based on your NTRP level, current tension, and measured AI serve speed.",
         "support_title": "💬 Customer Support & Ticket Center",
-        "support_desc": "Submit your questions regarding tournaments, real estate, or AI features. Our team will review and reply.",
+        "support_desc": "Submit your questions regarding tournaments, tennis school services, or AI features. Our team will review and reply.",
     },
     "한국어": {
         "nav_title": "📌 메뉴 선택",
         "nav_1": "⚡ AI 서브 속도 분석",
         "nav_2": "🎾 AI 라켓 & 텐션 추천 계산기",
         "nav_3": "🏆 테니스 대회 & 숙박 서브페이지",
-        "nav_4": "🏢 테니스 부동산 & 투자 서브페이지",
+        "nav_4": "🏫 글로벌 테니스 스쿨 서비스 & 장기 레지던시",
         "nav_5": "💬 고객 지원 & 문의",
         "nav_6": "🔒 백엔드 관리자 대시보드",
         "login_sub": "👤 회원 계정",
@@ -124,15 +124,15 @@ t = {
         "err_login": "이메일 또는 비밀번호가 올바르지 않습니다.",
         "reg_success": "가입 완료! 로그인해 주세요.",
         "back_btn_tourn": "⬅️ 대회 목록으로 돌아가기",
-        "back_btn_estate": "⬅️ 전체 부동산 목록으로 돌아가기",
+        "back_btn_estate": "⬅️ 전체 스쿨 센터 목록으로 돌아가기",
         "tourn_title": "🏆 테니스 대회 & 리조트 숙박 예약 서브페이지",
         "tourn_desc": "국내외 아마추어 테니스 대회 참가 신청, 전용 리조트 예약 및 룸셰어 패키지를 결제하세요.",
-        "estate_title": "🏢 테니스 부동산 & 해외 아카데미 매매/임대 서브페이지",
-        "estate_desc": "실내외 코트 매물 및 지분 투자 목록을 확인하고, 세무 자문 옵션 선택 및 예약금 결제를 진행하세요.",
+        "estate_title": "🏫 글로벌 테니스 스쿨 서비스 & 전문 레지던시 프로그램",
+        "estate_desc": "AI 코칭 시스템, 전용 코트 및 장기 숙박이 연계된 테니스 스쿨 서비스(1개월/3개월/1년/3년)를 신청하세요.",
         "calc_title": "🎾 AI 테니스 NTRP / 서브 속도 기반 최적 텐션 계산기",
         "calc_desc": "NTRP 레벨, 현재 사용 중인 텐션(모름 포함), AI 측정 서브 속도를 바탕으로 최적의 텐션(lbs)을 정밀 계산합니다.",
         "support_title": "💬 고객 지원 & 1:1 문의하기",
-        "support_desc": "대회, 부동산 매물, AI 분석 기능 등 궁금하신 점을 작성해 주세요. 관리자 확인 후 즉시 답변드립니다.",
+        "support_desc": "대회, 테니스 스쿨 프로그램, AI 분석 기능 등 궁금하신 점을 작성해 주세요. 관리자 확인 후 즉시 답변드립니다.",
     }
 }[lang]
 
@@ -216,59 +216,65 @@ tournaments_db = {
     }
 }
 
-# Real Estate & Investment Database
-real_estate_products = {
-    "estate1": {
-        "title_en": "Gangnam Teheran-ro Indoor Tennis Academy",
-        "title_kr": "강남 테헤란로 실내 테니스 아카데미",
-        "location_en": "Gangnam-gu, Seoul, South Korea",
-        "location_kr": "서울시 강남구 역삼동",
-        "size_en": "720 sqm (3 Indoor Courts + Full Amenity Shower Rooms)",
-        "size_kr": "전용 220평 (코트 3면 + 풀옵션 샤워실)",
-        "desc_en": "Monthly revenue of $35,000. Equipped with ServeAI speed cameras and 300 active members.",
-        "desc_kr": "월 매출 4,500만원 입증 완료. AI 서브 측정 장비 및 회원 300명 양도 포함.",
-        "price_deposit_num": 15000,
-        "price_deposit_usd": "$15,000 (₩20,000,000)",
-        "price_full_num": 650000,
-        "price_full_usd": "$650,000 (₩850,000,000)",
-        "badge": "🔥 Featured Deal"
+# Tennis School Service Database (Replaces Traditional Real Estate)
+tennis_school_venues = {
+    "school1": {
+        "title_en": "Gangnam Premium AI Tennis Academy Center",
+        "title_kr": "강남 프러미엄 AI 테니스 아카데미 센터",
+        "location_en": "Teheran-ro, Gangnam-gu, Seoul",
+        "location_kr": "서울시 강남구 테헤란로",
+        "facility_en": "3 Climate-Controlled Indoor Courts + AI Camera Analytics Hub + Luxury Recovery Lounge",
+        "facility_kr": "실내 최고급 코트 3면 + AI 발사/속도 카메라 + 리커버리 라운지",
+        "desc_en": "Urban high-performance tennis school with 1-on-1 pro coaching, video biomechanics breakdown, and private executive lockers.",
+        "desc_kr": "도심형 하이퍼포먼스 테니스 스쿨. 1:1 전담 프로 코칭, AI 자세 분석 및 라운지 이용권 제공.",
+        "pricing": {
+            "1 Month (1개월)": 2800,
+            "3 Months (3개월)": 8000,
+            "1 Year (1년)": 32000,
+            "3 Years (3년 Elite Pass)": 90000
+        },
+        "badge": "🏆 Elite Urban School"
     },
-    "estate2": {
-        "title_en": "Bundang Jeongja-dong Modern Indoor Facility Lease",
-        "title_kr": "분당 정자동 최신식 실내 테니스장 롱텀 임대",
-        "location_en": "Bundang-gu, Seongnam, South Korea",
-        "location_kr": "경기도 성남시 분당구 정자동",
-        "size_en": "500 sqm (2 Indoor Courts, 8m High Ceiling)",
-        "size_kr": "전용 150평 (실내 2면, 높은 층고 8m)",
-        "desc_en": "Parking for 50 cars. Soundproofed structure. Ready for immediate academy operation.",
-        "desc_kr": "주차 50대 가능. 층간소음 방지 설계 완료. 즉시 아카데미 영업 가능.",
-        "price_deposit_num": 7500,
-        "price_deposit_usd": "$7,500 (₩10,000,000)",
-        "price_full_num": 75000,
-        "price_full_usd": "$75,000 (₩100,000,000)",
-        "badge": "🟢 Available"
+    "school2": {
+        "title_en": "Jeju Ocean Resort Tennis Residency School",
+        "title_kr": "제주 오션 리조트 테니스 레지던시 스쿨",
+        "location_en": "Pyoseon-myeon, Seogwipo, Jeju Island",
+        "location_kr": "제주특별자치도 서귀포시 표선면",
+        "facility_en": "4 Outdoor Hard/Clay Courts + Private Villa Residence + ServeAI Radar Tracking",
+        "facility_kr": "야외 클레이/하드코트 4면 + 독채 리조트 숙소 + ServeAI 레이더 트래킹",
+        "desc_en": "Full immersion residency school program combining luxury ocean-view housing with intensive daily training and video analysis.",
+        "desc_kr": "오션뷰 리조트 숙박과 일일 몰입형 집중 훈련이 결합된 최고급 테니스 레지던시 스쿨.",
+        "pricing": {
+            "1 Month (1개월)": 3500,
+            "3 Months (3개월)": 9800,
+            "1 Year (1년)": 38000,
+            "3 Years (3년 Elite Pass)": 105000
+        },
+        "badge": "🌊 Ocean Residency"
     },
-    "estate3": {
-        "title_en": "ServeAI Branch #2 'Incheon Songdo Tennis Park' Equity Share",
-        "title_kr": "ServeAI 2호점 '인천 송도 테니스 파크' 프랜차이즈 지분 투자",
-        "location_en": "Songdo-dong, Incheon, South Korea",
-        "location_kr": "인천 연수구 송도동",
-        "size_en": "4 Outdoor Courts + 2 Indoor Courts Major Complex",
-        "size_kr": "야외 4면 + 실내 2면 대형 클럽",
-        "desc_en": "Tennis academy venture equipped with ServeAI computer vision tech. Share investment per slot.",
-        "desc_kr": "ServeAI 기술이 탑재된 테니스 전문 학교 설립 사업. 최소 1 구좌부터 지분 참여 가능.",
-        "price_deposit_num": 2500,
-        "price_deposit_usd": "$2,500 (₩3,300,000)",
-        "price_full_num": 25000,
-        "price_full_usd": "$25,000 (₩33,000,000)",
-        "badge": "💎 Equity Share"
+    "school3": {
+        "title_en": "Songdo International Tennis Park & Youth Academy",
+        "title_kr": "송도 국제 테니스 파크 & 유스/성인 아카데미",
+        "location_en": "Songdo International City, Incheon",
+        "location_kr": "인천광역시 연수구 송도동",
+        "facility_en": "6 Full-Size Courts (Indoor/Outdoor) + Fitness Center + Multi-language Coaching Staff",
+        "facility_kr": "실내외 대형 6면 코트 + 전용 피트니스 + 다국어 전문 코치진",
+        "desc_en": "Global sports academy offering comprehensive tennis school subscriptions for expats, families, and elite amateurs.",
+        "desc_kr": "외국인, 주니어, 전문 아마추어를 위한 맞춤형 글로벌 테니스 스쿨 구독 패키지.",
+        "pricing": {
+            "1 Month (1개월)": 2200,
+            "3 Months (3개월)": 6200,
+            "1 Year (1년)": 24000,
+            "3 Years (3년 Elite Pass)": 68000
+        },
+        "badge": "🌏 Global Campus"
     }
 }
 
 # Dynamic URL Params Routing
 query_params = st.query_params
 selected_tourn = query_params.get("tourn", None)
-selected_estate = query_params.get("estate", None)
+selected_school = query_params.get("school", None)
 
 # ==========================================
 # 3. Feature 1: AI Serve Speed Analysis
@@ -449,68 +455,72 @@ elif page_selection == t["nav_3"]:
                         st.rerun()
 
 # ==========================================
-# 6. Feature 4: Real Estate & Tax Service Choice Subpage
+# 6. Feature 4: Tennis School Service & Training Packages
 # ==========================================
 elif page_selection == t["nav_4"]:
-    if selected_estate in real_estate_products:
-        est = real_estate_products[selected_estate]
+    if selected_school in tennis_school_venues:
+        sch = tennis_school_venues[selected_school]
         if st.button(t["back_btn_estate"]):
             st.query_params.clear()
             st.rerun()
 
-        title_curr = est["title_en"] if lang == "English" else est["title_kr"]
-        loc_curr = est["location_en"] if lang == "English" else est["location_kr"]
-        size_curr = est["size_en"] if lang == "English" else est["size_kr"]
-        desc_curr = est["desc_en"] if lang == "English" else est["desc_kr"]
+        title_curr = sch["title_en"] if lang == "English" else sch["title_kr"]
+        loc_curr = sch["location_en"] if lang == "English" else sch["location_kr"]
+        fac_curr = sch["facility_en"] if lang == "English" else sch["facility_kr"]
+        desc_curr = sch["desc_en"] if lang == "English" else sch["desc_kr"]
 
-        st.markdown(f"## 🏢 [{est['badge']}] {title_curr}")
-        st.info(f"📍 **Location**: {loc_curr} | 📐 **Size**: {size_curr}")
+        st.markdown(f"## 🏫 [{sch['badge']}] {title_curr}")
+        st.info(f"📍 **Location**: {loc_curr} | 🏟️ **Facilities**: {fac_curr}")
         st.write(desc_curr)
         
         col_info, col_pay = st.columns([1, 1])
         with col_info:
-            st.subheader("1️⃣ Buyer / Investor Contact Details")
+            st.subheader("1️⃣ Student / Resident Contact Details")
             b_name = st.text_input("Full Name (성명)", placeholder="John Doe / 홍길동")
             b_phone = st.text_input("Phone Number (연락처)", placeholder="+1 234 567 8900 / 010-1234-5678")
             b_email = st.text_input("Email (이메일)", value=st.session_state["logged_in_user"] or "")
             
-            pay_option = st.radio(
-                "Select Transaction Option (결제/주문 옵션 선택)",
+            # Duration Plan Selection
+            selected_duration = st.radio(
+                "Select Tennis School Duration (스쿨 이용/구독 기간 선택)",
                 [
-                    "Option A: Hold Deposit Only (예약 보증금 결제)",
-                    "Option B: Full Acquisition / Rent Contract Booking (전액 매수/계약 주문)"
+                    f"1 Month (1개월) - ${sch['pricing']['1 Month (1개월)']:,} USD",
+                    f"3 Months (3개월) - ${sch['pricing']['3 Months (3개월)']:,} USD",
+                    f"1 Year (1년) - ${sch['pricing']['1 Year (1년)']:,} USD",
+                    f"3 Years (3년 Elite Pass) - ${sch['pricing']['3 Years (3년 Elite Pass)']:,} USD"
                 ]
             )
 
-            # Plus Choice: Professional Tax Service
+            # Plus Choice: Professional Tax & Legal Advisory Service
             st.markdown("---")
             st.subheader("📑 Plus Choice Add-On (부가 서비스 선택)")
             include_tax_service = st.checkbox(
-                "🏛️ Include Professional Real Estate Tax & Legal Advisory Service (+ $1,200 USD / ₩1,500,000)\n"
-                "(부동산 매매/임대 계약 관련 전담 세무 자문 및 법률 검토 서비스 추가)",
+                "🏛️ Include Professional Corporate/Personal Real Estate Tax & Legal Advisory Service (+ $1,200 USD / ₩1,500,000)\n"
+                "(스쿨 장기 체류, 비자 연계 및 세무 자문 컨설팅 추가)",
                 value=True
             )
 
         with col_pay:
-            st.subheader("2️⃣ Real Estate Order & Payment Checkout")
+            st.subheader("2️⃣ Tennis School Service Order & Checkout")
             
-            # Dynamic Price Calculation with Tax Service
-            base_amt = est["price_deposit_num"] if "Option A" in pay_option else est["price_full_num"]
+            # Dynamic Price Calculation
+            dur_key = selected_duration.split(" - ")[0]
+            base_amt = sch['pricing'][dur_key]
             tax_fee = 1200 if include_tax_service else 0
             total_amt = base_amt + tax_fee
             
             total_display_str = f"${total_amt:,} USD"
             
-            st.metric("Total Order / Checkout Amount", total_display_str, delta=f"+$1,200 Tax Service" if include_tax_service else "No Tax Service")
+            st.metric("Total School Package Fee", total_display_str, delta=f"+$1,200 Tax Advisory" if include_tax_service else "No Advisory Add-On")
 
-            with st.form("estate_checkout_form"):
+            with st.form("school_checkout_form"):
                 card_num = st.text_input("Credit Card Number (카드번호)", placeholder="4000-1234-5678-9010")
-                inq_notes = st.text_area("Inquiry Notes / Requested On-site Tour Date")
-                submit_est_order = st.form_submit_button("🚀 Submit Order & Pay Reservation")
+                inq_notes = st.text_area("Preferred Start Date & Special Athletic Coaching Needs")
+                submit_sch_order = st.form_submit_button("🚀 Submit Tennis School Application")
 
-            if submit_est_order:
+            if submit_sch_order:
                 if b_name and b_phone and card_num:
-                    new_ord_id = f"EST-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
+                    new_ord_id = f"SCH-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
                     
                     st.session_state["estate_orders"].append({
                         "order_id": new_ord_id,
@@ -518,13 +528,13 @@ elif page_selection == t["nav_4"]:
                         "buyer_name": b_name,
                         "phone": b_phone,
                         "email": b_email,
-                        "option": pay_option,
+                        "option": selected_duration,
                         "tax_service": "Included (+ $1,200)" if include_tax_service else "Not Selected",
                         "amount": total_display_str,
                         "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
                     })
                     st.balloons()
-                    st.success("🎉 Property Order & Reservation Payment Submitted! Order recorded in Backend Management.")
+                    st.success("🎉 Tennis School Registration Submitted! Order recorded in Backend Management.")
                 else:
                     st.error("⚠️ Please fill in all required fields (Name, Phone, Card Number).")
 
@@ -533,23 +543,23 @@ elif page_selection == t["nav_4"]:
         st.write(t["estate_desc"])
         st.markdown("---")
 
-        for key, est in real_estate_products.items():
-            title_curr = est["title_en"] if lang == "English" else est["title_kr"]
-            loc_curr = est["location_en"] if lang == "English" else est["location_kr"]
-            size_curr = est["size_en"] if lang == "English" else est["size_kr"]
-            desc_curr = est["desc_en"] if lang == "English" else est["desc_kr"]
+        for key, sch in tennis_school_venues.items():
+            title_curr = sch["title_en"] if lang == "English" else sch["title_kr"]
+            loc_curr = sch["location_en"] if lang == "English" else sch["location_kr"]
+            fac_curr = sch["facility_en"] if lang == "English" else sch["facility_kr"]
+            desc_curr = sch["desc_en"] if lang == "English" else sch["desc_kr"]
 
             with st.container(border=True):
                 c_left, c_right = st.columns([3, 1])
                 with c_left:
-                    st.subheader(f"[{est['badge']}] {title_curr}")
-                    st.write(f"📍 {loc_curr} | 📐 {size_curr}")
-                    st.write(f"💰 **Deposit**: {est['price_deposit_usd']} | **Full Value**: {est['price_full_usd']}")
-                    st.write("🏛️ **Plus Choice Available**: Professional Real Estate Tax Advisory (+ $1,200)")
+                    st.subheader(f"[{sch['badge']}] {title_curr}")
+                    st.write(f"📍 {loc_curr} | 🏟️ {fac_curr}")
+                    st.write(f"💰 **Pricing**: 1 Mo (${sch['pricing']['1 Month (1개월)']:,}) | 3 Mos (${sch['pricing']['3 Months (3개월)']:,}) | 1 Yr (${sch['pricing']['1 Year (1년)']:,}) | 3 Yrs (${sch['pricing']['3 Years (3년 Elite Pass)']:,})")
+                    st.write("🏛️ **Plus Choice Available**: Global Real Estate & Residency Tax Advisory (+ $1,200)")
                     st.caption(desc_curr)
                 with c_right:
-                    if st.button("🔎 Details & Order Checkout", key=f"est_sub_{key}"):
-                        st.query_params["estate"] = key
+                    if st.button("🔎 Details & Select Duration", key=f"sch_sub_{key}"):
+                        st.query_params["school"] = key
                         st.rerun()
 
 # ==========================================
@@ -569,14 +579,14 @@ elif page_selection == t["nav_5"]:
             inq_category = st.selectbox(
                 "Category (문의 유형)",
                 [
+                    "Tennis School Service & Residency (테니스 스쿨 및 숙박)",
                     "Tournament & Accommodation (대회 및 숙박)",
-                    "Tennis Real Estate Investment (부동산 매매/임대)",
                     "Tax & Legal Advisory Service (세무 및 법률 자문)",
                     "AI Serve Analysis & Racket Calculator (AI 측정 및 라켓)",
                     "General & Account Support (일반 및 계정 문의)"
                 ]
             )
-            inq_subject = st.text_input("Subject (제목)", placeholder="e.g. Real estate acquisition tax consultation")
+            inq_subject = st.text_input("Subject (제목)", placeholder="e.g. 1-Year Tennis School enrollment consultation")
             inq_msg = st.text_area("Message Detail (문의 내용)", placeholder="Type your detailed message here...", height=150)
             
             submit_ticket = st.form_submit_button("📤 Submit Message")
@@ -649,15 +659,15 @@ elif page_selection == t["nav_6"]:
         st.markdown("---")
         
         tab1, tab2, tab3 = st.tabs([
-            "🏢 Real Estate Purchase Orders & Tax Options",
+            "🏫 Tennis School Subscriptions & Tax Options",
             "🏆 Tournament & Resort Orders",
             "📩 Support Ticket Inbox & Reply Tool"
         ])
 
         with tab1:
-            st.subheader("🏢 Real Estate Transactions Database (부동산 실시간 주문 및 세무 옵션)")
+            st.subheader("🏫 Tennis School Registration Database (스쿨 결제 및 세무 옵션)")
             if len(st.session_state["estate_orders"]) == 0:
-                st.info("No real estate orders submitted yet.")
+                st.info("No tennis school orders submitted yet.")
             else:
                 st.dataframe(st.session_state["estate_orders"], use_container_width=True)
 
