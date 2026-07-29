@@ -3,7 +3,7 @@ import datetime
 import time
 
 # ==========================================
-# 1. Page Configuration & Modern SaaS Styling
+# 1. Page Configuration & Luxury Sand Styling
 # ==========================================
 st.set_page_config(
     page_title="ServeAI - Global Tennis & Sports-Tech Portal",
@@ -12,133 +12,142 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom Clean SaaS CSS Theme
+# Custom Luxury Sand & Warm Earth Tone Theme
 st.markdown("""
 <style>
-    /* Global Page Clean Theme */
+    /* Global Page - Warm Sand Linen Background */
     .stApp {
-        background-color: #f8fafc;
-        color: #0f172a;
+        background-color: #F5F2EB !important;
+        color: #211F1D !important;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
     
     /* Top Header Bar */
     .top-header {
-        background-color: #ffffff;
-        border-bottom: 1px solid #e2e8f0;
+        background-color: #EAE4DC !important;
+        border: 1px solid #D8D0C5 !important;
         padding: 16px 24px;
         border-radius: 12px;
         margin-bottom: 24px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+        box-shadow: 0 2px 4px rgba(33, 31, 29, 0.02);
     }
     
-    /* Hero Banner */
+    /* Hero Banner - Desert Dune Tone */
     .hero-box {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
+        background: #EAE4DC !important;
+        border: 1px solid #D8D0C5 !important;
         border-radius: 16px;
-        padding: 32px 24px;
+        padding: 36px 24px;
         margin-bottom: 28px;
         text-align: center;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+        box-shadow: 0 4px 10px rgba(33, 31, 29, 0.03);
     }
     
     .hero-title {
         font-size: 2.4rem;
         font-weight: 800;
-        color: #0f172a;
+        color: #211F1D;
         margin-bottom: 8px;
         letter-spacing: -0.025em;
     }
     
     .hero-subtitle {
-        color: #475569;
+        color: #524D46;
         font-size: 1.1rem;
         max-width: 680px;
         margin: 0 auto 16px auto;
         line-height: 1.5;
     }
     
-    /* Stats Bar for Social Proof */
+    /* Stats Badge - Earthy Muted Pills */
     .stat-badge {
         display: inline-block;
-        background-color: #f1f5f9;
-        color: #334155;
+        background-color: #FAF8F5;
+        color: #3B3734;
         font-weight: 600;
         font-size: 0.85rem;
         padding: 6px 14px;
         border-radius: 9999px;
         margin: 4px;
-        border: 1px solid #e2e8f0;
+        border: 1px solid #D8D0C5;
     }
 
-    /* Cards & Container Containers */
+    /* Cards & Containers - Crisp Alabaster Surface */
     div[data-testid="stVerticalBlock"] > div[style*="flex-direction: column"] > div[data-testid="stBlock"] {
-        background-color: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+        background-color: #FAF8F5 !important;
+        border: 1px solid #D8D0C5 !important;
+        border-radius: 14px !important;
+        padding: 22px !important;
+        box-shadow: 0 4px 12px rgba(33, 31, 29, 0.02) !important;
     }
     
-    /* Clean Primary Buttons */
+    /* Primary Buttons - Deep Espresso Charcoal */
     .stButton > button {
-        background-color: #0f172a !important;
-        color: #ffffff !important;
+        background-color: #211F1D !important;
+        color: #F5F2EB !important;
         font-weight: 600 !important;
         border-radius: 8px !important;
-        border: none !important;
-        padding: 0.5rem 1.1rem !important;
+        border: 1px solid #211F1D !important;
+        padding: 0.55rem 1.2rem !important;
         transition: all 0.15s ease-in-out !important;
     }
     
     .stButton > button:hover {
-        background-color: #1e293b !important;
+        background-color: #3B3734 !important;
         transform: translateY(-1px) !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08) !important;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    /* Inputs, Selectboxes & TextAreas */
+    .stTextInput input, .stSelectbox div[data-baseweb="select"], .stTextArea textarea, .stNumberInput input {
+        background-color: #FAF8F5 !important;
+        border: 1px solid #C8C0B5 !important;
+        color: #211F1D !important;
+        border-radius: 8px !important;
     }
 
     /* Clean Metrics */
     .stMetric {
-        background-color: #ffffff !important;
-        border: 1px solid #e2e8f0 !important;
+        background-color: #EAE4DC !important;
+        border: 1px solid #D8D0C5 !important;
         border-radius: 10px !important;
         padding: 12px 16px !important;
     }
     
     div[data-testid="stMetricValue"] {
-        color: #0f172a !important;
+        color: #211F1D !important;
         font-weight: 700 !important;
     }
 
     /* Tabs Styling */
     .stTabs [data-baseweb="tab-list"] {
         gap: 6px;
-        background-color: #f1f5f9;
+        background-color: #EAE4DC;
         padding: 6px;
         border-radius: 10px;
+        border: 1px solid #D8D0C5;
     }
 
     .stTabs [data-baseweb="tab"] {
         height: 40px;
         border-radius: 6px;
-        color: #475569;
+        color: #524D46;
         font-weight: 500;
     }
 
     .stTabs [aria-selected="true"] {
-        background-color: #ffffff !important;
-        color: #0f172a !important;
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08) !important;
+        background-color: #FAF8F5 !important;
+        color: #211F1D !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
     }
 
-    /* Sidebar Clean styling */
+    /* Sidebar Clean Styling */
     section[data-testid="stSidebar"] {
-        background-color: #ffffff !important;
-        border-right: 1px solid #e2e8f0;
+        background-color: #EAE4DC !important;
+        border-right: 1px solid #D8D0C5;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -485,7 +494,7 @@ t = {
 L = t[st.session_state["language"]]
 
 # ==========================================
-# 4. Top Navigation Header (Login / Register / Language Front-Row)
+# 4. Top Navigation Header (Front-Row Controls)
 # ==========================================
 header_col1, header_col2 = st.columns([1, 1])
 
@@ -565,7 +574,7 @@ nav_options = [
 page_selection = st.sidebar.radio(L["nav_title"], nav_options)
 
 # ==========================================
-# 5. Popularity Hero Banner (Clean SaaS Proof)
+# 5. Popularity Hero Banner
 # ==========================================
 st.markdown(f"""
 <div class="hero-box">
@@ -649,7 +658,7 @@ elif page_selection == L["nav_2"]:
         st.success(formatted_msg)
 
 # ==========================================
-# 8. Feature 3: Tournaments Subpage (With Passport & Payment Form)
+# 8. Feature 3: Tournaments Subpage
 # ==========================================
 elif page_selection == L["nav_3"]:
     st.title(L["f3_title"])
@@ -712,7 +721,7 @@ elif page_selection == L["nav_3"]:
                             st.error(L["pay_err_fields"])
 
 # ==========================================
-# 9. Feature 4: Tennis School & Residency (With Passport & Payment Form)
+# 9. Feature 4: Tennis School & Residency
 # ==========================================
 elif page_selection == L["nav_4"]:
     st.title(L["f4_title"])
@@ -797,7 +806,7 @@ elif page_selection == L["nav_4"]:
                         st.error(L["pay_err_fields"])
 
 # ==========================================
-# 10. Feature 5: NTRP Match & 1-Month VIP Chat Pass
+# 10. Feature 5: NTRP Match & VIP Chat Pass
 # ==========================================
 elif page_selection == L["nav_5"]:
     st.title(L["f5_title"])
