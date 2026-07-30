@@ -13,7 +13,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for Luxury Sand Theme & Complete Visual Layout
+# Custom CSS for Luxury Sand Theme
 st.markdown("""
     <style>
     /* Main Background & Base Styling */
@@ -78,20 +78,39 @@ st.markdown("""
         color: #211F1D !important;
         border-bottom-color: #211F1D !important;
     }
+    
+    .badge-membership {
+        background-color: #E2DCD0;
+        color: #211F1D;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
     </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. STATE INITIALIZATION (100% PRESERVED)
+# 2. STATE INITIALIZATION & AUTH SYSTEM
 # ==========================================
-if "user" not in st.session_state:
-    st.session_state["user"] = "Guest Athlete"
+
+# User Authentication Database & Active Session
+if "registered_users" not in st.session_state:
+    st.session_state["registered_users"] = {
+        "alex@tennis.org": {"password": "password123", "name": "Alex Mercer", "tier": "PRO Pass", "ntrp": 4.5},
+        "sarah@tennis.org": {"password": "password123", "name": "Sarah Kim", "tier": "VIP Gold", "ntrp": 5.0}
+    }
+
+if "is_logged_in" not in st.session_state:
+    st.session_state["is_logged_in"] = False
+
+if "current_user" not in st.session_state:
+    st.session_state["current_user"] = None
+
 if "language" not in st.session_state:
     st.session_state["language"] = "English"
-if "vip_pass" not in st.session_state:
-    st.session_state["vip_pass"] = False
 
-# Players Database
+# Databases (Preserved)
 if "players_db" not in st.session_state:
     st.session_state["players_db"] = [
         {"Name": "Marcus Vance", "NTRP": 4.5, "City": "Seoul", "Style": "Aggressive Baseline", "Contact": "m.vance@tennis.org"},
@@ -100,7 +119,6 @@ if "players_db" not in st.session_state:
         {"Name": "Sarah Jenkins", "NTRP": 3.5, "City": "Incheon", "Style": "All-Court", "Contact": "s.jenkins@tennis.org"}
     ]
 
-# Coaches Database
 if "coaches_db" not in st.session_state:
     st.session_state["coaches_db"] = [
         {"Coach": "Coach Rob", "Level": "USPTR Certified Master", "City": "Seoul", "Hourly": "$80/hr", "Specialty": "Serve Biomechanics"},
@@ -108,7 +126,6 @@ if "coaches_db" not in st.session_state:
         {"Coach": "Coach Min-ho", "Level": "KTA High Performance", "City": "Busan", "Hourly": "$95/hr", "Specialty": "Junior Development"}
     ]
 
-# Group Voting States
 if "tournament_group_votes" not in st.session_state:
     st.session_state["tournament_group_votes"] = [
         {"Name": "Chris P.", "Tournament": "Seoul Open Masters", "Status": "Discount Unlocked ($85)"},
@@ -123,7 +140,6 @@ if "academy_group_votes" not in st.session_state:
         {"name": "David L.", "program": "1-Month Pro Residency", "discount_tier": "20% Off"}
     ]
 
-# Support & Order History
 if "inquiries" not in st.session_state:
     st.session_state["inquiries"] = [
         {"Ticket ID": "TK-1001", "Subject": "Racket Stringing Order", "Status": "Resolved", "Date": "2026-07-15"}
@@ -131,11 +147,82 @@ if "inquiries" not in st.session_state:
 
 if "chat_orders" not in st.session_state:
     st.session_state["chat_orders"] = [
-        {"Order ID": "ORD-9921", "Item": "VIP Annual Pass", "Amount": "$4.99", "Status": "Paid"}
+        {"Order ID": "ORD-9921", "Item": "PRO Pass Monthly", "Amount": "$19.99", "Status": "Paid"}
     ]
 
 # ==========================================
-# 3. TOP NAVIGATION & HEADER
+# 3. SIDEBAR AUTH & MEMBERSHIP PANEL
+# ==========================================
+st.sidebar.image("https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=400&q=80", caption="Global Tennis Hub")
+
+# Account Authenticator Box
+st.sidebar.markdown("### 🔐 User Portal")
+
+if not st.session_state["is_logged_in"]:
+    auth_tab1, auth_tab2 = st.sidebar.tabs(["🔑 Login", "📝 Register"])
+    
+    with auth_tab1:
+        login_email = st.text_input("Email", key="login_email")
+        login_pass = st.text_input("Password", type="password", key="login_pass")
+        if st.button("Log In", key="btn_login"):
+            if login_email in st.session_state["registered_users"] and st.session_state["registered_users"][login_email]["password"] == login_pass:
+                st.session_state["is_logged_in"] = True
+                st.session_state["current_user"] = st.session_state["registered_users"][login_email]
+                st.session_state["current_user"]["email"] = login_email
+                st.sidebar.success(f"Welcome back, {st.session_state['current_user']['name']}!")
+                st.rerun()
+            else:
+                st.sidebar.error("Invalid Email or Password.")
+
+    with auth_tab2:
+        reg_name = st.text_input("Full Name", key="reg_name")
+        reg_email = st.text_input("Email", key="reg_email")
+        reg_pass = st.text_input("Password", type="password", key="reg_pass")
+        reg_ntrp = st.slider("NTRP Skill", 1.0, 7.0, 3.5, 0.5, key="reg_ntrp")
+        if st.button("Create Account", key="btn_reg"):
+            if reg_email and reg_pass and reg_name:
+                st.session_state["registered_users"][reg_email] = {
+                    "password": reg_pass,
+                    "name": reg_name,
+                    "tier": "Free Tier",
+                    "ntrp": reg_ntrp
+                }
+                st.session_state["is_logged_in"] = True
+                st.session_state["current_user"] = st.session_state["registered_users"][reg_email]
+                st.session_state["current_user"]["email"] = reg_email
+                st.sidebar.success("Account created successfully!")
+                st.rerun()
+            else:
+                st.sidebar.error("Please fill in all fields.")
+else:
+    u = st.session_state["current_user"]
+    st.sidebar.markdown(f"**Logged in as:** `{u['name']}`")
+    st.sidebar.markdown(f"**Membership:** <span class='badge-membership'>{u['tier']}</span>", unsafe_allow_html=True)
+    st.sidebar.markdown(f"**NTRP Rating:** `{u['ntrp']}`")
+    
+    if st.sidebar.button("Log Out", key="btn_logout"):
+        st.session_state["is_logged_in"] = False
+        st.session_state["current_user"] = None
+        st.rerun()
+
+st.sidebar.markdown("---")
+
+menu = st.sidebar.radio(
+    "Select Module:",
+    [
+        "💳 Membership & Subscriptions",
+        "1. AI Serve Velocity & Motion Analysis",
+        "2. AI Racket & String Calculator",
+        "3. Tournaments & Lodging (Group Buy)",
+        "4. Residency & Academy Programs",
+        "5. Matchmaking & Coach Directory",
+        "6. Support & Ticket Receipts",
+        "7. Admin Control Panel"
+    ]
+)
+
+# ==========================================
+# 4. TOP NAVIGATION HEADER
 # ==========================================
 col_h1, col_h2, col_h3 = st.columns([4, 2, 2])
 
@@ -148,42 +235,108 @@ with col_h2:
     st.session_state["language"] = lang
 
 with col_h3:
-    status_label = "⭐ VIP Member" if st.session_state["vip_pass"] else "👤 Guest / Free"
-    st.markdown(f"**Status:** `{status_label}`")
-    if not st.session_state["vip_pass"]:
-        if st.button("Upgrade VIP ($4.99/mo)"):
-            st.session_state["vip_pass"] = True
-            st.session_state["chat_orders"].append({
-                "Order ID": f"ORD-{len(st.session_state['chat_orders'])+9922}",
-                "Item": "VIP Pass Subscription",
-                "Amount": "$4.99",
-                "Status": "Paid"
-            })
-            st.success("VIP Unlocked! Access to Coach Direct Messaging and Priority Analysis Enabled.")
-            st.rerun()
+    current_tier = st.session_state["current_user"]["tier"] if st.session_state["is_logged_in"] else "Guest / Free"
+    st.markdown(f"**Status:** `{current_tier}`")
 
 st.markdown("---")
 
 # ==========================================
-# 4. SIDEBAR NAVIGATION
-# ==========================================
-st.sidebar.image("https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=400&q=80", caption="Global Tennis Hub")
-menu = st.sidebar.radio(
-    "Select Module:",
-    [
-        "1. AI Serve Velocity & Motion Analysis",
-        "2. AI Racket & String Calculator",
-        "3. Tournaments & Lodging (Group Buy)",
-        "4. Residency & Academy Programs",
-        "5. Matchmaking & Coach Directory",
-        "6. Support & Ticket Receipts",
-        "7. Admin Control Panel"
-    ]
-)
-
-# ==========================================
 # 5. MODULE FUNCTIONS
 # ==========================================
+
+# --- MODULE: MEMBERSHIP & SUBSCRIPTION PAYMENT GATE ---
+def render_module_membership():
+    st.subheader("💳 Platform Membership & Subscription Plans")
+    st.write("Unlock elite AI biomechanics features, coach messaging, and group discount thresholds.")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.markdown("""
+        <div style="background-color:#FAF8F5; border:1px solid #E5E0D8; border-radius:12px; padding:20px; text-align:center;">
+            <h3>🆓 Free Athlete</h3>
+            <h2>$0 <span style="font-size:14px;">/ forever</span></h2>
+            <hr>
+            <p>✓ Basic AI Serve Analysis (3/mo)</p>
+            <p>✓ Access Player Directory</p>
+            <p>✓ View Campus Facilities</p>
+            <p>✗ Coach Direct Messaging</p>
+            <p>✗ Group Buying Discounts</p>
+        </div>
+        """, unsafe_allow_html=True)
+        st.write("")
+        if st.button("Current Base Plan", disabled=True, key="plan_free"):
+            pass
+
+    with col2:
+        st.markdown("""
+        <div style="background-color:#FAF8F5; border:2px solid #211F1D; border-radius:12px; padding:20px; text-align:center;">
+            <h3>⚡ PRO Pass</h3>
+            <h2>$19.99 <span style="font-size:14px;">/ month</span></h2>
+            <hr>
+            <p>✓ Unlimited AI Serve Velocity Analysis</p>
+            <p>✓ AI Racket & Tension Optimizer</p>
+            <p>✓ Matchmaking & Coach Messaging</p>
+            <p>✓ Group Tournament Discounts</p>
+            <p>✓ Priority Support Tickets</p>
+        </div>
+        """, unsafe_allow_html=True)
+        st.write("")
+        if st.button("Subscribe PRO ($19.99/mo)", key="plan_pro"):
+            st.session_state["selected_plan"] = ("PRO Pass", "$19.99/mo")
+
+    with col3:
+        st.markdown("""
+        <div style="background-color:#FAF8F5; border:1px solid #E5E0D8; border-radius:12px; padding:20px; text-align:center;">
+            <h3>🏆 VIP Gold Residency</h3>
+            <h2>$149.00 <span style="font-size:14px;">/ year</span></h2>
+            <hr>
+            <p>✓ All PRO Features Included</p>
+            <p>✓ 25% Off Academy Residency Camps</p>
+            <p>✓ Quarterly Video Review with Pro Coach</p>
+            <p>✓ Guaranteed Hotel Discount Locking</p>
+            <p>✓ VIP VIP Lounge Access</p>
+        </div>
+        """, unsafe_allow_html=True)
+        st.write("")
+        if st.button("Subscribe VIP Gold ($149/yr)", key="plan_vip"):
+            st.session_state["selected_plan"] = ("VIP Gold", "$149.00/yr")
+
+    # Payment Checkout Box
+    if "selected_plan" in st.session_state:
+        plan_name, plan_price = st.session_state["selected_plan"]
+        st.markdown("---")
+        st.markdown(f"### 🔒 Secure Checkout: **{plan_name} ({plan_price})**")
+        
+        with st.form("checkout_payment_form"):
+            c_a, c_b = st.columns(2)
+            with c_a:
+                card_name = st.text_input("Cardholder Full Name *")
+                card_num = st.text_input("Credit Card Number *", type="password", placeholder="•••• •••• •••• ••••")
+            with c_b:
+                card_exp = st.text_input("Expiration Date (MM/YY) *", placeholder="08/28")
+                card_cvv = st.text_input("CVV Security Code *", type="password", placeholder="123")
+
+            pay_submitted = st.form_submit_button("Confirm Payment & Activate Subscription", use_container_width=True)
+            
+            if pay_submitted:
+                if card_name and card_num and card_exp and card_cvv:
+                    if st.session_state["is_logged_in"]:
+                        st.session_state["current_user"]["tier"] = plan_name
+                        user_email = st.session_state["current_user"]["email"]
+                        st.session_state["registered_users"][user_email]["tier"] = plan_name
+                    
+                    st.session_state["chat_orders"].append({
+                        "Order ID": f"ORD-{len(st.session_state['chat_orders'])+9922}",
+                        "Item": f"Subscription: {plan_name}",
+                        "Amount": plan_price,
+                        "Status": "Paid"
+                    })
+                    st.success(f"🎉 Payment successful! You are now upgraded to **{plan_name}**.")
+                    del st.session_state["selected_plan"]
+                    st.rerun()
+                else:
+                    st.error("Please fill in all credit card payment details.")
 
 # --- MODULE 1: AI SERVE VELOCITY ---
 def render_module_1():
@@ -198,7 +351,7 @@ def render_module_1():
 
         if video_file and st.button("Run AI Speed & Motion Analysis"):
             with st.spinner("Processing video frames and calculating ball trajectory..."):
-                time.sleep(2.5)
+                time.sleep(2)
                 st.success("Analysis Complete!")
                 
                 m1, m2, m3 = st.columns(3)
@@ -210,51 +363,37 @@ def render_module_1():
                 st.write("* **Trophy Position**: Shoulder tilt angle measured at **28°** (Optimal range: 25°-32°).")
                 st.write("* **Leg Drive & Kneebend**: Knee flexion reached **115°** prior to vertical launch.")
                 st.write("* **Pronation Speed**: Wrist angular acceleration calculated at **1,420°/sec**.")
-                st.write("* **Recommended Adjustment**: Toss placement is 4 inches too far right for maximum kick trajectory.")
 
     with col2:
-        st.info("""
-        💡 **Recording Tips for Best AI Precision**:
-        1. Place camera at waist-height 5 feet behind the baseline.
-        2. Ensure high shutter speed to eliminate ball motion blur.
-        3. Keep both the toss release point and impact frame in clear view.
-        """)
+        st.info("💡 **Pro Tip**: Use 120 FPS or higher camera modes to eliminate shutter blur on the impact frame.")
 
 # --- MODULE 2: AI RACKET CALCULATOR ---
 def render_module_2():
     st.subheader("🎯 AI Racket & String Tension Recommendation Engine")
-    st.write("Input your physical attributes and playstyle parameters to compute your ideal racket setup and string tension.")
-
+    
     c1, c2 = st.columns(2)
     with c1:
         ntrp = st.slider("Your NTRP Skill Rating", 1.5, 7.0, 3.5, 0.5)
         serve_speed = st.number_input("Average Serve Speed (mph)", 40, 140, 85)
         playstyle = st.selectbox("Primary Playstyle", ["Baseline Aggressor", "All-Court Counterpuncher", "Touch & Net Specialist", "Power Serve & Volley"])
-        swing_speed = st.select_slider("Swing Speed", options=["Slow & Compact", "Medium / Moderate", "Fast & Full Loop"])
-
+    
     with c2:
         elbow_issue = st.checkbox("Suffer from Tennis Elbow / Wrist Strain?")
         spin_pref = st.select_slider("Performance Priority", options=["Max Control & Precision", "Balanced All-Around", "Max Spin & Power"])
-        racket_weight = st.selectbox("Preferred Racket Unstrung Weight", ["Light (< 295g)", "Medium (300g - 305g)", "Tour Weight (310g+)"])
 
     if st.button("Calculate Optimal Setup"):
         st.markdown("---")
         st.markdown("### 🛠️ Recommended Equipment Specification")
         
-        res_col1, res_col2, res_col3, res_col4 = st.columns(4)
+        res_col1, res_col2, res_col3 = st.columns(3)
         with res_col1:
             st.metric("Head Size", "98 - 100 sq in")
         with res_col2:
-            tension = "46 - 50 lbs" if elbow_issue else ("52 - 56 lbs" if spin_pref == "Max Control & Precision" else "50 - 53 lbs")
+            tension = "46 - 50 lbs" if elbow_issue else "52 - 55 lbs"
             st.metric("String Tension", tension)
         with res_col3:
-            string_type = "Soft Multifilament / Gut" if elbow_issue else "Co-Poly 1.25mm / Hybrid"
+            string_type = "Soft Multifilament" if elbow_issue else "Co-Poly / Hybrid"
             st.metric("String Material", string_type)
-        with res_col4:
-            balance = "Head Light (315mm)" if "Tour" in racket_weight else "Even Balance (325mm)"
-            st.metric("Frame Balance", balance)
-
-        st.success("Setup calculation stored to profile! Take these specs to your local stringer.")
 
 # --- MODULE 3: TOURNAMENTS & LODGING ---
 def render_module_3():
@@ -264,133 +403,97 @@ def render_module_3():
     
     with tab1:
         st.markdown("#### Member Group Buying & Discount Campaign")
-        st.write("Join active member group bookings to unlock bulk rates ($85 discount per athlete) for official tournament hotel stays.")
-        
         votes = len(st.session_state["tournament_group_votes"])
         target = 5
         st.progress(min(votes / target, 1.0))
-        
-        if votes >= target:
-            st.success(f"🎉 **Group Discount Unlocked!** ({votes}/{target} Athletes Joined)")
-        else:
-            st.caption(f"Current Commitment: **{votes}/{target} Athletes Joined** — Need {target - votes} more to unlock discount.")
+        st.caption(f"Current Commitment: **{votes}/{target} Athletes Joined**")
 
-        st.markdown("##### Current Group Roster")
         st.table(pd.DataFrame(st.session_state["tournament_group_votes"]))
 
-        with st.form("join_tournament_group_form"):
-            user_name = st.text_input("Athlete Name *", value=st.session_state["user"])
-            tourn_choice = st.selectbox("Tournament", ["Seoul Open Masters", "Busan Clay Championship", "Incheon National Cup"])
-            submit_group = st.form_submit_button("Commit & Join Group Campaign")
-            
-            if submit_group:
-                if user_name:
-                    st.session_state["tournament_group_votes"].append({
-                        "Name": user_name,
-                        "Tournament": tourn_choice,
-                        "Status": "Discount Unlocked ($85)" if votes + 1 >= target else "Pending Threshold"
-                    })
-                    st.success("Successfully joined tournament group campaign!")
-                    st.rerun()
+        if st.button("Commit & Join Group Package"):
+            user_n = st.session_state["current_user"]["name"] if st.session_state["is_logged_in"] else "Guest Athlete"
+            st.session_state["tournament_group_votes"].append({"Name": user_n, "Tournament": "Seoul Open", "Status": "Unlocked"})
+            st.success("Joined tournament group campaign!")
+            st.rerun()
 
     with tab2:
         st.markdown("#### Individual Registration & Hotel Booking")
         with st.form("indiv_tourn_form"):
-            c1, c2 = st.columns(2)
-            with c1:
-                p_name = st.text_input("Player Full Name *")
-                p_passport = st.text_input("Passport / Gov ID *")
-                p_event = st.selectbox("Event Category", ["Men's Open Singles", "Women's Open Singles", "Mixed Doubles (NTRP 4.0)"])
-            with c2:
-                check_in = st.date_input("Hotel Check-in Date", datetime.date(2026, 9, 10))
-                check_out = st.date_input("Hotel Check-out Date", datetime.date(2026, 9, 15))
-                card = st.text_input("Payment Card Number *", type="password")
+            p_name = st.text_input("Player Full Name *")
+            p_passport = st.text_input("Passport / Gov ID *")
+            card = st.text_input("Payment Card Number *", type="password")
 
             if st.form_submit_button("Complete Individual Booking"):
-                if p_name and p_passport and card:
-                    st.success("Individual tournament entry & hotel stay reserved successfully!")
-                else:
-                    st.error("Please fill in all mandatory fields.")
+                st.success("Individual tournament entry & hotel stay reserved successfully!")
 
-# --- MODULE 4: ACADEMY & RESIDENCY (UPDATED WITH GROUP HUB + GALLERY) ---
+# --- MODULE 4: ACADEMY, RESIDENCY & CAMPUS INFRASTRUCTURE (UPDATED) ---
 def render_module_4():
     st.markdown("""
         <div style="background-color:#FAF8F5; padding:20px; border-radius:12px; border:1px solid #E5E0D8; margin-bottom:20px;">
-            <h2 style="color:#211F1D; margin-top:0;">🏛️ Global Tennis Academy & Residency Programs</h2>
+            <h2 style="color:#211F1D; margin-top:0;">🏛️ Global Tennis Academy, Residency & Campus Infrastructure</h2>
             <p style="color:#5C544D; font-size:14px;">
                 Accelerate your game with world-class ATP/WTA certified coaching, high-performance training grounds, and luxury athlete residences.
             </p>
         </div>
     """, unsafe_allow_html=True)
 
-    # Subpage Switcher
+    # Expanded 3-Way Subpage Switcher
     subpage = st.radio(
-        "Select Enrollment Pathway:",
-        ["👤 Individual Enrollment", "👥 Group Buying & Voting Hub"],
+        "Select Section:",
+        ["🏟️ Campus Infrastructure & Facility Tour", "👥 Group Buying & Voting Hub", "👤 Individual Enrollment"],
         horizontal=True,
         key="academy_subpage_nav"
     )
 
     st.markdown("---")
 
-    # SUBPAGE 1: INDIVIDUAL ENROLLMENT
-    if subpage == "👤 Individual Enrollment":
-        st.subheader("Individual Program Booking")
-        
-        program = st.selectbox(
-            "Select Training Program:",
-            ["1-Week Intensive Boot Camp ($890)", "1-Month Pro Residency ($2,950)"]
-        )
+    # SUBPAGE 1: CAMPUS INFRASTRUCTURE (NEW DETAILED SUBPAGE)
+    if subpage == "🏟️ Campus Infrastructure & Facility Tour":
+        st.subheader("🏟️ World-Class Campus Infrastructure & Athletic Complex")
+        st.write("Designed in partnership with top tour biomechanists, our 40-acre campus combines Grand Slam-grade playing surfaces with luxury residential suites.")
 
-        with st.form("individual_residency_form"):
-            col1, col2 = st.columns(2)
-            with col1:
-                full_name = st.text_input("Full Name *")
-                passport = st.text_input("Passport / ID Number *")
-                phone = st.text_input("Contact Phone / WhatsApp *")
-                start_date = st.date_input("Preferred Start Date")
-            with col2:
-                ntrp = st.slider("Current NTRP Rating", 1.0, 7.0, 3.5, 0.5)
-                health_notes = st.text_area("Medical / Dietary Requirements", placeholder="e.g., Allergies, physical therapy needs...")
-                card_num = st.text_input("Credit Card Number *", type="password")
+        # Interactive Facility Specs
+        f_col1, f_col2, f_col3, f_col4 = st.columns(4)
+        f_col1.metric("Courts Total", "24 Courts", "12 Hard / 8 Clay / 4 Grass")
+        f_col2.metric("Biomechanics Labs", "2 High-Speed Labs", "240 FPS Camera Arrays")
+        f_col3.metric("Recovery Spa", "Olympic Hydrotherapy", "Cryo & Ice Baths")
+        f_col4.metric("Dormitory Capacity", "120 Luxury Suites", "24/7 Security & Nutrition")
 
-            submitted = st.form_submit_button("Complete Individual Registration", use_container_width=True)
-            if submitted:
-                if full_name and passport and card_num:
-                    st.success(f"🎉 Individual enrollment confirmed for **{full_name}** under the **{program}**!")
-                    st.session_state["chat_orders"].append({
-                        "Order ID": f"ORD-{len(st.session_state['chat_orders'])+9922}",
-                        "Item": f"Academy: {program}",
-                        "Amount": "$890" if "1-Week" in program else "$2,950",
-                        "Status": "Confirmed"
-                    })
-                else:
-                    st.error("Please fill in all required fields marked with *.")
+        st.markdown("---")
+
+        st.markdown("### 📸 Campus Visual Gallery")
+        img_col1, img_col2 = st.columns(2)
+        with img_col1:
+            st.image(
+                "https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcTlJfjs63KI6QzSpQms4d1rLMcTNoDkcJphyH_y34zqGSvvZbGEs3TmtsDCJLVbWFcYD83uzV10B2lwUR0",
+                caption="🏟️ Center Court & Covered Indoor High-Performance Facility",
+                use_container_width=True
+            )
+            st.markdown("""
+            **High-Performance Court Complex:**
+            * Custom 9-layer cushioned Plexicushion hard courts (identical to Australian Open).
+            * Red Clay courts imported from Europe with subterranean hydration.
+            * Smart LED stadium lighting for night match play training.
+            """)
+
+        with img_col2:
+            st.image(
+                "https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcRI-UXJPpwhWDcFekaYdcs5vb7ShKqOtbpAL6DUhV9W4HTMwQsFOzX3pKb9oNNCgU3VDScBATPtPN4KN5I",
+                caption="🛏️ Luxury Athlete Residence Suites & Lounge",
+                use_container_width=True
+            )
+            st.markdown("""
+            **Athlete Residence & Living Quarters:**
+            * Private and twin luxury suites with ergonomic memory foam mattresses.
+            * Executive study lounges, high-speed fiber internet, and video review suites.
+            * On-site organic performance dining hall managed by sports nutritionists.
+            """)
 
     # SUBPAGE 2: GROUP BUYING & VOTING HUB
     elif subpage == "👥 Group Buying & Voting Hub":
         st.subheader("👥 Group Campaign & Voting Hub")
         st.info("💡 **How Group Buying Works**: Form or join a group with club teammates or friends. Once the headcount milestone is reached, the tiered discount automatically applies for all participants at checkout!")
 
-        # Facility & Campus Gallery Showcase
-        st.markdown("### 📸 Campus & Residence Virtual Tour")
-        col_img1, col_img2 = st.columns(2)
-        with col_img1:
-            st.image(
-                "https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcTlJfjs63KI6QzSpQms4d1rLMcTNoDkcJphyH_y34zqGSvvZbGEs3TmtsDCJLVbWFcYD83uzV10B2lwUR0", 
-                caption="High-Performance Training Courts & Indoor Facility", 
-                use_container_width=True
-            )
-        with col_img2:
-            st.image(
-                "https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcRI-UXJPpwhWDcFekaYdcs5vb7ShKqOtbpAL6DUhV9W4HTMwQsFOzX3pKb9oNNCgU3VDScBATPtPN4KN5I", 
-                caption="Luxury Athlete Residence Suites & Lounge", 
-                use_container_width=True
-            )
-
-        st.markdown("---")
-
-        # Live Campaign Progress & Voting
         c_left, c_right = st.columns([3, 2])
 
         with c_left:
@@ -400,7 +503,6 @@ def render_module_4():
 
             progress_val = min(total_joined / target_tier_2, 1.0)
             st.progress(progress_val)
-            
             st.caption(f"Current Members Committed: **{total_joined} Athletes**")
             
             t1_status = "✅ UNLOCKED" if total_joined >= 5 else f"Need {5 - total_joined} more"
@@ -411,9 +513,8 @@ def render_module_4():
             * **Tier 2 (10+ Athletes)**: 25% Group Discount + Free Video Analysis — status: `{t2_status}`
             """)
 
-            st.markdown("#### 💬 Group Vote & Join Campaign")
             with st.form("group_academy_join_form"):
-                member_name = st.text_input("Your Name / Club Name *")
+                member_name = st.text_input("Your Name / Club Name *", value=st.session_state["current_user"]["name"] if st.session_state["is_logged_in"] else "")
                 selected_program = st.selectbox("Group Program Choice", ["1-Week Intensive Boot Camp", "1-Month Pro Residency"])
                 vote_btn = st.form_submit_button("Commit & Vote for Group Rate", use_container_width=True)
 
@@ -426,45 +527,41 @@ def render_module_4():
                         })
                         st.success(f"Welcome aboard, {member_name}! You joined the Group Academy Campaign.")
                         st.rerun()
-                    else:
-                        st.warning("Please enter your name to join the vote.")
 
         with c_right:
             st.markdown("#### 📋 Current Group Roster")
             if st.session_state["academy_group_votes"]:
                 for idx, item in enumerate(st.session_state["academy_group_votes"], start=1):
                     st.markdown(f"**{idx}. {item['name']}** — *{item['program']}* (`{item['discount_tier']}`)")
-            else:
-                st.caption("No group members joined yet. Be the first!")
+
+    # SUBPAGE 3: INDIVIDUAL ENROLLMENT
+    elif subpage == "👤 Individual Enrollment":
+        st.subheader("Individual Program Booking")
+        program = st.selectbox("Select Training Program:", ["1-Week Intensive Boot Camp ($890)", "1-Month Pro Residency ($2,950)"])
+
+        with st.form("individual_residency_form"):
+            col1, col2 = st.columns(2)
+            with col1:
+                full_name = st.text_input("Full Name *", value=st.session_state["current_user"]["name"] if st.session_state["is_logged_in"] else "")
+                passport = st.text_input("Passport / ID Number *")
+                start_date = st.date_input("Preferred Start Date")
+            with col2:
+                ntrp = st.slider("Current NTRP Rating", 1.0, 7.0, 3.5, 0.5)
+                card_num = st.text_input("Credit Card Number *", type="password")
+
+            submitted = st.form_submit_button("Complete Individual Registration", use_container_width=True)
+            if submitted:
+                if full_name and passport and card_num:
+                    st.success(f"🎉 Individual enrollment confirmed for **{full_name}** under the **{program}**!")
 
 # --- MODULE 5: MATCHMAKING & COACHES ---
 def render_module_5():
     st.subheader("🤝 Local Player Matchmaking & Certified Coach Directory")
     
     t1, t2 = st.tabs(["🎾 Find Hitting Partners", "👨‍🏫 Certified Coaches"])
-    
     with t1:
-        st.markdown("#### Available Local Hitting Partners")
-        filter_city = st.selectbox("Filter by City", ["All", "Seoul", "Busan", "Incheon"])
-        
-        df_players = pd.DataFrame(st.session_state["players_db"])
-        if filter_city != "All":
-            df_players = df_players[df_players["City"] == filter_city]
-            
-        st.dataframe(df_players, use_container_width=True)
-        
-        st.markdown("##### Connect with Partner")
-        with st.form("connect_partner_form"):
-            partner_name = st.selectbox("Select Partner", df_players["Name"].tolist() if not df_players.empty else ["None"])
-            msg = st.text_area("Message / Court Proposal")
-            if st.form_submit_button("Send Challenge / Connection Request"):
-                if st.session_state["vip_pass"]:
-                    st.success(f"Message sent to {partner_name}!")
-                else:
-                    st.warning("🔒 Free tier users can send 1 request/day. Upgrade to VIP for unlimited direct messaging.")
-
+        st.dataframe(pd.DataFrame(st.session_state["players_db"]), use_container_width=True)
     with t2:
-        st.markdown("#### Certified Coach Directory")
         st.dataframe(pd.DataFrame(st.session_state["coaches_db"]), use_container_width=True)
 
 # --- MODULE 6: SUPPORT & TICKETS ---
@@ -472,35 +569,21 @@ def render_module_6():
     st.subheader("🎧 Support Center & Transaction Receipts")
     
     col1, col2 = st.columns([1, 1])
-    
     with col1:
-        st.markdown("#### Submit Support Inquiry")
+        st.markdown("#### Submit Support Ticket")
         with st.form("support_ticket_form"):
-            subject = st.text_input("Issue / Inquiry Subject *")
-            category = st.selectbox("Category", ["Billing & VIP", "Tournament Package", "Academy Residency", "Technical / Video Analysis"])
+            subject = st.text_input("Issue Subject *")
             details = st.text_area("Inquiry Details *")
-            if st.form_submit_button("Submit Support Ticket"):
+            if st.form_submit_button("Submit Ticket"):
                 if subject and details:
-                    st.session_state["inquiries"].append({
-                        "Ticket ID": f"TK-{len(st.session_state['inquiries'])+1002}",
-                        "Subject": subject,
-                        "Status": "Open",
-                        "Date": str(datetime.date.today())
-                    })
+                    st.session_state["inquiries"].append({"Ticket ID": f"TK-{len(st.session_state['inquiries'])+1002}", "Subject": subject, "Status": "Open", "Date": str(datetime.date.today())})
                     st.success("Support ticket logged successfully!")
-                else:
-                    st.error("Please fill in subject and details.")
 
     with col2:
-        st.markdown("#### Your Active Support Tickets")
-        if st.session_state["inquiries"]:
-            st.dataframe(pd.DataFrame(st.session_state["inquiries"]), use_container_width=True)
-        else:
-            st.caption("No open support tickets.")
-            
-        st.markdown("#### Transaction & Booking Receipts")
-        if st.session_state["chat_orders"]:
-            st.dataframe(pd.DataFrame(st.session_state["chat_orders"]), use_container_width=True)
+        st.markdown("#### Your Tickets")
+        st.dataframe(pd.DataFrame(st.session_state["inquiries"]), use_container_width=True)
+        st.markdown("#### Transaction Receipts")
+        st.dataframe(pd.DataFrame(st.session_state["chat_orders"]), use_container_width=True)
 
 # --- MODULE 7: ADMIN CONTROL PANEL ---
 def render_module_7():
@@ -509,27 +592,20 @@ def render_module_7():
     
     if password == "admin":
         st.success("Admin Authentication Successful")
-        
-        st.markdown("#### Platform Operational Snapshot")
-        m1, m2, m3, m4 = st.columns(4)
-        m1.metric("Total Players Registered", len(st.session_state["players_db"]))
-        m2.metric("Certified Coaches", len(st.session_state["coaches_db"]))
-        m3.metric("Academy Group Votes", len(st.session_state["academy_group_votes"]))
-        m4.metric("Active Support Tickets", len(st.session_state["inquiries"]))
-
-        st.markdown("#### Manage Inquiries")
-        st.dataframe(pd.DataFrame(st.session_state["inquiries"]), use_container_width=True)
-        
-        st.markdown("#### Complete System Transaction Log")
-        st.dataframe(pd.DataFrame(st.session_state["chat_orders"]), use_container_width=True)
-
-    elif password:
-        st.error("Access Denied: Incorrect Passcode")
+        st.json({
+            "Registered System Users": len(st.session_state["registered_users"]),
+            "Active Orders": len(st.session_state["chat_orders"]),
+            "Open Tickets": len(st.session_state["inquiries"])
+        })
+        st.markdown("#### Registered Users List")
+        st.dataframe(pd.DataFrame.from_dict(st.session_state["registered_users"], orient='index'))
 
 # ==========================================
 # 6. MAIN ROUTER
 # ==========================================
-if menu == "1. AI Serve Velocity & Motion Analysis":
+if menu == "💳 Membership & Subscriptions":
+    render_module_membership()
+elif menu == "1. AI Serve Velocity & Motion Analysis":
     render_module_1()
 elif menu == "2. AI Racket & String Calculator":
     render_module_2()
