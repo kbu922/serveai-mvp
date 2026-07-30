@@ -110,7 +110,7 @@ if "current_user" not in st.session_state:
 if "language" not in st.session_state:
     st.session_state["language"] = "English"
 
-# Databases (Preserved)
+# Databases
 if "players_db" not in st.session_state:
     st.session_state["players_db"] = [
         {"Name": "Marcus Vance", "NTRP": 4.5, "City": "Seoul", "Style": "Aggressive Baseline", "Contact": "m.vance@tennis.org"},
@@ -128,7 +128,7 @@ if "coaches_db" not in st.session_state:
 
 if "tournament_group_votes" not in st.session_state:
     st.session_state["tournament_group_votes"] = [
-        {"Name": "Chris P.", "Tournament": "Seoul Open Masters", "Status": "Discount Unlocked ($85)"},
+        {"Name": "Chris P.", "Tournament": "US Open Tennis Championships", "Status": "Discount Unlocked ($85)"},
         {"Name": "Min-ji K.", "Tournament": "Seoul Open Masters", "Status": "Discount Unlocked ($85)"},
         {"Name": "Kenji S.", "Tournament": "Seoul Open Masters", "Status": "Discount Unlocked ($85)"}
     ]
@@ -213,7 +213,7 @@ menu = st.sidebar.radio(
         "💳 Membership & Subscriptions",
         "1. AI Serve Velocity & Motion Analysis",
         "2. AI Racket & String Calculator",
-        "3. Tournaments & Lodging (Group Buy)",
+        "3. Tournaments & Lodging (US Open / Korea)",
         "4. Residency & Academy Programs",
         "5. Matchmaking & Coach Directory",
         "6. Support & Ticket Receipts",
@@ -295,7 +295,7 @@ def render_module_membership():
             <p>✓ 25% Off Academy Residency Camps</p>
             <p>✓ Quarterly Video Review with Pro Coach</p>
             <p>✓ Guaranteed Hotel Discount Locking</p>
-            <p>✓ VIP VIP Lounge Access</p>
+            <p>✓ VIP Lounge Access</p>
         </div>
         """, unsafe_allow_html=True)
         st.write("")
@@ -395,38 +395,190 @@ def render_module_2():
             string_type = "Soft Multifilament" if elbow_issue else "Co-Poly / Hybrid"
             st.metric("String Material", string_type)
 
-# --- MODULE 3: TOURNAMENTS & LODGING ---
+# --- MODULE 3: TOURNAMENTS & LODGING (EXPANDED WITH US OPEN / KOREA EVENTS) ---
 def render_module_3():
-    st.subheader("🏆 Tournaments, Hotel Lodging & Member Group Buying")
-    
-    tab1, tab2 = st.tabs(["👥 Group Buying & Voting Hub", "👤 Individual Registration"])
-    
-    with tab1:
-        st.markdown("#### Member Group Buying & Discount Campaign")
+    st.markdown("""
+        <div style="background-color:#FAF8F5; padding:20px; border-radius:12px; border:1px solid #E5E0D8; margin-bottom:20px;">
+            <h2 style="color:#211F1D; margin-top:0;">🏆 Global Tournaments, Lodging & Group Buying</h2>
+            <p style="color:#5C544D; font-size:14px;">
+                Book hotel accommodations and player tickets for major championships including the US Open, Seoul Open Masters, and Busan Clay Court Cup.
+            </p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # Tournament Selector Header
+    selected_event = st.selectbox(
+        "📍 Select Target Competition:",
+        ["🇺🇸 US Open Championships (Flushing Meadows, NY)", "🇰🇷 Seoul Open Masters (Olympic Park, Korea)", "🇰🇷 Busan Clay Court Cup (Sajik Complex, Korea)"]
+    )
+
+    # Subpage Navigation inside Module 3
+    subpage = st.radio(
+        "Select Booking Pathway:",
+        ["🖼️ Competition Infrastructure & Residence Gallery", "👥 Member Group Buying ($85 Discount)", "👤 Individual Registration & Checkout"],
+        horizontal=True,
+        key="tourn_subpage_nav"
+    )
+
+    st.markdown("---")
+
+    # SUBPAGE 1: INFRASTRUCTURE & RESIDENCE GALLERY
+    if subpage == "🖼️ Competition Infrastructure & Residence Gallery":
+        st.subheader(f"🏟️ Facility & Accommodation Tour: {selected_event.split('(')[0]}")
+        st.write("Explore official tournament arenas, player lounges, and preferred partner hotels offering athlete amenities.")
+
+        col_img1, col_img2 = st.columns(2)
+
+        if "US Open" in selected_event:
+            with col_img1:
+                st.image(
+                    "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&q=80",
+                    caption="🏟️ Arthur Ashe Stadium & Grandstand Courts (Flushing, NY)",
+                    use_container_width=True
+                )
+                st.markdown("""
+                **US Open Competition Ground Highlights:**
+                * World's largest tennis stadium with retractable roof technology.
+                * Hard court Laykold surface optimized for fast baseline rallies.
+                * Dedicated warm-up courts and high-speed video tracking arrays.
+                """)
+
+            with col_img2:
+                st.image(
+                    "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80",
+                    caption="🏨 Queens & Manhattan Athlete Residence Partner Suite",
+                    use_container_width=True
+                )
+                st.markdown("""
+                **Official Athlete Lodging:**
+                * Luxury 4-star suite options within 15 minutes of Flushing Meadows.
+                * Shuttle buses running every 20 minutes to competition grounds.
+                * On-site gym, sports massage rooms, and high-protein player buffets.
+                """)
+
+        elif "Seoul Open" in selected_event:
+            with col_img1:
+                st.image(
+                    "https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcTlJfjs63KI6QzSpQms4d1rLMcTNoDkcJphyH_y34zqGSvvZbGEs3TmtsDCJLVbWFcYD83uzV10B2lwUR0",
+                    caption="🏟️ Seoul Olympic Park Tennis Center Main Arena",
+                    use_container_width=True
+                )
+                st.markdown("""
+                **Seoul Open Competition Grounds:**
+                * Historic 10,000-seat center court built for high-stakes championship play.
+                * 18 outdoor hard courts with night lighting and umpire cameras.
+                * Directly connected to Olympic Park subway and athlete village.
+                """)
+
+            with col_img2:
+                st.image(
+                    "https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcRI-UXJPpwhWDcFekaYdcs5vb7ShKqOtbpAL6DUhV9W4HTMwQsFOzX3pKb9oNNCgU3VDScBATPtPN4KN5I",
+                    caption="🏨 Olympic Village Hotel & Athlete Suites (Seoul)",
+                    use_container_width=True
+                )
+                st.markdown("""
+                **Partner Lodging Details:**
+                * Premium athlete accommodations with king beds and ergonomic recovery spaces.
+                * Daily breakfast buffet designed for high-performance endurance.
+                """)
+
+        else: # Busan
+            with col_img1:
+                st.image(
+                    "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&q=80",
+                    caption="🏟️ Busan Sajik Clay Court Complex",
+                    use_container_width=True
+                )
+                st.markdown("""
+                **Busan Clay Court Arena:**
+                * Premium imported European Red Clay courts for maximum spin and traction.
+                * Ocean breeze climate with covered spectator stands.
+                """)
+
+            with col_img2:
+                st.image(
+                    "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80",
+                    caption="🏨 Haeundae Oceanfront Athlete Resort",
+                    use_container_width=True
+                )
+                st.markdown("""
+                **Partner Lodging Details:**
+                * Oceanfront suites with private hydrotherapy spa tubs.
+                * Express shuttles direct to Sajik Tennis Complex.
+                """)
+
+    # SUBPAGE 2: GROUP BUYING HUB
+    elif subpage == "👥 Member Group Buying ($85 Discount)":
+        st.subheader(f"👥 Group Buying Campaign: {selected_event.split('(')[0]}")
+        st.info("💡 **Group Buying Advantage**: Join forces with 5+ fellow athletes to unlock an instant $85/person bulk discount on combined hotel and tournament pass packages!")
+
         votes = len(st.session_state["tournament_group_votes"])
         target = 5
         st.progress(min(votes / target, 1.0))
-        st.caption(f"Current Commitment: **{votes}/{target} Athletes Joined**")
+        st.caption(f"Current Committed Members: **{votes}/{target} Athletes Joined**")
 
+        st.markdown("#### 📋 Current Campaign Participants")
         st.table(pd.DataFrame(st.session_state["tournament_group_votes"]))
 
-        if st.button("Commit & Join Group Package"):
-            user_n = st.session_state["current_user"]["name"] if st.session_state["is_logged_in"] else "Guest Athlete"
-            st.session_state["tournament_group_votes"].append({"Name": user_n, "Tournament": "Seoul Open", "Status": "Unlocked"})
-            st.success("Joined tournament group campaign!")
-            st.rerun()
+        st.markdown("#### 💳 Commit & Join Group Payment Tier")
+        with st.form("join_tournament_group_form"):
+            c_g1, c_g2 = st.columns(2)
+            with c_g1:
+                g_user_name = st.text_input("Athlete Full Name *", value=st.session_state["current_user"]["name"] if st.session_state["is_logged_in"] else "")
+                g_email = st.text_input("Contact Email *", value=st.session_state["current_user"]["email"] if st.session_state["is_logged_in"] else "")
+            with c_g2:
+                g_card = st.text_input("Credit Card Number ($85 Discounted Deposit) *", type="password")
+                g_expiry = st.text_input("Expiration (MM/YY) *", placeholder="12/28")
 
-    with tab2:
-        st.markdown("#### Individual Registration & Hotel Booking")
+            submit_group = st.form_submit_button("Pay & Commit to Group Package ($215 / Person)", use_container_width=True)
+            
+            if submit_group:
+                if g_user_name and g_email and g_card:
+                    st.session_state["tournament_group_votes"].append({
+                        "Name": g_user_name,
+                        "Tournament": selected_event.split('(')[0].strip(),
+                        "Status": "Discount Unlocked ($85 Off)"
+                    })
+                    st.session_state["chat_orders"].append({
+                        "Order ID": f"ORD-{len(st.session_state['chat_orders'])+9922}",
+                        "Item": f"Group Tourn Deposit: {selected_event.split('(')[0]}",
+                        "Amount": "$215.00",
+                        "Status": "Paid (Group Tier)"
+                    })
+                    st.success(f"🎉 Successfully joined group campaign for **{selected_event.split('(')[0]}**! Your $85 discount is locked.")
+                    st.rerun()
+                else:
+                    st.error("Please complete all payment fields.")
+
+    # SUBPAGE 3: INDIVIDUAL REGISTRATION
+    elif subpage == "👤 Individual Registration & Checkout":
+        st.subheader(f"👤 Individual Player Booking: {selected_event.split('(')[0]}")
+        st.write("Book standard individual hotel stay and tournament pass without group constraints.")
+
         with st.form("indiv_tourn_form"):
-            p_name = st.text_input("Player Full Name *")
-            p_passport = st.text_input("Passport / Gov ID *")
-            card = st.text_input("Payment Card Number *", type="password")
+            c1, c2 = st.columns(2)
+            with c1:
+                p_name = st.text_input("Player Full Name *", value=st.session_state["current_user"]["name"] if st.session_state["is_logged_in"] else "")
+                p_passport = st.text_input("Passport / Gov ID *")
+                p_event = st.selectbox("Event Category", ["Singles Championship", "Doubles Division", "VIP Spectator Pass"])
+            with c2:
+                check_in = st.date_input("Hotel Check-in Date", datetime.date(2026, 9, 10))
+                check_out = st.date_input("Hotel Check-out Date", datetime.date(2026, 9, 15))
+                card = st.text_input("Credit Card Number ($300 Standard Rate) *", type="password")
 
-            if st.form_submit_button("Complete Individual Booking"):
-                st.success("Individual tournament entry & hotel stay reserved successfully!")
+            if st.form_submit_button("Pay & Confirm Individual Booking ($300.00)", use_container_width=True):
+                if p_name and p_passport and card:
+                    st.session_state["chat_orders"].append({
+                        "Order ID": f"ORD-{len(st.session_state['chat_orders'])+9922}",
+                        "Item": f"Individual Tourn Pass: {selected_event.split('(')[0]}",
+                        "Amount": "$300.00",
+                        "Status": "Paid (Individual)"
+                    })
+                    st.success(f"🎉 Individual tournament entry and hotel package confirmed for **{p_name}**!")
+                else:
+                    st.error("Please fill in all required fields.")
 
-# --- MODULE 4: ACADEMY, RESIDENCY & CAMPUS INFRASTRUCTURE (UPDATED) ---
+# --- MODULE 4: ACADEMY, RESIDENCY & CAMPUS INFRASTRUCTURE ---
 def render_module_4():
     st.markdown("""
         <div style="background-color:#FAF8F5; padding:20px; border-radius:12px; border:1px solid #E5E0D8; margin-bottom:20px;">
@@ -447,12 +599,11 @@ def render_module_4():
 
     st.markdown("---")
 
-    # SUBPAGE 1: CAMPUS INFRASTRUCTURE (NEW DETAILED SUBPAGE)
+    # SUBPAGE 1: CAMPUS INFRASTRUCTURE
     if subpage == "🏟️ Campus Infrastructure & Facility Tour":
         st.subheader("🏟️ World-Class Campus Infrastructure & Athletic Complex")
         st.write("Designed in partnership with top tour biomechanists, our 40-acre campus combines Grand Slam-grade playing surfaces with luxury residential suites.")
 
-        # Interactive Facility Specs
         f_col1, f_col2, f_col3, f_col4 = st.columns(4)
         f_col1.metric("Courts Total", "24 Courts", "12 Hard / 8 Clay / 4 Grass")
         f_col2.metric("Biomechanics Labs", "2 High-Speed Labs", "240 FPS Camera Arrays")
@@ -609,7 +760,7 @@ elif menu == "1. AI Serve Velocity & Motion Analysis":
     render_module_1()
 elif menu == "2. AI Racket & String Calculator":
     render_module_2()
-elif menu == "3. Tournaments & Lodging (Group Buy)":
+elif menu == "3. Tournaments & Lodging (US Open / Korea)":
     render_module_3()
 elif menu == "4. Residency & Academy Programs":
     render_module_4()
