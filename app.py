@@ -3,6 +3,70 @@ import pandas as pd
 import datetime
 import time
 
+
+# -------------------------------------------------------------
+# 1. TRANSLATION DICTIONARY & HELPER (PURE PYTHON - SAFE BEFORE SET_PAGE_CONFIG)
+# -------------------------------------------------------------
+TEXTS = {
+    "EN": {
+        "title": "🎧 Support Center & Billing Receipts",
+        "subtitle": "Manage your support inquiries, request equipment service updates, and access official tax invoices/receipts.",
+        "tab_tickets": "📋 My Support Tickets",
+        "tab_receipts": "🧾 Transaction Receipts & Invoices",
+        "tab_new_ticket": "📩 Submit New Inquiry",
+        "active_tickets": "🎫 Active & Past Support Requests",
+        "login_info": "💡 Please log in to view your personalized support history.",
+        "billing_history": "💳 Billing History & Official Receipts",
+        "generate_receipt": "📄 Generate Detailed Digital Receipt",
+        "select_order": "Select Order ID to View Receipt:",
+        "submit_ticket_hdr": "📩 Create a Support Ticket",
+        "category": "Inquiry Category:",
+        "subject": "Subject / Title *",
+        "details": "Provide details about your inquiry *",
+        "submit_btn": "Submit Support Ticket",
+        "success_msg": "🎉 Ticket **{id}** submitted successfully! Our team will respond within 24 hours.",
+        "no_orders": "No transaction records found."
+    },
+    "KR": {
+        "title": "🎧 고객 지원 센터 및 결제 영수증",
+        "subtitle": "문의 내역 관리, 장비 서비스 업데이트 요청 및 공식 세금 계산서/영수증을 확인하세요.",
+        "tab_tickets": "📋 내 지원 티켓",
+        "tab_receipts": "🧾 거래 내역 및 영수증",
+        "tab_new_ticket": "📩 새 문의 제출하기",
+        "active_tickets": "🎫 진행 중 및 지난 문의 내역",
+        "login_info": "💡 개인 맞춤 지원 내역을 확인하려면 로그인해 주세요.",
+        "billing_history": "💳 결제 내역 및 공식 영수증",
+        "generate_receipt": "📄 상세 디지털 영수증 발급",
+        "select_order": "영수증을 조회할 주문 ID를 선택하세요:",
+        "submit_ticket_hdr": "📩 지원 티켓 작성",
+        "category": "문의 유형:",
+        "subject": "제목 *",
+        "details": "문의 내용을 자세히 작성해 주세요 *",
+        "submit_btn": "지원 티켓 제출",
+        "success_msg": "🎉 티켓 **{id}**이(가) 성공적으로 접수되었습니다! 24시간 이내에 답변해 드리겠습니다.",
+        "no_orders": "거래 내역이 없습니다."
+    }
+}
+
+def get_text(key, lang="EN"):
+    """Helper function to safely retrieve localized strings."""
+    return TEXTS.get(lang, TEXTS["EN"]).get(key, key)
+
+
+# -------------------------------------------------------------
+# 2. FIRST STREAMLIT COMMAND (MUST BE FIRST STREAMLIT CALL)
+# -------------------------------------------------------------
+st.set_page_config(
+    page_title="Global Tennis Academy",
+    page_icon="🎾",
+    layout="wide"
+)
+
+# -------------------------------------------------------------
+# 3. INITIALIZE SESSION STATE AFTER PAGE CONFIG
+# -------------------------------------------------------------
+if "language" not in st.session_state:
+    st.session_state["language"] = "KR"  # Default to Korean or English
 # ==========================================
 # 1. PAGE CONFIG & LUXURY SAND THEME
 # ==========================================
@@ -630,54 +694,53 @@ def render_module_5():
                     else:
                         st.button("🔒 Locked (Upgrade)", key=f"lock_coach_{idx}", disabled=True)
 
-# --- MODULE 7: SUPPORT CENTER & TRANSACTION RECEIPTS ---
+# --- MODULE 7: SUPPORT CENTER & TRANSACTION RECEIPTS (MULTILINGUAL) ---
 def render_module_6():
-    st.subheader("🎧 Support Center & Billing Receipts")
-    st.write("Manage your support inquiries, request equipment service updates, and access official tax invoices/receipts.")
+    # Detect language (Defaults to EN if not set)
+    lang = st.session_state.get("language", "EN")
+    t = TEXTS.get(lang, TEXTS["EN"])
+
+    st.subheader(t["title"])
+    st.write(t["subtitle"])
 
     is_logged = st.session_state.get("is_logged_in", False)
-    
-    # FIX: Fallback to an empty dict if current_user is None
     current_user = st.session_state.get("current_user") or {}
 
     tab_tickets, tab_receipts, tab_new_ticket = st.tabs([
-        "📋 My Support Tickets", 
-        "🧾 Transaction Receipts & Invoices", 
-        "📩 Submit New Inquiry"
+        t["tab_tickets"], 
+        t["tab_receipts"], 
+        t["tab_new_ticket"]
     ])
 
     # -------------------------------------------------------------
     # TAB 1: SUPPORT TICKETS LIST
     # -------------------------------------------------------------
     with tab_tickets:
-        st.markdown("#### 🎫 Active & Past Support Requests")
+        st.markdown(f"#### {t['active_tickets']}")
         
         if not is_logged:
-            st.info("💡 Please log in to view your personalized support history.")
+            st.info(t["login_info"])
         
         inquiries_df = pd.DataFrame(st.session_state.get("inquiries", []))
-        # FIX: Updated width parameter
         st.dataframe(inquiries_df, width="stretch")
 
     # -------------------------------------------------------------
     # TAB 2: TRANSACTION RECEIPTS & INVOICE GENERATOR
     # -------------------------------------------------------------
     with tab_receipts:
-        st.markdown("#### 💳 Billing History & Official Receipts")
+        st.markdown(f"#### {t['billing_history']}")
         
         chat_orders = st.session_state.get("chat_orders", [])
         orders_df = pd.DataFrame(chat_orders)
-        # FIX: Updated width parameter
         st.dataframe(orders_df, width="stretch")
         
         st.markdown("---")
-        st.markdown("##### 📄 Generate Detailed Digital Receipt")
+        st.markdown(f"##### {t['generate_receipt']}")
         
         if chat_orders:
             order_ids = [order["Order ID"] for order in chat_orders]
-            selected_order_id = st.selectbox("Select Order ID to View Receipt:", order_ids)
+            selected_order_id = st.selectbox(t["select_order"], order_ids)
 
-            # Retrieve selected order
             selected_order = next((item for item in chat_orders if item["Order ID"] == selected_order_id), None)
 
             if selected_order:
@@ -686,17 +749,15 @@ def render_module_6():
                     with c_a:
                         st.markdown("**Global Tennis Academy & Tech Platform Inc.**")
                         st.caption("124 Olympic-ro, Songpa-gu, Seoul, South Korea")
-                        # Safely extract user properties
-                        st.write(f"**Billed To:** {current_user.get('name', 'Guest Athlete')}")
-                        st.write(f"**Email:** {current_user.get('email', 'N/A')}")
+                        st.write(f"**Billed To / 청구 대상:** {current_user.get('name', 'Guest Athlete')}")
+                        st.write(f"**Email / 이메일:** {current_user.get('email', 'N/A')}")
                     
                     with c_b:
                         st.write(f"**Invoice No:** `{selected_order['Order ID']}`")
-                        st.write(f"**Payment Status:** `{selected_order['Status']}`")
+                        st.write(f"**Status:** `{selected_order['Status']}`")
                         st.write(f"**Payment Method:** Visa ending in •••• 4242")
                     
                     st.markdown("---")
-                    # Itemization Table
                     st.markdown(f"""
                     | Item Description | Qty | Amount |
                     | :--- | :---: | :---: |
@@ -712,26 +773,26 @@ def render_module_6():
                         mime="text/plain"
                     )
         else:
-            st.info("No transaction records found.")
+            st.info(t["no_orders"])
 
     # -------------------------------------------------------------
     # TAB 3: SUBMIT NEW INQUIRY
     # -------------------------------------------------------------
     with tab_new_ticket:
-        st.markdown("#### 📩 Create a Support Ticket")
+        st.markdown(f"#### {t['submit_ticket_hdr']}")
         
         with st.form("create_ticket_form"):
-            t_category = st.selectbox("Inquiry Category:", [
-                "Racket Stringing / Customization Order",
-                "Academy Residency & Accommodations",
-                "AI Biomechanics / Video Analysis Help",
-                "Membership & Billing Inquiry",
-                "Tournament Registration Issue"
+            t_category = st.selectbox(t["category"], [
+                "Racket Stringing / Customization Order (라켓 스트링/커스텀)",
+                "Academy Residency & Accommodations (아카데미 숙소/입소)",
+                "AI Biomechanics / Video Analysis Help (AI 분석 문의)",
+                "Membership & Billing Inquiry (멤버십 및 결제)",
+                "Tournament Registration Issue (대회 참가 등록)"
             ])
-            t_subject = st.text_input("Subject / Title *")
-            t_details = st.text_area("Provide details about your inquiry *")
+            t_subject = st.text_input(t["subject"])
+            t_details = st.text_area(t["details"])
             
-            submit_ticket = st.form_submit_button("Submit Support Ticket")
+            submit_ticket = st.form_submit_button(t["submit_btn"])
 
             if submit_ticket:
                 if t_subject and t_details:
@@ -742,12 +803,12 @@ def render_module_6():
                     inquiries.append({
                         "Ticket ID": new_id,
                         "Subject": f"[{t_category}] {t_subject}",
-                        "Status": "Open (In Review)",
+                        "Status": "Open (In Review)" if lang == "EN" else "검토 중",
                         "Date": today_date
                     })
-                    st.success(f"🎉 Ticket **{new_id}** submitted successfully! Our team will respond within 24 hours.")
+                    st.success(t["success_msg"].format(id=new_id))
                 else:
-                    st.error("Please fill out both the subject and description fields.")
+                    st.error("Please fill out all required fields. / 모든 필수 항목을 작성해 주세요.")
 
 # --- MODULE 8: ADMIN CONTROL PANEL ---
 def render_module_7():
