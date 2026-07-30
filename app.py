@@ -87,6 +87,30 @@ st.markdown("""
         font-size: 12px;
         font-weight: 700;
     }
+
+    /* Footer Styling */
+    .footer-container {
+        background-color: #FAF8F5;
+        border-top: 2px solid #E5E0D8;
+        padding: 30px;
+        border-radius: 12px;
+        margin-top: 40px;
+    }
+    .social-btn {
+        display: inline-block;
+        background-color: #211F1D;
+        color: #FAF8F5 !important;
+        padding: 8px 16px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 13px;
+        margin-right: 8px;
+        margin-top: 6px;
+    }
+    .social-btn:hover {
+        background-color: #383430;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -217,9 +241,17 @@ menu = st.sidebar.radio(
         "4. Residency & Academy Programs",
         "5. Matchmaking & Coach Directory",
         "6. Support & Ticket Receipts",
-        "7. Admin Control Panel"
+        "7. Admin Control Panel",
+        "📞 Contact HQ & Social Links"
     ]
 )
+
+# Sidebar Quick Contact Card
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 🏢 Global HQ Contact")
+st.sidebar.caption("📍 Songpa-gu, Seoul, Korea")
+st.sidebar.caption("📞 +82 2-555-1004")
+st.sidebar.caption("✉️ support@globaltennis.org")
 
 # ==========================================
 # 4. TOP NAVIGATION HEADER
@@ -395,7 +427,7 @@ def render_module_2():
             string_type = "Soft Multifilament" if elbow_issue else "Co-Poly / Hybrid"
             st.metric("String Material", string_type)
 
-# --- MODULE 3: TOURNAMENTS & LODGING (EXPANDED WITH US OPEN / KOREA EVENTS) ---
+# --- MODULE 3: TOURNAMENTS & LODGING ---
 def render_module_3():
     st.markdown("""
         <div style="background-color:#FAF8F5; padding:20px; border-radius:12px; border:1px solid #E5E0D8; margin-bottom:20px;">
@@ -406,13 +438,11 @@ def render_module_3():
         </div>
     """, unsafe_allow_html=True)
 
-    # Tournament Selector Header
     selected_event = st.selectbox(
         "📍 Select Target Competition:",
         ["🇺🇸 US Open Championships (Flushing Meadows, NY)", "🇰🇷 Seoul Open Masters (Olympic Park, Korea)", "🇰🇷 Busan Clay Court Cup (Sajik Complex, Korea)"]
     )
 
-    # Subpage Navigation inside Module 3
     subpage = st.radio(
         "Select Booking Pathway:",
         ["🖼️ Competition Infrastructure & Residence Gallery", "👥 Member Group Buying ($85 Discount)", "👤 Individual Registration & Checkout"],
@@ -422,7 +452,6 @@ def render_module_3():
 
     st.markdown("---")
 
-    # SUBPAGE 1: INFRASTRUCTURE & RESIDENCE GALLERY
     if subpage == "🖼️ Competition Infrastructure & Residence Gallery":
         st.subheader(f"🏟️ Facility & Accommodation Tour: {selected_event.split('(')[0]}")
         st.write("Explore official tournament arenas, player lounges, and preferred partner hotels offering athlete amenities.")
@@ -507,7 +536,6 @@ def render_module_3():
                 * Express shuttles direct to Sajik Tennis Complex.
                 """)
 
-    # SUBPAGE 2: GROUP BUYING HUB
     elif subpage == "👥 Member Group Buying ($85 Discount)":
         st.subheader(f"👥 Group Buying Campaign: {selected_event.split('(')[0]}")
         st.info("💡 **Group Buying Advantage**: Join forces with 5+ fellow athletes to unlock an instant $85/person bulk discount on combined hotel and tournament pass packages!")
@@ -550,7 +578,6 @@ def render_module_3():
                 else:
                     st.error("Please complete all payment fields.")
 
-    # SUBPAGE 3: INDIVIDUAL REGISTRATION
     elif subpage == "👤 Individual Registration & Checkout":
         st.subheader(f"👤 Individual Player Booking: {selected_event.split('(')[0]}")
         st.write("Book standard individual hotel stay and tournament pass without group constraints.")
@@ -578,7 +605,7 @@ def render_module_3():
                 else:
                     st.error("Please fill in all required fields.")
 
-# --- MODULE 4: ACADEMY, RESIDENCY & CAMPUS INFRASTRUCTURE ---
+# --- MODULE 4: ACADEMY & RESIDENCY ---
 def render_module_4():
     st.markdown("""
         <div style="background-color:#FAF8F5; padding:20px; border-radius:12px; border:1px solid #E5E0D8; margin-bottom:20px;">
@@ -589,7 +616,6 @@ def render_module_4():
         </div>
     """, unsafe_allow_html=True)
 
-    # Expanded 3-Way Subpage Switcher
     subpage = st.radio(
         "Select Section:",
         ["🏟️ Campus Infrastructure & Facility Tour", "👥 Group Buying & Voting Hub", "👤 Individual Enrollment"],
@@ -599,7 +625,6 @@ def render_module_4():
 
     st.markdown("---")
 
-    # SUBPAGE 1: CAMPUS INFRASTRUCTURE
     if subpage == "🏟️ Campus Infrastructure & Facility Tour":
         st.subheader("🏟️ World-Class Campus Infrastructure & Athletic Complex")
         st.write("Designed in partnership with top tour biomechanists, our 40-acre campus combines Grand Slam-grade playing surfaces with luxury residential suites.")
@@ -640,7 +665,6 @@ def render_module_4():
             * On-site organic performance dining hall managed by sports nutritionists.
             """)
 
-    # SUBPAGE 2: GROUP BUYING & VOTING HUB
     elif subpage == "👥 Group Buying & Voting Hub":
         st.subheader("👥 Group Campaign & Voting Hub")
         st.info("💡 **How Group Buying Works**: Form or join a group with club teammates or friends. Once the headcount milestone is reached, the tiered discount automatically applies for all participants at checkout!")
@@ -685,7 +709,6 @@ def render_module_4():
                 for idx, item in enumerate(st.session_state["academy_group_votes"], start=1):
                     st.markdown(f"**{idx}. {item['name']}** — *{item['program']}* (`{item['discount_tier']}`)")
 
-    # SUBPAGE 3: INDIVIDUAL ENROLLMENT
     elif subpage == "👤 Individual Enrollment":
         st.subheader("Individual Program Booking")
         program = st.selectbox("Select Training Program:", ["1-Week Intensive Boot Camp ($890)", "1-Month Pro Residency ($2,950)"])
@@ -751,8 +774,42 @@ def render_module_7():
         st.markdown("#### Registered Users List")
         st.dataframe(pd.DataFrame.from_dict(st.session_state["registered_users"], orient='index'))
 
+# --- MODULE 8: CONTACT HQ & SOCIAL LINKS (DEDICATED MODULE & FOOTER) ---
+def render_module_contact():
+    st.markdown("""
+        <div style="background-color:#FAF8F5; padding:24px; border-radius:12px; border:1px solid #E5E0D8;">
+            <h2 style="margin-top:0;">🏢 Global Headquarters & Corporate Office</h2>
+            <p style="color:#5C544D;">Visit our administrative offices, reach out to our player admissions team, or follow us on our social media platforms.</p>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    st.write("")
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("### 📍 Office Address & Details")
+        st.markdown("""
+        * **Company Name**: Global Tennis Academy & Tech Platform Inc.
+        * **Global HQ Address**: 124 Olympic-ro, Songpa-gu, Seoul, 05540, South Korea *(Adjacent to Seoul Olympic Park Tennis Complex)*
+        * **US Branch Office**: 120 Flushing Meadows Way, Queens, NY 11368, USA
+        * **Main Office Phone**: +82 2-555-1004 / +1 (800) 555-TENNIS
+        * **Support Email**: `support@globaltennis.org`
+        * **Admissions Email**: `admissions@globaltennis.org`
+        * **Business Hours**: Mon – Fri: 09:00 – 18:00 KST / EST
+        """)
+
+    with col2:
+        st.markdown("### 🌐 Official Media Channels")
+        st.markdown("Connect with our global community, watch AI biomechanics breakdowns, and stay updated on upcoming academy camps:")
+        st.markdown("""
+        <a href="https://youtube.com" target="_blank" class="social-btn">📺 YouTube Channel</a>
+        <a href="https://instagram.com" target="_blank" class="social-btn">📸 Instagram (@GlobalTennisAI)</a>
+        <a href="https://twitter.com" target="_blank" class="social-btn">🐦 X / Twitter</a>
+        <a href="https://linkedin.com" target="_blank" class="social-btn">💼 LinkedIn Official</a>
+        """, unsafe_allow_html=True)
+
 # ==========================================
-# 6. MAIN ROUTER
+# 6. MAIN ROUTER & FOOTER INJECTION
 # ==========================================
 if menu == "💳 Membership & Subscriptions":
     render_module_membership()
@@ -770,3 +827,33 @@ elif menu == "6. Support & Ticket Receipts":
     render_module_6()
 elif menu == "7. Admin Control Panel":
     render_module_7()
+elif menu == "📞 Contact HQ & Social Links":
+    render_module_contact()
+
+# ==========================================
+# 7. GLOBAL FOOTER (Rendered Everywhere)
+# ==========================================
+st.markdown("""
+    <div class="footer-container">
+        <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:20px;">
+            <div>
+                <h4>🎾 Global Tennis Academy & Platform Inc.</h4>
+                <p style="font-size:13px; color:#5C544D;">
+                    📍 HQ Address: 124 Olympic-ro, Songpa-gu, Seoul, South Korea<br>
+                    📞 Phone: +82 2-555-1004 | ✉️ Support: support@globaltennis.org
+                </p>
+            </div>
+            <div>
+                <h4>📱 Stay Connected</h4>
+                <a href="https://youtube.com" target="_blank" class="social-btn">YouTube</a>
+                <a href="https://instagram.com" target="_blank" class="social-btn">Instagram</a>
+                <a href="https://twitter.com" target="_blank" class="social-btn">X / Twitter</a>
+                <a href="https://linkedin.com" target="_blank" class="social-btn">LinkedIn</a>
+            </div>
+        </div>
+        <hr style="border-color:#E5E0D8; margin-top:20px; margin-bottom:15px;">
+        <p style="text-align:center; font-size:12px; color:#8C827A; margin:0;">
+            © 2026 Global Tennis Platform & AI Suite. All rights reserved. Built for High-Performance Athletes Worldwide.
+        </p>
+    </div>
+""", unsafe_allow_html=True)
