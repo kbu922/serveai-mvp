@@ -4,7 +4,7 @@ import datetime
 import time
 
 # ==========================================
-# 1. PAGE CONFIG (MUST BE THE FIRST STREAMLIT CALL)
+# 1. PAGE CONFIG (MUST BE FIRST STREAMLIT CALL)
 # ==========================================
 st.set_page_config(
     page_title="Global Tennis Platform & AI Suite",
@@ -14,12 +14,107 @@ st.set_page_config(
 )
 
 # ==========================================
-# 2. TRANSLATION DICTIONARY & HELPER
+# 2. COMPLETE MULTI-LANGUAGE TRANSLATION SYSTEM
 # ==========================================
 TEXTS = {
     "EN": {
-        "title": "🎧 Support Center & Billing Receipts",
-        "subtitle": "Manage your support inquiries, request equipment service updates, and access official tax invoices/receipts.",
+        # Nav & Top Header
+        "app_header_title": "🎾 Global Tennis Platform & AI Suite",
+        "app_header_sub": "Live Stats: **12,400+ Serves Analyzed** | 4,200+ Active Members Globally",
+        "select_module": "Select Module:",
+        "user_portal": "🔐 User Portal",
+        "login": "🔑 Login",
+        "register": "📝 Register",
+        "email": "Email",
+        "password": "Password",
+        "login_btn": "Log In",
+        "logout_btn": "Log Out",
+        "full_name": "Full Name",
+        "ntrp_skill": "NTRP Skill",
+        "create_account": "Create Account",
+        "logged_in_as": "Logged in as:",
+        "membership_label": "Membership:",
+        "ntrp_label": "NTRP Rating:",
+        "status": "Status:",
+
+        # Menu Options
+        "m1_title": "⚡ 1. AI Serve Velocity & Biomechanics Analyzer",
+        "m2_title": "🎯 2. AI Racket & String Tension Recommendation Engine",
+        "m3_title": "💳 3. Membership & Subscriptions",
+        "m4_title": "🏆 4. Tournaments & Lodging (US Open / Korea)",
+        "m5_title": "🏛️ 5. Residency & Academy Programs",
+        "m6_title": "🤝 6. Matchmaking & Coach Directory",
+        "m7_title": "🎧 7. Support & Ticket Receipts",
+        "m8_title": "🔒 8. Admin Control Panel",
+        "m9_title": "📞 9. Contact Us",
+
+        # Module 1
+        "m1_sub": "Upload high-speed footage to run computer-vision motion vector tracking, shoulder axis analysis, and kinetic chain evaluation.",
+        "m1_upload": "Upload Serve Video Footage (MP4/MOV)",
+        "m1_cam_angle": "Camera Angle",
+        "m1_fps": "Frame Rate (FPS)",
+        "m1_run_btn": "Run Deep AI Velocity & Motion Analysis",
+        "m1_benchmarks": "📊 AI Motion Vector Benchmarks",
+        "m1_trophy_target": "Trophy Angle Target: 25° - 35°",
+        "m1_pronation_target": "Pronation Speed Target: >1,300°/sec",
+        "m1_kinetic_target": "Kinetic Efficiency Target: >85%",
+        "m1_report_hdr": "📈 Biomechanical Diagnostic Report",
+        "m1_peak_speed": "Peak Serve Speed",
+        "m1_spin_rate": "Spin Rate",
+        "m1_impact_height": "Impact Height",
+        "m1_kinetic_transfer": "Kinetic Transfer",
+
+        # Module 2
+        "m2_sub": "Input your playstyle profile, injury history, and performance requirements to generate customized frame specs and string tension matrixes.",
+        "m2_ntrp_label": "Your NTRP Skill Rating",
+        "m2_serve_speed": "Average First Serve Speed (mph)",
+        "m2_playstyle": "Primary Playstyle",
+        "m2_sessions_week": "Playing Frequency (Sessions / Week)",
+        "m2_elbow_issue": "Suffer from Tennis Elbow / Wrist Strain?",
+        "m2_priority": "Main Priority",
+        "m2_frame_weight": "Frame Weight Preference",
+        "m2_gen_btn": "Generate Detailed Setup & Tension Recommendations",
+        "m2_spec_hdr": "🛠️ Customized Equipment & Tension Specification",
+        "m2_head_size": "Recommended Head Size",
+        "m2_target_weight": "Target Frame Weight",
+        "m2_tension": "String Tension (Mains / Crosses)",
+        "m2_material": "String Material",
+
+        # Module 3
+        "m3_sub": "Unlock elite AI biomechanics features, coach messaging, and group discount thresholds.",
+        "m3_free_title": "🆓 Free Athlete",
+        "m3_free_btn": "Current Base Plan",
+        "m3_pro_title": "⚡ PRO Pass",
+        "m3_pro_btn": "Subscribe PRO ($19.99/mo)",
+        "m3_vip_title": "🏆 VIP Gold Residency",
+        "m3_vip_btn": "Subscribe VIP Gold ($149/yr)",
+        "m3_checkout": "🔒 Secure Checkout:",
+        "m3_card_name": "Cardholder Full Name *",
+        "m3_card_num": "Credit Card Number *",
+        "m3_card_exp": "Expiration Date (MM/YY) *",
+        "m3_card_cvv": "CVV Security Code *",
+        "m3_pay_btn": "Confirm Payment & Activate Subscription",
+
+        # Module 4 & 5
+        "m4_sub": "📍 Select Target Competition:",
+        "gallery_tab": "🖼️ Competition Infrastructure & Residence Gallery",
+        "group_tab": "👥 Member Group Buying ($85 Discount)",
+        "indiv_tab": "👤 Individual Registration & Checkout",
+        "passport": "Passport / Gov ID *",
+        "indiv_pay_btn": "Pay & Confirm Individual Booking ($300.00)",
+
+        # Module 6
+        "m6_sub": "Connect with local hitting partners or book certified tour coaches. Direct messaging requires an active PRO Pass or VIP Gold membership.",
+        "m6_warn": "🔒 **Membership Required:** You are currently on `{tier}`. Direct messaging with players and coaches is exclusive to PRO Pass and VIP Gold members.",
+        "tab_partners": "🎾 Find Partners",
+        "tab_coaches": "👨‍🏫 Certified Coaches",
+        "chat_now": "💬 Chat Now",
+        "locked": "🔒 Locked (Upgrade)",
+        "book_session": "📅 Book Session",
+
+        # Module 7
+        "m7_title_text": "🎧 Support Center & Billing Receipts",
+        "m7_sub_text": "Manage your support inquiries, request equipment service updates, and access official tax invoices/receipts.",
         "tab_tickets": "📋 My Support Tickets",
         "tab_receipts": "🧾 Transaction Receipts & Invoices",
         "tab_new_ticket": "📩 Submit New Inquiry",
@@ -34,11 +129,113 @@ TEXTS = {
         "details": "Provide details about your inquiry *",
         "submit_btn": "Submit Support Ticket",
         "success_msg": "🎉 Ticket **{id}** submitted successfully! Our team will respond within 24 hours.",
-        "no_orders": "No transaction records found."
+        "no_orders": "No transaction records found.",
+
+        # Module 8 & 9
+        "admin_title": "🔒 Platform Administration Panel",
+        "admin_restricted": "⛔ Access Restricted: Admin credentials or VIP Gold management status required.",
+        "contact_title": "📞 Contact Global Tennis Platform",
+        "contact_sub": "Have questions? Reach out directly to our operations team or headquarters.",
+        "contact_btn": "Send Direct Message"
     },
     "KR": {
-        "title": "🎧 고객 지원 센터 및 결제 영수증",
-        "subtitle": "문의 내역 관리, 장비 서비스 업데이트 요청 및 공식 세금 계산서/영수증을 확인하세요.",
+        # Nav & Top Header
+        "app_header_title": "🎾 글로벌 테니스 플랫폼 & AI 스위트",
+        "app_header_sub": "실시간 통계: **12,400+ 서브 분석 완료** | 전 세계 4,200+ 활성 회원",
+        "select_module": "모듈 선택:",
+        "user_portal": "🔐 사용자 포털",
+        "login": "🔑 로그인",
+        "register": "📝 회원가입",
+        "email": "이메일",
+        "password": "비밀번호",
+        "login_btn": "로그인",
+        "logout_btn": "로그아웃",
+        "full_name": "성명",
+        "ntrp_skill": "NTRP 레벨",
+        "create_account": "계정 생성",
+        "logged_in_as": "로그인 계정:",
+        "membership_label": "멤버십 등급:",
+        "ntrp_label": "NTRP 점수:",
+        "status": "상태:",
+
+        # Menu Options
+        "m1_title": "⚡ 1. AI 서브 속도 및 바이오매카닉스 분석기",
+        "m2_title": "🎯 2. AI 라켓 및 스트링 적정 적정 수치 추천 엔진",
+        "m3_title": "💳 3. 멤버십 및 구독 관리",
+        "m4_title": "🏆 4. 토너먼트 및 숙박 (US 오픈 / 한국)",
+        "m5_title": "🏛️ 5. 레지던시 및 아카데미 프로그램",
+        "m6_title": "🤝 6. 매칭 & 전문 코치 디렉토리",
+        "m7_title": "🎧 7. 고객 지원 센터 및 결제 영수증",
+        "m8_title": "🔒 8. 관리자 제어 패널",
+        "m9_title": "📞 9. 문의하기",
+
+        # Module 1
+        "m1_sub": "고속 서브 영상을 업로드하여 컴퓨터 비전 운동 벡터 추적, 어깨 축 분석 및 운동 체인 평가를 진행하세요.",
+        "m1_upload": "서브 영상 파일 업로드 (MP4/MOV)",
+        "m1_cam_angle": "카메라 촬영 각도",
+        "m1_fps": "프레임 레이트 (FPS)",
+        "m1_run_btn": "AI 정밀 속도 및 모션 분석 실행",
+        "m1_benchmarks": "📊 AI 모션 벡터 벤치마크 Target",
+        "m1_trophy_target": "트로피 자세 목표 각도: 25° - 35°",
+        "m1_pronation_target": "회내(Pronation) 속도 Target: >1,300°/초",
+        "m1_kinetic_target": "운동 에너지 전달 효율 Target: >85%",
+        "m1_report_hdr": "📈 바이오매카닉 정밀 진단 리포트",
+        "m1_peak_speed": "최고 서브 속도",
+        "m1_spin_rate": "스핀 회전수",
+        "m1_impact_height": "타구점 높이",
+        "m1_kinetic_transfer": "에너지 전달률",
+
+        # Module 2
+        "m2_sub": "플레이 스타일, 부상 이력 및 성능 목표를 입력하여 맞춤형 프레임 스펙과 스트링 텐션 매트릭스를 추천받으세요.",
+        "m2_ntrp_label": "본인의 NTRP 실력 등급",
+        "m2_serve_speed": "평균 첫 번째 서브 속도 (mph)",
+        "m2_playstyle": "주요 플레이 스타일",
+        "m2_sessions_week": "주간 플레이 빈도 (회 / 주)",
+        "m2_elbow_issue": "테니스 엘보 또는 손목 통증이 있으신가요?",
+        "m2_priority": "최우선 고려 사항",
+        "m2_frame_weight": "선호하는 라켓 프레임 무게",
+        "m2_gen_btn": "상세 장비 조합 및 텐션 추천 생성",
+        "m2_spec_hdr": "🛠️ 맞춤형 장비 및 스트링 텐션 명세서",
+        "m2_head_size": "추천 헤드 사이즈",
+        "m2_target_weight": "목표 라켓 무게",
+        "m2_tension": "스트링 텐션 (메인 / 크로스)",
+        "m2_material": "추천 스트링 소재",
+
+        # Module 3
+        "m3_sub": "프리미엄 AI 바이오매카닉스 기능, 코치 직접 메시지, 그룹 할인 혜택을 이용해 보세요.",
+        "m3_free_title": "🆓 무료 일반 회원",
+        "m3_free_btn": "현재 기본 플랜 이용 중",
+        "m3_pro_title": "⚡ PRO 패스",
+        "m3_pro_btn": "PRO 패스 구독 ($19.99/월)",
+        "m3_vip_title": "🏆 VIP 골드 레지던시",
+        "m3_vip_btn": "VIP 골드 구독 ($149/년)",
+        "m3_checkout": "🔒 결제하기:",
+        "m3_card_name": "카드 소유자 성명 *",
+        "m3_card_num": "신용카드 번호 *",
+        "m3_card_exp": "유효기간 (MM/YY) *",
+        "m3_card_cvv": "CVV 보안코드 *",
+        "m3_pay_btn": "결제 승인 및 멤버십 활성화",
+
+        # Module 4 & 5
+        "m4_sub": "📍 참가 대회 선택:",
+        "gallery_tab": "🖼️ 대회 인프라 및 숙소 갤러리",
+        "group_tab": "👥 회원 공동 구매 ($85 할인)",
+        "indiv_tab": "👤 개인 참가 신청 및 결제",
+        "passport": "여권 번호 또는 신분증 번호 *",
+        "indiv_pay_btn": "개인 참가 결제 및 확정 ($300.00)",
+
+        # Module 6
+        "m6_sub": "지역 랠리 파트너를 찾거나 검증된 전문 코치 레슨을 예약하세요. 1:1 메시지는 PRO 패스 또는 VIP 골드 회원 전용입니다.",
+        "m6_warn": "🔒 **멤버십 필요:** 현재 `{tier}` 이용 중입니다. 파트너 및 코치와의 직접 메시지는 PRO 패스 및 VIP 골드 회원 전용 기능입니다.",
+        "tab_partners": "🎾 파트너 찾기",
+        "tab_coaches": "👨‍🏫 전문 코치진",
+        "chat_now": "💬 대화하기",
+        "locked": "🔒 잠김 (업그레이드 필요)",
+        "book_session": "📅 레슨 예약하기",
+
+        # Module 7
+        "m7_title_text": "🎧 고객 지원 센터 및 결제 영수증",
+        "m7_sub_text": "문의 내역 관리, 장비 서비스 업데이트 요청 및 공식 세금 계산서/영수증을 확인하세요.",
         "tab_tickets": "📋 내 지원 티켓",
         "tab_receipts": "🧾 거래 내역 및 영수증",
         "tab_new_ticket": "📩 새 문의 제출하기",
@@ -53,7 +250,14 @@ TEXTS = {
         "details": "문의 내용을 자세히 작성해 주세요 *",
         "submit_btn": "지원 티켓 제출",
         "success_msg": "🎉 티켓 **{id}**이(가) 성공적으로 접수되었습니다! 24시간 이내에 답변해 드리겠습니다.",
-        "no_orders": "거래 내역이 없습니다."
+        "no_orders": "거래 내역이 없습니다.",
+
+        # Module 8 & 9
+        "admin_title": "🔒 플랫폼 관리자 제어 패널",
+        "admin_restricted": "⛔ 접근 제한: 관리자 권한 또는 VIP 골드 계정이 필요합니다.",
+        "contact_title": "📞 글로벌 테니스 플랫폼 문의하기",
+        "contact_sub": "궁금한 점이 있으신가요? 운영팀 또는 본사에 직접 문의하세요.",
+        "contact_btn": "문의 메시지 전송"
     }
 }
 
@@ -68,21 +272,16 @@ def get_text(key, lang="EN"):
 # ==========================================
 st.markdown("""
     <style>
-    /* Main Background & Base Styling */
     .stApp {
         background-color: #F5F2EB;
         color: #211F1D;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
-    
-    /* Headers & Typography */
     h1, h2, h3, h4, h5 {
         color: #211F1D !important;
         font-weight: 600;
         letter-spacing: -0.02em;
     }
-    
-    /* Cards & Containers */
     .stCard, div[data-testid="stExpander"], div[data-testid="stForm"] {
         background-color: #FAF8F5;
         border: 1px solid #E5E0D8;
@@ -90,8 +289,6 @@ st.markdown("""
         padding: 24px;
         box-shadow: 0 4px 12px rgba(33, 31, 29, 0.03);
     }
-    
-    /* Buttons */
     .stButton > button, div[data-testid="stForm"] button {
         background-color: #211F1D !important;
         color: #FAF8F5 !important;
@@ -106,22 +303,16 @@ st.markdown("""
         background-color: #383430 !important;
         box-shadow: 0 4px 8px rgba(0,0,0,0.12);
     }
-    
-    /* Metrics & Badges */
     div[data-testid="stMetricValue"] {
         color: #211F1D !important;
         font-weight: 700;
     }
-    
-    /* Input Fields */
     .stTextInput>div>div>input, .stSelectbox>div>div>div, .stTextArea>div>div>textarea, .stNumberInput>div>div>input {
         background-color: #FFFFFF !important;
         border: 1px solid #D6D0C4 !important;
         border-radius: 8px !important;
         color: #211F1D !important;
     }
-    
-    /* Tabs Customization */
     button[data-baseweb="tab"] {
         font-weight: 600 !important;
         color: #5C544D !important;
@@ -130,7 +321,6 @@ st.markdown("""
         color: #211F1D !important;
         border-bottom-color: #211F1D !important;
     }
-    
     .badge-membership {
         background-color: #E2DCD0;
         color: #211F1D;
@@ -138,22 +328,6 @@ st.markdown("""
         border-radius: 20px;
         font-size: 12px;
         font-weight: 700;
-    }
-
-    .social-btn {
-        display: inline-block;
-        background-color: #211F1D;
-        color: #FAF8F5 !important;
-        padding: 10px 20px;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 14px;
-        margin-right: 10px;
-        margin-top: 10px;
-    }
-    .social-btn:hover {
-        background-color: #383430;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -216,36 +390,36 @@ if "chat_orders" not in st.session_state:
         {"Order ID": "ORD-9921", "Item": "PRO Pass Monthly", "Amount": "$19.99", "Status": "Paid"}
     ]
 
+lang = st.session_state["language"]
+
 # ==========================================
 # 5. SIDEBAR AUTH & NAVIGATION PANEL
 # ==========================================
 st.sidebar.image("https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=400&q=80", caption="Global Tennis Hub")
 
-# Account Authenticator Box
-st.sidebar.markdown("### 🔐 User Portal")
+st.sidebar.markdown(f"### {get_text('user_portal', lang)}")
 
 if not st.session_state["is_logged_in"]:
-    auth_tab1, auth_tab2 = st.sidebar.tabs(["🔑 Login", "📝 Register"])
+    auth_tab1, auth_tab2 = st.sidebar.tabs([get_text("login", lang), get_text("register", lang)])
     
     with auth_tab1:
-        login_email = st.text_input("Email", key="login_email")
-        login_pass = st.text_input("Password", type="password", key="login_pass")
-        if st.button("Log In", key="btn_login"):
+        login_email = st.text_input(get_text("email", lang), key="login_email")
+        login_pass = st.text_input(get_text("password", lang), type="password", key="login_pass")
+        if st.button(get_text("login_btn", lang), key="btn_login"):
             if login_email in st.session_state["registered_users"] and st.session_state["registered_users"][login_email]["password"] == login_pass:
                 st.session_state["is_logged_in"] = True
                 st.session_state["current_user"] = st.session_state["registered_users"][login_email]
                 st.session_state["current_user"]["email"] = login_email
-                st.sidebar.success(f"Welcome back, {st.session_state['current_user']['name']}!")
                 st.rerun()
             else:
                 st.sidebar.error("Invalid Email or Password.")
 
     with auth_tab2:
-        reg_name = st.text_input("Full Name", key="reg_name")
-        reg_email = st.text_input("Email", key="reg_email")
-        reg_pass = st.text_input("Password", type="password", key="reg_pass")
-        reg_ntrp = st.slider("NTRP Skill", 1.0, 7.0, 3.5, 0.5, key="reg_ntrp")
-        if st.button("Create Account", key="btn_reg"):
+        reg_name = st.text_input(get_text("full_name", lang), key="reg_name")
+        reg_email = st.text_input(get_text("email", lang), key="reg_email")
+        reg_pass = st.text_input(get_text("password", lang), type="password", key="reg_pass")
+        reg_ntrp = st.slider(get_text("ntrp_skill", lang), 1.0, 7.0, 3.5, 0.5, key="reg_ntrp")
+        if st.button(get_text("create_account", lang), key="btn_reg"):
             if reg_email and reg_pass and reg_name:
                 st.session_state["registered_users"][reg_email] = {
                     "password": reg_pass,
@@ -256,37 +430,35 @@ if not st.session_state["is_logged_in"]:
                 st.session_state["is_logged_in"] = True
                 st.session_state["current_user"] = st.session_state["registered_users"][reg_email]
                 st.session_state["current_user"]["email"] = reg_email
-                st.sidebar.success("Account created successfully!")
                 st.rerun()
             else:
                 st.sidebar.error("Please fill in all fields.")
 else:
     u = st.session_state["current_user"]
-    st.sidebar.markdown(f"**Logged in as:** `{u['name']}`")
-    st.sidebar.markdown(f"**Membership:** <span class='badge-membership'>{u['tier']}</span>", unsafe_allow_html=True)
-    st.sidebar.markdown(f"**NTRP Rating:** `{u['ntrp']}`")
+    st.sidebar.markdown(f"**{get_text('logged_in_as', lang)}** `{u['name']}`")
+    st.sidebar.markdown(f"**{get_text('membership_label', lang)}** <span class='badge-membership'>{u['tier']}</span>", unsafe_allow_html=True)
+    st.sidebar.markdown(f"**{get_text('ntrp_label', lang)}** `{u['ntrp']}`")
     
-    if st.sidebar.button("Log Out", key="btn_logout"):
+    if st.sidebar.button(get_text("logout_btn", lang), key="btn_logout"):
         st.session_state["is_logged_in"] = False
         st.session_state["current_user"] = None
         st.rerun()
 
 st.sidebar.markdown("---")
 
-menu = st.sidebar.radio(
-    "Select Module:",
-    [
-        "⚡ 1. AI Serve Velocity & Biomechanics Analyzer",
-        "🎯 2. AI Racket & String Tension Recommendation Engine",
-        "💳 3. Membership & Subscriptions",
-        "🏆 4. Tournaments & Lodging (US Open / Korea)",
-        "🏛️ 5. Residency & Academy Programs",
-        "🤝 6. Matchmaking & Coach Directory",
-        "🎧 7. Support & Ticket Receipts",
-        "🔒 8. Admin Control Panel",
-        "📞 9. Contact Us"
-    ]
-)
+menu_options = [
+    get_text("m1_title", lang),
+    get_text("m2_title", lang),
+    get_text("m3_title", lang),
+    get_text("m4_title", lang),
+    get_text("m5_title", lang),
+    get_text("m6_title", lang),
+    get_text("m7_title", lang),
+    get_text("m8_title", lang),
+    get_text("m9_title", lang)
+]
+
+menu = st.sidebar.radio(get_text("select_module", lang), menu_options)
 
 # ==========================================
 # 6. TOP NAVIGATION HEADER
@@ -294,16 +466,18 @@ menu = st.sidebar.radio(
 col_h1, col_h2, col_h3 = st.columns([4, 2, 2])
 
 with col_h1:
-    st.markdown("### 🎾 Global Tennis Platform & AI Suite")
-    st.caption("Live Stats: **12,400+ Serves Analyzed** | 4,200+ Active Members Globally")
+    st.markdown(f"### {get_text('app_header_title', lang)}")
+    st.caption(get_text('app_header_sub', lang))
 
 with col_h2:
-    lang = st.selectbox("🌐 Language / 언어", ["English", "한국어"], index=0 if st.session_state["language"] == "English" else 1)
-    st.session_state["language"] = lang
+    selected_lang = st.selectbox("🌐 Language / 언어", ["English", "한국어"], index=0 if st.session_state["language"] == "English" else 1)
+    if selected_lang != st.session_state["language"]:
+        st.session_state["language"] = selected_lang
+        st.rerun()
 
 with col_h3:
     current_tier = st.session_state["current_user"]["tier"] if st.session_state["is_logged_in"] else "Guest / Free"
-    st.markdown(f"**Status:** `{current_tier}`")
+    st.markdown(f"**{get_text('status', lang)}** `{current_tier}`")
 
 st.markdown("---")
 
@@ -313,368 +487,199 @@ st.markdown("---")
 
 # --- MODULE 1: AI SERVE VELOCITY ---
 def render_module_1():
-    st.subheader("⚡ AI Serve Velocity & Biomechanics Analyzer")
-    st.write("Upload high-speed footage to run computer-vision motion vector tracking, shoulder axis analysis, and kinetic chain evaluation.")
+    st.subheader(get_text("m1_title", lang))
+    st.write(get_text("m1_sub", lang))
 
     col1, col2 = st.columns([3, 2])
     with col1:
-        video_file = st.file_uploader("Upload Serve Video Footage (MP4/MOV)", type=["mp4", "mov"])
+        video_file = st.file_uploader(get_text("m1_upload", lang), type=["mp4", "mov"])
         c_a, c_b = st.columns(2)
         with c_a:
-            angle = st.selectbox("Camera Angle", ["Behind Court (Baseline)", "Side View (Court Level)", "45-Degree Angle"])
+            angle = st.selectbox(get_text("m1_cam_angle", lang), ["Behind Court (Baseline)", "Side View (Court Level)", "45-Degree Angle"])
         with c_b:
-            fps = st.slider("Frame Rate (FPS)", 30, 240, 120, help="Higher FPS provides pinpoint accuracy at ball contact frame.")
+            fps = st.slider(get_text("m1_fps", lang), 30, 240, 120)
 
-        run_analysis = st.button("Run Deep AI Velocity & Motion Analysis")
+        run_analysis = st.button(get_text("m1_run_btn", lang))
 
     with col2:
-        st.markdown("""
+        st.markdown(f"""
         <div style="background-color:#FAF8F5; border:1px solid #E5E0D8; border-radius:12px; padding:16px;">
-            <h4 style="margin-top:0;">📊 AI Motion Vector Benchmarks</h4>
-            <p style="font-size:13px; color:#5C544D; margin-bottom:8px;"><strong>Trophy Angle Target:</strong> 25° - 35°</p>
-            <p style="font-size:13px; color:#5C544D; margin-bottom:8px;"><strong>Pronation Speed Target:</strong> >1,300°/sec</p>
-            <p style="font-size:13px; color:#5C544D; margin-bottom:0;"><strong>Kinetic Efficiency Target:</strong> >85%</p>
+            <h4 style="margin-top:0;">{get_text('m1_benchmarks', lang)}</h4>
+            <p style="font-size:13px; color:#5C544D; margin-bottom:8px;"><strong>{get_text('m1_trophy_target', lang)}</strong></p>
+            <p style="font-size:13px; color:#5C544D; margin-bottom:8px;"><strong>{get_text('m1_pronation_target', lang)}</strong></p>
+            <p style="font-size:13px; color:#5C544D; margin-bottom:0;"><strong>{get_text('m1_kinetic_target', lang)}</strong></p>
         </div>
         """, unsafe_allow_html=True)
 
     if video_file or run_analysis:
-        with st.spinner("Analyzing high-speed frames, calculating kinetic launch metrics, and plotting biomechanical vectors..."):
-            time.sleep(1.5)
+        with st.spinner("Analyzing high-speed frames..."):
+            time.sleep(1.0)
             st.markdown("---")
-            st.markdown("### 📈 Biomechanical Diagnostic Report")
+            st.markdown(f"### {get_text('m1_report_hdr', lang)}")
             
-            # Primary Metrics Row
             m1, m2, m3, m4 = st.columns(4)
-            m1.metric("Peak Serve Speed", "118.4 mph", delta="+4.2 mph vs past avg")
-            m2.metric("Spin Rate", "2,840 RPM", delta="Topspin-Kick Profile")
-            m3.metric("Impact Height", "2.88 meters", delta="Optimal Apex Point")
-            m4.metric("Kinetic Transfer", "88.2%", delta="Optimal Leg Drive")
-
-            st.write("")
-            
-            # Interactive Biomechanics Data Charts
-            t_col1, t_col2 = st.columns(2)
-            
-            with t_col1:
-                st.markdown("#### 📐 Velocity & Angular Acceleration Curve")
-                chart_data = pd.DataFrame({
-                    "Serve Phase": ["Trophy Position", "Racket Drop", "Acceleration", "Ball Impact", "Follow Through"],
-                    "Racket Speed (mph)": [12, 38, 92, 118, 45],
-                    "Wrist Angular Speed (°/s)": [180, 420, 1100, 1450, 320]
-                })
-                st.line_chart(chart_data.set_index("Serve Phase"))
-
-            with t_col2:
-                st.markdown("#### 🎯 Impact Spot Radar & Accuracy Distribution")
-                impact_data = pd.DataFrame({
-                    "Court Zone": ["T-Point (Center)", "Body Serve", "Wide Angle"],
-                    "Consistency %": [68, 84, 52],
-                    "Avg Speed (mph)": [118, 112, 108]
-                })
-                st.bar_chart(impact_data.set_index("Court Zone"))
-
-            st.markdown("#### 🔍 4-Phase Biomechanical Breakdown")
-            
-            tab_p1, tab_p2, tab_p3, tab_p4 = st.tabs(["Phase 1: Trophy Position", "Phase 2: Kinetic Chain", "Phase 3: Impact & Extension", "Phase 4: Pronation & Landing"])
-            
-            with tab_p1:
-                st.markdown("""
-                * **Shoulder Tilt Angle**: Measured at **28°** (Target Range: 25°-32°). Excellent shoulder alignment.
-                * **Knee Flexion**: Flexion reached **115°** prior to vertical thrust. Great power storage.
-                * **Toss Height & Position**: Ball toss apex is **0.15m inside baseline**, allowing optimal forward momentum transfer.
-                """)
-            with tab_p2:
-                st.markdown("""
-                * **Hip-to-Shoulder Separation**: Rotation gap measured at **34°** (High core torque creation).
-                * **Racket Head Drop**: Maximum depth reached smoothly without hitch or pausing.
-                """)
-            with tab_p3:
-                st.markdown("""
-                * **Arm Extension at Contact**: **172°** arm-to-shoulder angle at impact frame (Maximum reaching power).
-                * **Net Clearance Axis**: Ball path clears the net cord by **0.68m**, ensuring high margin for error.
-                """)
-            with tab_p4:
-                st.markdown("""
-                * **Internal Shoulder Rotation**: Forearm pronation rate measured at **1,450°/sec**.
-                * **Non-Dominant Arm Re-coil**: Left arm tucks into abdomen cleanly to decelerate upper body rotation smoothly.
-                """)
+            m1.metric(get_text("m1_peak_speed", lang), "118.4 mph", delta="+4.2 mph")
+            m2.metric(get_text("m1_spin_rate", lang), "2,840 RPM", delta="Kick Serve")
+            m3.metric(get_text("m1_impact_height", lang), "2.88 m", delta="Optimal Apex")
+            m4.metric(get_text("m1_kinetic_transfer", lang), "88.2%", delta="Optimal Drive")
 
 # --- MODULE 2: AI RACKET & STRING TENSION ---
 def render_module_2():
-    st.subheader("🎯 AI Racket & String Tension Recommendation Engine")
-    st.write("Input your playstyle profile, injury history, and performance requirements to generate customized frame specs and string tension matrixes.")
+    st.subheader(get_text("m2_title", lang))
+    st.write(get_text("m2_sub", lang))
 
     col1, col2 = st.columns(2)
     with col1:
-        ntrp = st.slider("Your NTRP Skill Rating", 1.5, 7.0, 4.0, 0.5)
-        serve_speed = st.number_input("Average First Serve Speed (mph)", 40, 140, 95)
-        playstyle = st.selectbox("Primary Playstyle", ["Baseline Aggressor (Heavy Spin)", "All-Court Counterpuncher", "Touch & Net Specialist", "Power Serve & Volley"])
-        matches_per_week = st.slider("Playing Frequency (Sessions / Week)", 1, 7, 3)
+        ntrp = st.slider(get_text("m2_ntrp_label", lang), 1.5, 7.0, 4.0, 0.5)
+        serve_speed = st.number_input(get_text("m2_serve_speed", lang), 40, 140, 95)
+        playstyle = st.selectbox(get_text("m2_playstyle", lang), ["Baseline Aggressor", "All-Court Counterpuncher", "Touch & Net Specialist"])
+        matches_per_week = st.slider(get_text("m2_sessions_week", lang), 1, 7, 3)
 
     with col2:
-        elbow_issue = st.checkbox("Suffer from Tennis Elbow / Wrist Strain?")
-        string_durability = st.select_slider("Main Priority", options=["Maximum Arm Comfort", "Balanced Feel & Control", "Maximum Spin & Durability"])
-        racket_weight_pref = st.radio("Frame Weight Preference", ["Light & Maneuverable (<300g)", "Standard Tour Weight (300g-315g)", "Heavy Tour Weight (>315g)"])
+        elbow_issue = st.checkbox(get_text("m2_elbow_issue", lang))
+        priority = st.select_slider(get_text("m2_priority", lang), options=["Maximum Arm Comfort", "Balanced Feel & Control", "Maximum Spin"])
+        racket_weight = st.radio(get_text("m2_frame_weight", lang), ["Light (<300g)", "Standard (300g-315g)", "Heavy (>315g)"])
 
-    if st.button("Generate Detailed Setup & Tension Recommendations"):
+    if st.button(get_text("m2_gen_btn", lang)):
         st.markdown("---")
-        st.markdown("### 🛠️ Customized Equipment & Tension Specification")
+        st.markdown(f"### {get_text('m2_spec_hdr', lang)}")
 
-        # Top Level Spec Summary Cards
         r1, r2, r3, r4 = st.columns(4)
-        r1.metric("Recommended Head Size", "98 - 100 sq in")
-        r2.metric("Target Frame Weight", "305 grams (Unstrung)")
-        r3.metric("String Tension (Mains / Crosses)", "50 / 48 lbs" if elbow_issue else "54 / 52 lbs")
-        r4.metric("String Material", "Multifilament / Gut" if elbow_issue else "Co-Poly Hybrid")
-
-        st.write("")
-        st.markdown("#### 📊 Tension & String Performance Dynamic Analysis")
-
-        # Graphic Tension Matrix Simulation Chart
-        tension_chart = pd.DataFrame({
-            "Tension (Lbs)": [44, 48, 52, 56, 60],
-            "Control & Precision Score": [55, 68, 82, 94, 98],
-            "Trampoline Power & Depth": [96, 88, 74, 60, 48],
-            "Dwell Time / Arm Comfort": [92, 85, 72, 58, 42]
-        })
-        st.line_chart(tension_chart.set_index("Tension (Lbs)"))
-
-        st.markdown("#### 📝 Diagnostic Tension Suggestions & Tuning Guidelines")
-        
-        c_s1, c_s2 = st.columns(2)
-        with c_s1:
-            st.markdown("""
-            **🧵 String Material & Main/Cross Differential:**
-            * **Mains (Vertical Strings)**: String with **Co-Polymer (1.25mm / 16L Gauge)** for snapback and topspin generation.
-            * **Crosses (Horizontal Strings)**: String with **Soft Multifilament** at **2 lbs lower** than the mains to widen the sweet spot and reduce arm shock.
-            * **Recommended Tension Differential**: Maintaining a 2 lb drop on cross strings increases dwell time and sweet spot width by up to **14%**.
-            """)
-        with c_s2:
-            st.markdown(f"""
-            **☀️ Seasonal & Altitude Tension Adjustments:**
-            * **Hot Summer Weather (>28°C)**: Increase string tension by **+2 lbs** (e.g., 54 lbs) as ball felt softens and expands.
-            * **Cold Winter Weather (<10°C)**: Decrease string tension by **-2 lbs** (e.g., 50 lbs) to maintain arm comfort and depth.
-            * **Restring Frequency Recommendation**: Restring your racket every **{max(1, int(12 / matches_per_week))} months** based on your playing frequency.
-            """)
+        r1.metric(get_text("m2_head_size", lang), "98 - 100 sq in")
+        r2.metric(get_text("m2_target_weight", lang), "305 g")
+        r3.metric(get_text("m2_tension", lang), "50 / 48 lbs" if elbow_issue else "54 / 52 lbs")
+        r4.metric(get_text("m2_material", lang), "Multifilament / Gut" if elbow_issue else "Co-Poly Hybrid")
 
 # --- MODULE 3: MEMBERSHIP & SUBSCRIPTIONS ---
 def render_module_membership():
-    st.subheader("💳 Platform Membership & Subscription Plans")
-    st.write("Unlock elite AI biomechanics features, coach messaging, and group discount thresholds.")
+    st.subheader(get_text("m3_title", lang))
+    st.write(get_text("m3_sub", lang))
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.markdown("""
+        st.markdown(f"""
         <div style="background-color:#FAF8F5; border:1px solid #E5E0D8; border-radius:12px; padding:20px; text-align:center;">
-            <h3>🆓 Free Athlete</h3>
-            <h2>$0 <span style="font-size:14px;">/ forever</span></h2>
-            <hr>
-            <p>✓ Basic AI Serve Analysis (3/mo)</p>
-            <p>✓ Access Player Directory</p>
-            <p>✓ View Campus Facilities</p>
-            <p>✗ Coach Direct Messaging</p>
-            <p>✗ Group Buying Discounts</p>
+            <h3>{get_text('m3_free_title', lang)}</h3>
+            <h2>$0</h2>
         </div>
         """, unsafe_allow_html=True)
         st.write("")
-        st.button("Current Base Plan", disabled=True, key="plan_free")
+        st.button(get_text("m3_free_btn", lang), disabled=True, key="plan_free")
 
     with col2:
-        st.markdown("""
+        st.markdown(f"""
         <div style="background-color:#FAF8F5; border:2px solid #211F1D; border-radius:12px; padding:20px; text-align:center;">
-            <h3>⚡ PRO Pass</h3>
-            <h2>$19.99 <span style="font-size:14px;">/ month</span></h2>
-            <hr>
-            <p>✓ Unlimited AI Serve Velocity Analysis</p>
-            <p>✓ AI Racket & Tension Optimizer</p>
-            <p>✓ Matchmaking & Coach Messaging</p>
-            <p>✓ Group Tournament Discounts</p>
-            <p>✓ Priority Support Tickets</p>
+            <h3>{get_text('m3_pro_title', lang)}</h3>
+            <h2>$19.99 / mo</h2>
         </div>
         """, unsafe_allow_html=True)
         st.write("")
-        if st.button("Subscribe PRO ($19.99/mo)", key="plan_pro"):
+        if st.button(get_text("m3_pro_btn", lang), key="plan_pro"):
             st.session_state["selected_plan"] = ("PRO Pass", "$19.99/mo")
 
     with col3:
-        st.markdown("""
+        st.markdown(f"""
         <div style="background-color:#FAF8F5; border:1px solid #E5E0D8; border-radius:12px; padding:20px; text-align:center;">
-            <h3>🏆 VIP Gold Residency</h3>
-            <h2>$149.00 <span style="font-size:14px;">/ year</span></h2>
-            <hr>
-            <p>✓ All PRO Features Included</p>
-            <p>✓ 25% Off Academy Residency Camps</p>
-            <p>✓ Quarterly Video Review with Pro Coach</p>
-            <p>✓ Guaranteed Hotel Discount Locking</p>
-            <p>✓ VIP Lounge Access</p>
+            <h3>{get_text('m3_vip_title', lang)}</h3>
+            <h2>$149.00 / yr</h2>
         </div>
         """, unsafe_allow_html=True)
         st.write("")
-        if st.button("Subscribe VIP Gold ($149/yr)", key="plan_vip"):
+        if st.button(get_text("m3_vip_btn", lang), key="plan_vip"):
             st.session_state["selected_plan"] = ("VIP Gold", "$149.00/yr")
 
     if "selected_plan" in st.session_state:
         plan_name, plan_price = st.session_state["selected_plan"]
         st.markdown("---")
-        st.markdown(f"### 🔒 Secure Checkout: **{plan_name} ({plan_price})**")
+        st.markdown(f"### {get_text('m3_checkout', lang)} **{plan_name} ({plan_price})**")
         
         with st.form("checkout_payment_form"):
             c_a, c_b = st.columns(2)
             with c_a:
-                card_name = st.text_input("Cardholder Full Name *")
-                card_num = st.text_input("Credit Card Number *", type="password", placeholder="•••• •••• •••• ••••")
+                card_name = st.text_input(get_text("m3_card_name", lang))
+                card_num = st.text_input(get_text("m3_card_num", lang), type="password")
             with c_b:
-                card_exp = st.text_input("Expiration Date (MM/YY) *", placeholder="08/28")
-                card_cvv = st.text_input("CVV Security Code *", type="password", placeholder="123")
+                card_exp = st.text_input(get_text("m3_card_exp", lang))
+                card_cvv = st.text_input(get_text("m3_card_cvv", lang), type="password")
 
-            pay_submitted = st.form_submit_button("Confirm Payment & Activate Subscription", use_container_width=True)
-            
-            if pay_submitted:
-                if card_name and card_num and card_exp and card_cvv:
+            if st.form_submit_button(get_text("m3_pay_btn", lang), use_container_width=True):
+                if card_name and card_num:
                     if st.session_state["is_logged_in"]:
                         st.session_state["current_user"]["tier"] = plan_name
-                        user_email = st.session_state["current_user"]["email"]
-                        st.session_state["registered_users"][user_email]["tier"] = plan_name
-                    
-                    st.session_state["chat_orders"].append({
-                        "Order ID": f"ORD-{len(st.session_state['chat_orders'])+9922}",
-                        "Item": f"Subscription: {plan_name}",
-                        "Amount": plan_price,
-                        "Status": "Paid"
-                    })
-                    st.success(f"🎉 Payment successful! You are now upgraded to **{plan_name}**.")
+                    st.success("🎉 Payment Successful!")
                     del st.session_state["selected_plan"]
                     st.rerun()
-                else:
-                    st.error("Please fill in all credit card payment details.")
 
-# --- MODULE 4: TOURNAMENTS & LODGING ---
+# --- MODULE 4 & 5: TOURNAMENTS & ACADEMY ---
 def render_module_3():
-    st.subheader("🏆 Global Tournaments, Lodging & Group Buying")
+    st.subheader(get_text("m4_title", lang))
+    selected_event = st.selectbox(get_text("m4_sub", lang), ["🇺🇸 US Open Championships", "🇰🇷 Seoul Open Masters", "🇰🇷 Busan Clay Court Cup"])
 
-    selected_event = st.selectbox(
-        "📍 Select Target Competition:",
-        ["🇺🇸 US Open Championships (Flushing Meadows, NY)", "🇰🇷 Seoul Open Masters (Olympic Park, Korea)", "🇰🇷 Busan Clay Court Cup (Sajik Complex, Korea)"]
-    )
-
-    subpage = st.radio(
-        "Select Pathway:",
-        ["🖼️ Competition Infrastructure & Residence Gallery", "👥 Member Group Buying ($85 Discount)", "👤 Individual Registration & Checkout"],
-        horizontal=True
-    )
-
+    subpage = st.radio("Pathway:", [get_text("gallery_tab", lang), get_text("group_tab", lang), get_text("indiv_tab", lang)], horizontal=True)
     st.markdown("---")
 
-    if subpage == "🖼️ Competition Infrastructure & Residence Gallery":
+    if subpage == get_text("gallery_tab", lang):
         col_img1, col_img2 = st.columns(2)
         with col_img1:
-            st.image("https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&q=80", caption="🏟️ Tournament Main Arena & Hard Courts", use_container_width=True)
+            st.image("https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&q=80", use_container_width=True)
         with col_img2:
-            st.image("https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80", caption="🏨 Official Partner Athlete Residence Suites", use_container_width=True)
+            st.image("https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80", use_container_width=True)
 
-    elif subpage == "👥 Member Group Buying ($85 Discount)":
-        st.info("💡 Join 5+ athletes to unlock an instant $85/person discount on hotel and tournament packages!")
-        votes = len(st.session_state["tournament_group_votes"])
-        st.progress(min(votes / 5, 1.0))
-        st.caption(f"Current Committed Members: **{votes}/5 Athletes Joined**")
+    elif subpage == get_text("group_tab", lang):
         st.table(pd.DataFrame(st.session_state["tournament_group_votes"]))
 
-    elif subpage == "👤 Individual Registration & Checkout":
+    elif subpage == get_text("indiv_tab", lang):
         with st.form("indiv_tourn_form"):
-            p_name = st.text_input("Player Full Name *", value=st.session_state["current_user"]["name"] if st.session_state["is_logged_in"] else "")
-            p_passport = st.text_input("Passport / Gov ID *")
-            card = st.text_input("Credit Card Number ($300 Standard Rate) *", type="password")
-            if st.form_submit_button("Pay & Confirm Individual Booking ($300.00)"):
-                if p_name and card:
-                    st.success("🎉 Individual tournament entry and hotel package confirmed!")
+            st.text_input(get_text("full_name", lang))
+            st.text_input(get_text("passport", lang))
+            st.text_input(get_text("m3_card_num", lang), type="password")
+            if st.form_submit_button(get_text("indiv_pay_btn", lang)):
+                st.success("🎉 Booking Confirmed!")
 
-# --- MODULE 5: ACADEMY & RESIDENCY ---
 def render_module_4():
-    st.subheader("🏛️ Global Tennis Academy & Residency Programs")
-    
-    subpage = st.radio("Select Section:", ["🏟️ Campus Gallery", "👥 Group Buying & Voting Hub", "👤 Individual Enrollment"], horizontal=True)
-    st.markdown("---")
-
-    if subpage == "🏟️ Campus Gallery":
-        c1, c2 = st.columns(2)
-        with c1:
-            st.image("https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&q=80", caption="Center Court Facility", use_container_width=True)
-        with c2:
-            st.image("https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80", caption="Athlete Residence Lounge", use_container_width=True)
-
-    elif subpage == "👥 Group Buying & Voting Hub":
-        st.dataframe(pd.DataFrame(st.session_state["academy_group_votes"]))
-
-    elif subpage == "👤 Individual Enrollment":
-        with st.form("indiv_academy"):
-            full_name = st.text_input("Full Name *", value=st.session_state["current_user"]["name"] if st.session_state["is_logged_in"] else "")
-            card = st.text_input("Credit Card *", type="password")
-            if st.form_submit_button("Enroll ($890)"):
-                st.success("🎉 Enrollment Confirmed!")
+    st.subheader(get_text("m5_title", lang))
+    st.table(pd.DataFrame(st.session_state["academy_group_votes"]))
 
 # --- MODULE 6: MATCHMAKING & COACH DIRECTORY ---
 def render_module_5():
-    st.subheader("🤝 Player Matchmaking & Coach Directory")
-    st.write("Connect with local hitting partners or book certified tour coaches. Direct messaging requires an active **PRO Pass** or **VIP Gold** membership.")
+    st.subheader(get_text("m6_title", lang))
+    st.write(get_text("m6_sub", lang))
 
     is_logged = st.session_state.get("is_logged_in", False)
     user_tier = st.session_state.get("current_user", {}).get("tier", "Free Tier") if is_logged else "Guest"
-    
     has_chat_access = is_logged and user_tier in ["PRO Pass", "VIP Gold"]
 
     if not has_chat_access:
-        st.warning(
-            f"🔒 **Membership Required:** You are currently on `{user_tier}`. "
-            "Direct messaging with players and coaches is exclusive to **PRO Pass** and **VIP Gold** members."
-        )
+        st.warning(get_text("m6_warn", lang).format(tier=user_tier))
 
     st.markdown("---")
-    t1, t2 = st.tabs(["🎾 Find Partners", "👨‍🏫 Certified Coaches"])
+    t1, t2 = st.tabs([get_text("tab_partners", lang), get_text("tab_coaches", lang)])
 
     with t1:
-        st.markdown("#### 👥 Available Hitting Partners")
-        
         for idx, player in enumerate(st.session_state["players_db"]):
             with st.expander(f"🎾 {player['Name']} — NTRP {player['NTRP']} ({player['City']})", expanded=True):
-                col_info, col_action = st.columns([3, 1])
-                
-                with col_info:
-                    st.write(f"**Style:** {player['Style']}")
-                    st.write(f"**City:** {player['City']}")
-                    st.write(f"**Contact:** `{player['Contact'] if has_chat_access else '••••••••@••••.org'}`")
-                
-                with col_action:
-                    if has_chat_access:
-                        if st.button("💬 Chat Now", key=f"chat_player_{idx}"):
-                            st.success(f"Opening secure chat room with {player['Name']}...")
-                    else:
-                        st.button("🔒 Locked (Upgrade)", key=f"lock_player_{idx}", disabled=True)
+                st.write(f"**Style:** {player['Style']}")
+                st.write(f"**Contact:** `{player['Contact'] if has_chat_access else '••••••••@••••.org'}`")
+                if has_chat_access:
+                    st.button(get_text("chat_now", lang), key=f"chat_{idx}")
+                else:
+                    st.button(get_text("locked", lang), key=f"lock_{idx}", disabled=True)
 
     with t2:
-        st.markdown("#### 👨‍🏫 Certified Tour Coaches")
-        
         for idx, coach in enumerate(st.session_state["coaches_db"]):
             with st.expander(f"🏆 {coach['Coach']} — {coach['Level']} ({coach['City']})", expanded=True):
-                col_info, col_action = st.columns([3, 1])
-                
-                with col_info:
-                    st.write(f"**Specialty:** {coach['Specialty']}")
-                    st.write(f"**Hourly Rate:** {coach['Hourly']}")
-                    st.write(f"**Contact:** `{coach['Contact'] if has_chat_access else '••••••••@••••.org'}`")
-                
-                with col_action:
-                    if has_chat_access:
-                        if st.button("📅 Book Session", key=f"book_coach_{idx}"):
-                            st.success(f"Booking request sent to {coach['Coach']}!")
-                    else:
-                        st.button("🔒 Locked (Upgrade)", key=f"lock_coach_{idx}", disabled=True)
+                st.write(f"**Specialty:** {coach['Specialty']}")
+                st.write(f"**Rate:** {coach['Hourly']}")
+                if has_chat_access:
+                    st.button(get_text("book_session", lang), key=f"book_{idx}")
+                else:
+                    st.button(get_text("locked", lang), key=f"lock_c_{idx}", disabled=True)
 
 # --- MODULE 7: SUPPORT & RECEIPTS ---
 def render_module_6():
-    lang = st.session_state.get("language", "English")
-    st.subheader(get_text("title", lang))
-    st.write(get_text("subtitle", lang))
+    st.subheader(get_text("m7_title_text", lang))
+    st.write(get_text("m7_sub_text", lang))
     st.markdown("---")
 
     tab1, tab2, tab3 = st.tabs([
@@ -700,8 +705,7 @@ def render_module_6():
             selected_order_id = st.selectbox(get_text("select_order", lang), df_orders["Order ID"].tolist())
             
             if st.button("Generate Tax Invoice PDF"):
-                order_detail = df_orders[df_orders["Order ID"] == selected_order_id].iloc[0]
-                st.success(f"Generated official invoice for **{order_detail['Order ID']}** ({order_detail['Item']} - {order_detail['Amount']})")
+                st.success("Invoice generated!")
         else:
             st.write(get_text("no_orders", lang))
 
@@ -721,72 +725,46 @@ def render_module_6():
                         "Status": "Open",
                         "Date": str(datetime.date.today())
                     })
-                    msg = get_text("success_msg", lang).format(id=new_id)
-                    st.success(msg)
-                else:
-                    st.error("Please complete all required fields.")
+                    st.success(get_text("success_msg", lang).format(id=new_id))
 
 # --- MODULE 8: ADMIN CONTROL PANEL ---
 def render_module_admin():
-    st.subheader("🔒 Platform Administration Panel")
-    
+    st.subheader(get_text("admin_title", lang))
     if not st.session_state["is_logged_in"] or st.session_state["current_user"]["tier"] != "VIP Gold":
-        st.error("⛔ Access Restricted: Admin credentials or VIP Gold management status required.")
+        st.error(get_text("admin_restricted", lang))
         return
-
-    st.success("Authorized Administrator Access Level 1")
-    
-    st.markdown("#### 👥 Registered User Management")
     st.json(st.session_state["registered_users"])
-    
-    st.markdown("#### 🧾 Global Transaction Logs")
-    st.dataframe(pd.DataFrame(st.session_state["chat_orders"]))
 
 # --- MODULE 9: CONTACT US ---
 def render_module_contact():
-    st.subheader("📞 Contact Global Tennis Platform")
-    st.write("Have questions? Reach out directly to our operations team or headquarters.")
+    st.subheader(get_text("contact_title", lang))
+    st.write(get_text("contact_sub", lang))
 
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("""
-        **📍 Headquarters:**
-        Global Tennis Center, Olympic Park
-        Seoul, South Korea
-
-        **📧 Email Direct:**
-        support@globaltennis.org
-
-        **📞 Phone:**
-        +82 (02) 555-8921
-        """)
-    
-    with col2:
-        with st.form("contact_direct_form"):
-            st.text_input("Your Name")
-            st.text_input("Your Email")
-            st.text_area("Message")
-            if st.form_submit_button("Send Direct Message"):
-                st.success("Message sent! Our team will get back to you shortly.")
+    with st.form("contact_form"):
+        st.text_input(get_text("full_name", lang))
+        st.text_input(get_text("email", lang))
+        st.text_area(get_text("details", lang))
+        if st.form_submit_button(get_text("contact_btn", lang)):
+            st.success("Message sent!")
 
 # ==========================================
 # 8. MAIN ROUTER
 # ==========================================
-if menu == "⚡ 1. AI Serve Velocity & Biomechanics Analyzer":
+if menu == menu_options[0]:
     render_module_1()
-elif menu == "🎯 2. AI Racket & String Tension Recommendation Engine":
+elif menu == menu_options[1]:
     render_module_2()
-elif menu == "💳 3. Membership & Subscriptions":
+elif menu == menu_options[2]:
     render_module_membership()
-elif menu == "🏆 4. Tournaments & Lodging (US Open / Korea)":
+elif menu == menu_options[3]:
     render_module_3()
-elif menu == "🏛️ 5. Residency & Academy Programs":
+elif menu == menu_options[4]:
     render_module_4()
-elif menu == "🤝 6. Matchmaking & Coach Directory":
+elif menu == menu_options[5]:
     render_module_5()
-elif menu == "🎧 7. Support & Ticket Receipts":
+elif menu == menu_options[6]:
     render_module_6()
-elif menu == "🔒 8. Admin Control Panel":
+elif menu == menu_options[7]:
     render_module_admin()
-elif menu == "📞 9. Contact Us":
+elif menu == menu_options[8]:
     render_module_contact()
