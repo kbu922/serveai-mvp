@@ -636,7 +636,9 @@ def render_module_6():
     st.write("Manage your support inquiries, request equipment service updates, and access official tax invoices/receipts.")
 
     is_logged = st.session_state.get("is_logged_in", False)
-    current_user = st.session_state.get("current_user", {})
+    
+    # FIX: Fallback to an empty dict if current_user is None
+    current_user = st.session_state.get("current_user") or {}
 
     tab_tickets, tab_receipts, tab_new_ticket = st.tabs([
         "📋 My Support Tickets", 
@@ -653,8 +655,9 @@ def render_module_6():
         if not is_logged:
             st.info("💡 Please log in to view your personalized support history.")
         
-        inquiries_df = pd.DataFrame(st.session_state["inquiries"])
-        st.dataframe(inquiries_df, use_container_width=True)
+        inquiries_df = pd.DataFrame(st.session_state.get("inquiries", []))
+        # FIX: Updated width parameter
+        st.dataframe(inquiries_df, width="stretch")
 
     # -------------------------------------------------------------
     # TAB 2: TRANSACTION RECEIPTS & INVOICE GENERATOR
@@ -662,49 +665,54 @@ def render_module_6():
     with tab_receipts:
         st.markdown("#### 💳 Billing History & Official Receipts")
         
-        orders_df = pd.DataFrame(st.session_state["chat_orders"])
-        st.dataframe(orders_df, use_container_width=True)
+        chat_orders = st.session_state.get("chat_orders", [])
+        orders_df = pd.DataFrame(chat_orders)
+        # FIX: Updated width parameter
+        st.dataframe(orders_df, width="stretch")
         
         st.markdown("---")
         st.markdown("##### 📄 Generate Detailed Digital Receipt")
         
-        # Receipt selector
-        order_ids = [order["Order ID"] for order in st.session_state["chat_orders"]]
-        selected_order_id = st.selectbox("Select Order ID to View Receipt:", order_ids)
+        if chat_orders:
+            order_ids = [order["Order ID"] for order in chat_orders]
+            selected_order_id = st.selectbox("Select Order ID to View Receipt:", order_ids)
 
-        # Retrieve selected order
-        selected_order = next((item for item in st.session_state["chat_orders"] if item["Order ID"] == selected_order_id), None)
+            # Retrieve selected order
+            selected_order = next((item for item in chat_orders if item["Order ID"] == selected_order_id), None)
 
-        if selected_order:
-            with st.expander(f"🧾 Digital Invoice — {selected_order['Order ID']}", expanded=True):
-                c_a, c_b = st.columns(2)
-                with c_a:
-                    st.markdown("**Global Tennis Academy & Tech Platform Inc.**")
-                    st.caption("124 Olympic-ro, Songpa-gu, Seoul, South Korea")
-                    st.write(f"**Billed To:** {current_user.get('name', 'Guest Athlete')}")
-                    st.write(f"**Email:** {current_user.get('email', 'N/A')}")
-                
-                with c_b:
-                    st.write(f"**Invoice No:** `{selected_order['Order ID']}`")
-                    st.write(f"**Payment Status:** `{selected_order['Status']}`")
-                    st.write(f"**Payment Method:** Visa ending in •••• 4242")
-                
-                st.markdown("---")
-                # Itemization Table
-                st.markdown(f"""
-                | Item Description | Qty | Amount |
-                | :--- | :---: | :---: |
-                | **{selected_order['Item']}** | 1 | {selected_order['Amount']} |
-                | **VAT / Sales Tax (Included)** | - | $0.00 |
-                | **Total Paid** | | **{selected_order['Amount']}** |
-                """)
+            if selected_order:
+                with st.expander(f"🧾 Digital Invoice — {selected_order['Order ID']}", expanded=True):
+                    c_a, c_b = st.columns(2)
+                    with c_a:
+                        st.markdown("**Global Tennis Academy & Tech Platform Inc.**")
+                        st.caption("124 Olympic-ro, Songpa-gu, Seoul, South Korea")
+                        # Safely extract user properties
+                        st.write(f"**Billed To:** {current_user.get('name', 'Guest Athlete')}")
+                        st.write(f"**Email:** {current_user.get('email', 'N/A')}")
+                    
+                    with c_b:
+                        st.write(f"**Invoice No:** `{selected_order['Order ID']}`")
+                        st.write(f"**Payment Status:** `{selected_order['Status']}`")
+                        st.write(f"**Payment Method:** Visa ending in •••• 4242")
+                    
+                    st.markdown("---")
+                    # Itemization Table
+                    st.markdown(f"""
+                    | Item Description | Qty | Amount |
+                    | :--- | :---: | :---: |
+                    | **{selected_order['Item']}** | 1 | {selected_order['Amount']} |
+                    | **VAT / Sales Tax (Included)** | - | $0.00 |
+                    | **Total Paid** | | **{selected_order['Amount']}** |
+                    """)
 
-                st.download_button(
-                    label="📥 Download Receipt (TXT)",
-                    data=f"INVOICE: {selected_order['Order ID']}\nItem: {selected_order['Item']}\nAmount: {selected_order['Amount']}\nStatus: {selected_order['Status']}",
-                    file_name=f"Receipt_{selected_order['Order ID']}.txt",
-                    mime="text/plain"
-                )
+                    st.download_button(
+                        label="📥 Download Receipt (TXT)",
+                        data=f"INVOICE: {selected_order['Order ID']}\nItem: {selected_order['Item']}\nAmount: {selected_order['Amount']}\nStatus: {selected_order['Status']}",
+                        file_name=f"Receipt_{selected_order['Order ID']}.txt",
+                        mime="text/plain"
+                    )
+        else:
+            st.info("No transaction records found.")
 
     # -------------------------------------------------------------
     # TAB 3: SUBMIT NEW INQUIRY
@@ -727,10 +735,11 @@ def render_module_6():
 
             if submit_ticket:
                 if t_subject and t_details:
-                    new_id = f"TK-{len(st.session_state['inquiries']) + 1002}"
+                    inquiries = st.session_state.setdefault("inquiries", [])
+                    new_id = f"TK-{len(inquiries) + 1002}"
                     today_date = datetime.date.today().strftime("%Y-%m-%d")
                     
-                    st.session_state["inquiries"].append({
+                    inquiries.append({
                         "Ticket ID": new_id,
                         "Subject": f"[{t_category}] {t_subject}",
                         "Status": "Open (In Review)",
