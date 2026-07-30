@@ -360,7 +360,7 @@ def render_module_2():
         playstyle = st.selectbox("Primary Playstyle", ["Baseline Aggressor (Heavy Spin)", "All-Court Counterpuncher", "Touch & Net Specialist", "Power Serve & Volley"])
         matches_per_week = st.slider("Playing Frequency (Sessions / Week)", 1, 7, 3)
 
-    with c2:
+    with col2:
         elbow_issue = st.checkbox("Suffer from Tennis Elbow / Wrist Strain?")
         string_durability = st.select_slider("Main Priority", options=["Maximum Arm Comfort", "Balanced Feel & Control", "Maximum Spin & Durability"])
         racket_weight_pref = st.radio("Frame Weight Preference", ["Light & Maneuverable (<300g)", "Standard Tour Weight (300g-315g)", "Heavy Tour Weight (>315g)"])
