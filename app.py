@@ -177,6 +177,35 @@ if "memberships" not in st.session_state:
         }
     }
 
+# Group Buy Campaigns Database
+if "group_buy_deals" not in st.session_state:
+    st.session_state["group_buy_deals"] = [
+        {
+            "id": "GRP-101",
+            "tour_name": "2026 Seoul Open Amateur Grand Prix",
+            "hotel": "Gangnam Luxury Stay (Standard 1 Night)",
+            "regular_price": "$120 / night",
+            "group_price": "$85 / night (30% OFF)",
+            "target_members": 6,
+            "votes_collected": 5,
+            "creator": "alex@globaltennis.com",
+            "voters": ["alex@globaltennis.com", "jessica@tennis.com", "park@tennis.com", "elena@tennis.com", "kenji@tennis.com"],
+            "status": "Active - Need 1 More Member!"
+        },
+        {
+            "id": "GRP-102",
+            "tour_name": "Jeju Island Tennis & Beach Classic",
+            "hotel": "Jeju Ocean Resort (Suite 2 Nights)",
+            "regular_price": "$150 / night",
+            "group_price": "$105 / night (30% OFF)",
+            "target_members": 6,
+            "votes_collected": 6,
+            "creator": "sophia@tennis.com",
+            "voters": ["sophia@tennis.com", "dan@tennis.com", "hannah@tennis.com", "chris@tennis.com", "ray@tennis.com", "kim@tennis.com"],
+            "status": "Target Reached! Unlocked Group Rate"
+        }
+    ]
+
 # Community Databases
 if "players_db" not in st.session_state:
     st.session_state["players_db"] = [
@@ -272,13 +301,23 @@ t = {
         "f2_grip": "Grip Size",
         "f2_msg": "For NTRP {ntrp} at {speed} MPH, using {string} string strung at {tension} lbs provides optimal control.",
         "f3_title": "Tournaments & Official Match Lodging",
-        "f3_desc": "Register for verified tournaments and reserve accommodations.",
+        "f3_desc": "Register for verified tournaments, book individual packages, or join 6-person group deals for group rates.",
+        "f3_tab_individual": "Individual Tournament Booking",
+        "f3_tab_group": "👥 Member Group Buying & Voting Hub",
         "f3_date": "Date",
         "f3_loc": "Location",
         "f3_prize": "Prize Pool",
         "f3_hotel": "Partner Hotel",
         "f3_btn": "Register & Book Package",
         "f3_success": "Booking confirmed! Receipt saved to Support tab.",
+        "f3_grp_title": "Active Group Discount Campaigns",
+        "f3_grp_vote_btn": "Vote YES & Join Group Deal",
+        "f3_grp_voted": "You have voted for this group deal!",
+        "f3_grp_unlocked": "🎉 Group Goal Reached! Group Price Unlocked.",
+        "f3_grp_pay_btn": "Pay Group Price Now",
+        "f3_grp_create_header": "Start a New Group Deal Campaign",
+        "f3_grp_create_btn": "Launch Group Deal Voting",
+        "f3_grp_created_msg": "New Group Campaign Launched!",
         "f4_title": "Global Tennis Academy & Residency Programs",
         "f4_desc": "All-inclusive high-performance training programs with court access and lodging.",
         "f4_w1_title": "1-Week Intensive Boot Camp",
@@ -355,7 +394,7 @@ t = {
         "nav_title": "메뉴 선택",
         "nav_1": "⚡ AI 서브 속도 분석",
         "nav_2": "🎾 AI 라켓 & 텐션 계산기",
-        "nav_3": "🏆 대회 & 숙박 예약",
+        "nav_3": "🏆 대회 & 숙박 (공동구매)",
         "nav_4": "🏫 레지던시 & 스쿨",
         "nav_5": "🤝 NTRP 매칭 & 1:1 대화",
         "nav_6": "💬 고객 지원 & 티켓",
@@ -409,13 +448,23 @@ t = {
         "f2_grip": "그립 사이즈",
         "f2_msg": "회원님의 NTRP {ntrp} 레벨과 {speed} MPH 서브 속도에는 {string} 스트링 {tension} lbs 세팅이 적합합니다.",
         "f3_title": "테니스 대회 & 공식 숙박 예약",
-        "f3_desc": "대회 참가 및 제휴 호텔 패키지를 예약하세요.",
+        "f3_desc": "개별 대회 참가 신청 및 6인 공동구매 투표를 통해 단체 할인가로 결제하세요.",
+        "f3_tab_individual": "개별 대회 참가 신청",
+        "f3_tab_group": "👥 6인 공동구매 & 투표 허브",
         "f3_date": "일정",
         "f3_loc": "장소",
         "f3_prize": "총 상금",
         "f3_hotel": "제휴 호텔",
         "f3_btn": "대회 참가 및 패키지 신청",
         "f3_success": "결제가 완료되었습니다! [고객 지원] 탭에서 확인서를 접수했습니다.",
+        "f3_grp_title": "진행 중인 공동구매 단체 할인가 딜",
+        "f3_grp_vote_btn": "찬성 투표 & 공동구매 참여",
+        "f3_grp_voted": "이미 참여 및 투표 완료하셨습니다!",
+        "f3_grp_unlocked": "🎉 목표 인원 달성! 단체 할인가 결제 가능.",
+        "f3_grp_pay_btn": "단체 할인가로 지금 결제",
+        "f3_grp_create_header": "새로운 공동구매 딜 개설하기",
+        "f3_grp_create_btn": "공동구매 투표 개설",
+        "f3_grp_created_msg": "새로운 공동구매 투표가 시작되었습니다!",
         "f4_title": "글로벌 테니스 스쿨 & 레지던시",
         "f4_desc": "숙박과 집중 훈련이 포함된 선수형 레지던시 프로그램입니다.",
         "f4_w1_title": "1주일 집중 부트캠프",
@@ -658,67 +707,172 @@ elif page_selection == L["nav_2"]:
         st.success(formatted_msg)
 
 # ==========================================
-# 8. Feature 3: Tournaments Subpage
+# 8. Feature 3: Tournaments Subpage (With Group Voting & Buying)
 # ==========================================
 elif page_selection == L["nav_3"]:
     st.title(L["f3_title"])
     st.write(L["f3_desc"])
 
-    tourneys = [
-        {"id": "TR-01", "name": "2026 Seoul Open Amateur Grand Prix", "date": "2026-08-15", "loc": "Olympic Park, Seoul", "prize": "$5,000 Pool", "hotel": "Gangnam Luxury Stay ($120/night)"},
-        {"id": "TR-02", "name": "Jeju Island Tennis & Beach Classic", "date": "2026-09-02", "loc": "Jeju Ocean Courts", "prize": "$3,000 Pool", "hotel": "Jeju Ocean Resort ($150/night)"},
-        {"id": "TR-03", "name": "Incheon Songdo National NTRP Series", "date": "2026-09-20", "loc": "Songdo Sports Complex", "prize": "$2,500 Pool", "hotel": "Songdo Park Hotel ($95/night)"}
-    ]
+    t_sub_tab1, t_sub_tab2 = st.tabs([
+        L["f3_tab_individual"],
+        L["f3_tab_group"]
+    ])
 
-    for tour in tourneys:
-        with st.container():
-            tc1, tc2 = st.columns([3, 1])
-            with tc1:
-                st.subheader(tour["name"])
-                st.write(f"📅 **{L['f3_date']}**: {tour['date']} | 📍 **{L['f3_loc']}**: {tour['loc']}")
-                st.write(f"🏆 **{L['f3_prize']}**: {tour['prize']} | 🏨 **{L['f3_hotel']}**: {tour['hotel']}")
-            with tc2:
-                if st.button(L["f3_btn"], key=f"t_btn_{tour['id']}"):
-                    st.session_state[f"book_tour_{tour['id']}"] = not st.session_state.get(f"book_tour_{tour['id']}", False)
+    # Tab 1: Individual Registration
+    with t_sub_tab1:
+        tourneys = [
+            {"id": "TR-01", "name": "2026 Seoul Open Amateur Grand Prix", "date": "2026-08-15", "loc": "Olympic Park, Seoul", "prize": "$5,000 Pool", "hotel": "Gangnam Luxury Stay ($120/night)"},
+            {"id": "TR-02", "name": "Jeju Island Tennis & Beach Classic", "date": "2026-09-02", "loc": "Jeju Ocean Courts", "prize": "$3,000 Pool", "hotel": "Jeju Ocean Resort ($150/night)"},
+            {"id": "TR-03", "name": "Incheon Songdo National NTRP Series", "date": "2026-09-20", "loc": "Songdo Sports Complex", "prize": "$2,500 Pool", "hotel": "Songdo Park Hotel ($95/night)"}
+        ]
 
-            if st.session_state.get(f"book_tour_{tour['id']}", False):
+        for tour in tourneys:
+            with st.container():
+                tc1, tc2 = st.columns([3, 1])
+                with tc1:
+                    st.subheader(tour["name"])
+                    st.write(f"📅 **{L['f3_date']}**: {tour['date']} | 📍 **{L['f3_loc']}**: {tour['loc']}")
+                    st.write(f"🏆 **{L['f3_prize']}**: {tour['prize']} | 🏨 **{L['f3_hotel']}**: {tour['hotel']}")
+                with tc2:
+                    if st.button(L["f3_btn"], key=f"t_btn_{tour['id']}"):
+                        st.session_state[f"book_tour_{tour['id']}"] = not st.session_state.get(f"book_tour_{tour['id']}", False)
+
+                if st.session_state.get(f"book_tour_{tour['id']}", False):
+                    st.markdown("---")
+                    st.subheader(f"{L['pay_form_header']} - {tour['name']}")
+                    with st.form(key=f"pay_form_tour_{tour['id']}"):
+                        fc1, fc2 = st.columns(2)
+                        with fc1:
+                            cust_name = st.text_input(L["full_name"], placeholder="John Doe")
+                            passport_no = st.text_input(L["passport_id"], placeholder="M12345678")
+                            cust_email = st.text_input(L["email_lbl"], value=st.session_state["logged_in_user"] or "")
+                        with fc2:
+                            cust_phone = st.text_input(L["contact_phone"], placeholder="+82 10-1234-5678")
+                            card_brand = st.selectbox(L["card_type"], ["Mastercard", "Visa", "American Express"])
+                            card_no = st.text_input(L["card_no"], placeholder="5412 7500 0000 0000")
+                            c_col1, c_col2 = st.columns(2)
+                            with c_col1:
+                                exp = st.text_input(L["exp_date"], placeholder="12/28")
+                            with c_col2:
+                                cvv = st.text_input(L["cvv"], type="password", placeholder="123")
+
+                        if st.form_submit_button(L["btn_complete_pay"], use_container_width=True):
+                            if cust_name and passport_no and cust_email and cust_phone and card_no:
+                                with st.spinner("Processing payment via Gateway..."):
+                                    time.sleep(1.2)
+                                
+                                ticket_id = f"TK-{len(st.session_state['inquiries'])+101}"
+                                st.session_state["inquiries"].append({
+                                    "id": ticket_id,
+                                    "user": cust_email,
+                                    "subject": f"CONFIRMED PAYMENT: {tour['name']}",
+                                    "status": "Confirmed / Paid",
+                                    "date": datetime.datetime.now().strftime("%Y-%m-%d"),
+                                    "details": f"Passenger: {cust_name} | Passport: {passport_no} | Phone: {cust_phone} | Paid via {card_brand} ending in {card_no[-4:] if len(card_no)>=4 else '****'}"
+                                })
+                                st.balloons()
+                                st.success(L["f3_success"])
+                                st.session_state[f"book_tour_{tour['id']}"] = False
+                            else:
+                                st.error(L["pay_err_fields"])
+
+    # Tab 2: Group Buying & Voting Hub
+    with t_sub_tab2:
+        st.subheader(L["f3_grp_title"])
+        current_user = st.session_state["logged_in_user"] or "Guest User"
+
+        for deal in st.session_state["group_buy_deals"]:
+            with st.container():
+                g1, g2 = st.columns([3, 1])
+                with g1:
+                    st.markdown(f"### 👥 {deal['tour_name']}")
+                    st.write(f"🏨 **Hotel Package**: {deal['hotel']}")
+                    st.write(f"🏷️ **Regular Price**: ~{deal['regular_price']}~ ➔ **Group Discount Rate**: **{deal['group_price']}**")
+                    
+                    # Progress Bar for Votes
+                    pct = min(deal["votes_collected"] / deal["target_members"], 1.0)
+                    st.progress(pct)
+                    st.caption(f"📊 **Voting Progress**: {deal['votes_collected']} / {deal['target_members']} Members Voted (`{deal['status']}`)")
+
+                with g2:
+                    has_voted = current_user in deal["voters"]
+                    target_reached = deal["votes_collected"] >= deal["target_members"]
+
+                    if target_reached:
+                        st.success(L["f3_grp_unlocked"])
+                        if st.button(L["f3_grp_pay_btn"], key=f"pay_grp_{deal['id']}"):
+                            st.session_state[f"show_grp_pay_{deal['id']}"] = not st.session_state.get(f"show_grp_pay_{deal['id']}", False)
+                    else:
+                        if has_voted:
+                            st.info(L["f3_grp_voted"])
+                        else:
+                            if st.button(L["f3_grp_vote_btn"], key=f"vote_{deal['id']}"):
+                                deal["votes_collected"] += 1
+                                deal["voters"].append(current_user)
+                                if deal["votes_collected"] >= deal["target_members"]:
+                                    deal["status"] = "Target Reached! Unlocked Group Rate"
+                                st.balloons()
+                                st.rerun()
+
+            # Group Checkout Form
+            if st.session_state.get(f"show_grp_pay_{deal['id']}", False):
                 st.markdown("---")
-                st.subheader(f"{L['pay_form_header']} - {tour['name']}")
-                with st.form(key=f"pay_form_tour_{tour['id']}"):
-                    fc1, fc2 = st.columns(2)
-                    with fc1:
-                        cust_name = st.text_input(L["full_name"], placeholder="John Doe")
-                        passport_no = st.text_input(L["passport_id"], placeholder="M12345678")
-                        cust_email = st.text_input(L["email_lbl"], value=st.session_state["logged_in_user"] or "")
-                    with fc2:
-                        cust_phone = st.text_input(L["contact_phone"], placeholder="+82 10-1234-5678")
-                        card_brand = st.selectbox(L["card_type"], ["Mastercard", "Visa", "American Express"])
-                        card_no = st.text_input(L["card_no"], placeholder="5412 7500 0000 0000")
-                        c_col1, c_col2 = st.columns(2)
-                        with c_col1:
-                            exp = st.text_input(L["exp_date"], placeholder="12/28")
-                        with c_col2:
-                            cvv = st.text_input(L["cvv"], type="password", placeholder="123")
-
+                st.subheader(f"💳 Group Rate Checkout ({deal['group_price']})")
+                with st.form(key=f"grp_checkout_form_{deal['id']}"):
+                    gp_c1, gp_c2 = st.columns(2)
+                    with gp_c1:
+                        g_name = st.text_input(L["full_name"], value="")
+                        g_pass = st.text_input(L["passport_id"], value="")
+                        g_email = st.text_input(L["email_lbl"], value=current_user)
+                    with gp_c2:
+                        g_phone = st.text_input(L["contact_phone"], placeholder="+82 10-0000-0000")
+                        g_card = st.text_input(L["card_no"], placeholder="4000-1111-2222-3333")
+                    
                     if st.form_submit_button(L["btn_complete_pay"], use_container_width=True):
-                        if cust_name and passport_no and cust_email and cust_phone and card_no:
-                            with st.spinner("Processing payment via Gateway..."):
+                        if g_name and g_pass and g_email and g_card:
+                            with st.spinner("Processing group discount checkout..."):
                                 time.sleep(1.2)
                             
-                            ticket_id = f"TK-{len(st.session_state['inquiries'])+101}"
                             st.session_state["inquiries"].append({
-                                "id": ticket_id,
-                                "user": cust_email,
-                                "subject": f"CONFIRMED PAYMENT: {tour['name']}",
-                                "status": "Confirmed / Paid",
+                                "id": f"TK-{len(st.session_state['inquiries'])+101}",
+                                "user": g_email,
+                                "subject": f"CONFIRMED GROUP BUY: {deal['tour_name']} ({deal['group_price']})",
+                                "status": "Paid (Group Rate)",
                                 "date": datetime.datetime.now().strftime("%Y-%m-%d"),
-                                "details": f"Passenger: {cust_name} | Passport: {passport_no} | Phone: {cust_phone} | Paid via {card_brand} ending in {card_no[-4:] if len(card_no)>=4 else '****'}"
+                                "details": f"Customer: {g_name} | Passport: {g_pass} | Phone: {g_phone}"
                             })
                             st.balloons()
                             st.success(L["f3_success"])
-                            st.session_state[f"book_tour_{tour['id']}"] = False
+                            st.session_state[f"show_grp_pay_{deal['id']}"] = False
                         else:
                             st.error(L["pay_err_fields"])
+
+        st.markdown("---")
+        # Launch New Group Campaign
+        st.subheader(L["f3_grp_create_header"])
+        with st.form("create_group_deal_form"):
+            new_tour = st.selectbox("Select Tournament", ["2026 Seoul Open Amateur Grand Prix", "Jeju Island Tennis & Beach Classic", "Incheon Songdo National NTRP Series"])
+            new_hotel = st.text_input("Partner Hotel / Resort Name", placeholder="e.g. Songdo Park Hotel (3 Nights Package)")
+            new_reg_price = st.text_input("Standard Price per Night", value="$120 / night")
+            new_grp_price = st.text_input("Target Discount Group Price", value="$85 / night (30% OFF)")
+            new_target = st.number_input("Target Group Size (Votes Needed)", min_value=3, max_value=20, value=6)
+            
+            if st.form_submit_button(L["f3_grp_create_btn"]):
+                if new_hotel:
+                    st.session_state["group_buy_deals"].append({
+                        "id": f"GRP-{len(st.session_state['group_buy_deals'])+101}",
+                        "tour_name": new_tour,
+                        "hotel": new_hotel,
+                        "regular_price": new_reg_price,
+                        "group_price": new_grp_price,
+                        "target_members": new_target,
+                        "votes_collected": 1,
+                        "creator": current_user,
+                        "voters": [current_user],
+                        "status": f"Active - Need {new_target-1} More Members!"
+                    })
+                    st.success(L["f3_grp_created_msg"])
+                    st.rerun()
 
 # ==========================================
 # 9. Feature 4: Tennis School & Residency
@@ -932,7 +1086,7 @@ elif page_selection == L["nav_5"]:
                                 "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
                             })
                             st.success(L["f5_coach_sent"].format(name=ch['name']))
-                            st.session_state[f"open_coach_{ch['id']}"] = False
+                            st.session_state[f"open_coach_{ch['id']}", False] = False
                         else:
                             st.error("Please enter a message.")
 
