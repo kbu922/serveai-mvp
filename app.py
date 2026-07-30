@@ -630,11 +630,115 @@ def render_module_5():
                     else:
                         st.button("🔒 Locked (Upgrade)", key=f"lock_coach_{idx}", disabled=True)
 
-# --- MODULE 7: SUPPORT & TICKETS ---
+# --- MODULE 7: SUPPORT CENTER & TRANSACTION RECEIPTS ---
 def render_module_6():
-    st.subheader("🎧 Support Center & Transaction Receipts")
-    st.dataframe(pd.DataFrame(st.session_state["inquiries"]), use_container_width=True)
-    st.dataframe(pd.DataFrame(st.session_state["chat_orders"]), use_container_width=True)
+    st.subheader("🎧 Support Center & Billing Receipts")
+    st.write("Manage your support inquiries, request equipment service updates, and access official tax invoices/receipts.")
+
+    is_logged = st.session_state.get("is_logged_in", False)
+    current_user = st.session_state.get("current_user", {})
+
+    tab_tickets, tab_receipts, tab_new_ticket = st.tabs([
+        "📋 My Support Tickets", 
+        "🧾 Transaction Receipts & Invoices", 
+        "📩 Submit New Inquiry"
+    ])
+
+    # -------------------------------------------------------------
+    # TAB 1: SUPPORT TICKETS LIST
+    # -------------------------------------------------------------
+    with tab_tickets:
+        st.markdown("#### 🎫 Active & Past Support Requests")
+        
+        if not is_logged:
+            st.info("💡 Please log in to view your personalized support history.")
+        
+        inquiries_df = pd.DataFrame(st.session_state["inquiries"])
+        st.dataframe(inquiries_df, use_container_width=True)
+
+    # -------------------------------------------------------------
+    # TAB 2: TRANSACTION RECEIPTS & INVOICE GENERATOR
+    # -------------------------------------------------------------
+    with tab_receipts:
+        st.markdown("#### 💳 Billing History & Official Receipts")
+        
+        orders_df = pd.DataFrame(st.session_state["chat_orders"])
+        st.dataframe(orders_df, use_container_width=True)
+        
+        st.markdown("---")
+        st.markdown("##### 📄 Generate Detailed Digital Receipt")
+        
+        # Receipt selector
+        order_ids = [order["Order ID"] for order in st.session_state["chat_orders"]]
+        selected_order_id = st.selectbox("Select Order ID to View Receipt:", order_ids)
+
+        # Retrieve selected order
+        selected_order = next((item for item in st.session_state["chat_orders"] if item["Order ID"] == selected_order_id), None)
+
+        if selected_order:
+            with st.expander(f"🧾 Digital Invoice — {selected_order['Order ID']}", expanded=True):
+                c_a, c_b = st.columns(2)
+                with c_a:
+                    st.markdown("**Global Tennis Academy & Tech Platform Inc.**")
+                    st.caption("124 Olympic-ro, Songpa-gu, Seoul, South Korea")
+                    st.write(f"**Billed To:** {current_user.get('name', 'Guest Athlete')}")
+                    st.write(f"**Email:** {current_user.get('email', 'N/A')}")
+                
+                with c_b:
+                    st.write(f"**Invoice No:** `{selected_order['Order ID']}`")
+                    st.write(f"**Payment Status:** `{selected_order['Status']}`")
+                    st.write(f"**Payment Method:** Visa ending in •••• 4242")
+                
+                st.markdown("---")
+                # Itemization Table
+                st.markdown(f"""
+                | Item Description | Qty | Amount |
+                | :--- | :---: | :---: |
+                | **{selected_order['Item']}** | 1 | {selected_order['Amount']} |
+                | **VAT / Sales Tax (Included)** | - | $0.00 |
+                | **Total Paid** | | **{selected_order['Amount']}** |
+                """)
+
+                st.download_button(
+                    label="📥 Download Receipt (TXT)",
+                    data=f"INVOICE: {selected_order['Order ID']}\nItem: {selected_order['Item']}\nAmount: {selected_order['Amount']}\nStatus: {selected_order['Status']}",
+                    file_name=f"Receipt_{selected_order['Order ID']}.txt",
+                    mime="text/plain"
+                )
+
+    # -------------------------------------------------------------
+    # TAB 3: SUBMIT NEW INQUIRY
+    # -------------------------------------------------------------
+    with tab_new_ticket:
+        st.markdown("#### 📩 Create a Support Ticket")
+        
+        with st.form("create_ticket_form"):
+            t_category = st.selectbox("Inquiry Category:", [
+                "Racket Stringing / Customization Order",
+                "Academy Residency & Accommodations",
+                "AI Biomechanics / Video Analysis Help",
+                "Membership & Billing Inquiry",
+                "Tournament Registration Issue"
+            ])
+            t_subject = st.text_input("Subject / Title *")
+            t_details = st.text_area("Provide details about your inquiry *")
+            
+            submit_ticket = st.form_submit_button("Submit Support Ticket")
+
+            if submit_ticket:
+                if t_subject and t_details:
+                    new_id = f"TK-{len(st.session_state['inquiries']) + 1002}"
+                    today_date = datetime.date.today().strftime("%Y-%m-%d")
+                    
+                    st.session_state["inquiries"].append({
+                        "Ticket ID": new_id,
+                        "Subject": f"[{t_category}] {t_subject}",
+                        "Status": "Open (In Review)",
+                        "Date": today_date
+                    })
+                    st.success(f"🎉 Ticket **{new_id}** submitted successfully! Our team will respond within 24 hours.")
+                else:
+                    st.error("Please fill out both the subject and description fields.")
 
 # --- MODULE 8: ADMIN CONTROL PANEL ---
 def render_module_7():
