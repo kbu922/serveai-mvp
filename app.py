@@ -3,10 +3,19 @@ import pandas as pd
 import datetime
 import time
 
+# ==========================================
+# 1. PAGE CONFIG (MUST BE THE FIRST STREAMLIT CALL)
+# ==========================================
+st.set_page_config(
+    page_title="Global Tennis Platform & AI Suite",
+    page_icon="🎾",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-# -------------------------------------------------------------
-# 1. TRANSLATION DICTIONARY & HELPER (PURE PYTHON - SAFE BEFORE SET_PAGE_CONFIG)
-# -------------------------------------------------------------
+# ==========================================
+# 2. TRANSLATION DICTIONARY & HELPER
+# ==========================================
 TEXTS = {
     "EN": {
         "title": "🎧 Support Center & Billing Receipts",
@@ -50,34 +59,13 @@ TEXTS = {
 
 def get_text(key, lang="EN"):
     """Helper function to safely retrieve localized strings."""
-    return TEXTS.get(lang, TEXTS["EN"]).get(key, key)
+    lang_code = "KR" if lang == "한국어" else "EN"
+    return TEXTS.get(lang_code, TEXTS["EN"]).get(key, key)
 
 
-# -------------------------------------------------------------
-# 2. FIRST STREAMLIT COMMAND (MUST BE FIRST STREAMLIT CALL)
-# -------------------------------------------------------------
-st.set_page_config(
-    page_title="Global Tennis Academy",
-    page_icon="🎾",
-    layout="wide"
-)
-
-# -------------------------------------------------------------
-# 3. INITIALIZE SESSION STATE AFTER PAGE CONFIG
-# -------------------------------------------------------------
-if "language" not in st.session_state:
-    st.session_state["language"] = "KR"  # Default to Korean or English
 # ==========================================
-# 1. PAGE CONFIG & LUXURY SAND THEME
+# 3. LUXURY SAND THEME STYLING
 # ==========================================
-st.set_page_config(
-    page_title="Global Tennis Platform & AI Suite",
-    page_icon="🎾",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-# Custom CSS for Luxury Sand Theme
 st.markdown("""
     <style>
     /* Main Background & Base Styling */
@@ -171,8 +159,10 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. STATE INITIALIZATION & AUTH SYSTEM
+# 4. STATE INITIALIZATION & AUTH SYSTEM
 # ==========================================
+if "language" not in st.session_state:
+    st.session_state["language"] = "English"
 
 if "registered_users" not in st.session_state:
     st.session_state["registered_users"] = {
@@ -186,9 +176,6 @@ if "is_logged_in" not in st.session_state:
 if "current_user" not in st.session_state:
     st.session_state["current_user"] = None
 
-if "language" not in st.session_state:
-    st.session_state["language"] = "English"
-
 # Databases
 if "players_db" not in st.session_state:
     st.session_state["players_db"] = [
@@ -200,9 +187,9 @@ if "players_db" not in st.session_state:
 
 if "coaches_db" not in st.session_state:
     st.session_state["coaches_db"] = [
-        {"Coach": "Coach Rob", "Level": "USPTR Certified Master", "City": "Seoul", "Hourly": "$80/hr", "Specialty": "Serve Biomechanics"},
-        {"Coach": "Coach Sarah", "Level": "Ex-WTA Tour Player", "City": "Incheon", "Hourly": "$120/hr", "Specialty": "Match Strategy"},
-        {"Coach": "Coach Min-ho", "Level": "KTA High Performance", "City": "Busan", "Hourly": "$95/hr", "Specialty": "Junior Development"}
+        {"Coach": "Coach Rob", "Level": "USPTR Certified Master", "City": "Seoul", "Hourly": "$80/hr", "Specialty": "Serve Biomechanics", "Contact": "rob@tennis.org"},
+        {"Coach": "Coach Sarah", "Level": "Ex-WTA Tour Player", "City": "Incheon", "Hourly": "$120/hr", "Specialty": "Match Strategy", "Contact": "sarah.c@tennis.org"},
+        {"Coach": "Coach Min-ho", "Level": "KTA High Performance", "City": "Busan", "Hourly": "$95/hr", "Specialty": "Junior Development", "Contact": "minho@tennis.kr"}
     ]
 
 if "tournament_group_votes" not in st.session_state:
@@ -230,7 +217,7 @@ if "chat_orders" not in st.session_state:
     ]
 
 # ==========================================
-# 3. SIDEBAR AUTH & NAVIGATION PANEL
+# 5. SIDEBAR AUTH & NAVIGATION PANEL
 # ==========================================
 st.sidebar.image("https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=400&q=80", caption="Global Tennis Hub")
 
@@ -302,7 +289,7 @@ menu = st.sidebar.radio(
 )
 
 # ==========================================
-# 4. TOP NAVIGATION HEADER
+# 6. TOP NAVIGATION HEADER
 # ==========================================
 col_h1, col_h2, col_h3 = st.columns([4, 2, 2])
 
@@ -321,13 +308,13 @@ with col_h3:
 st.markdown("---")
 
 # ==========================================
-# 5. ENHANCED MODULE FUNCTIONS
+# 7. MODULE FUNCTIONS
 # ==========================================
 
-# --- MODULE 1: AI SERVE VELOCITY (GRAPHIC & DETAILED) ---
+# --- MODULE 1: AI SERVE VELOCITY ---
 def render_module_1():
     st.subheader("⚡ AI Serve Velocity & Biomechanics Analyzer")
-    st.write("Upload high-speed footage to run computer-vision motion vector tracking, shoulder axis analysis, and kinetic kinetic chain evaluation.")
+    st.write("Upload high-speed footage to run computer-vision motion vector tracking, shoulder axis analysis, and kinetic chain evaluation.")
 
     col1, col2 = st.columns([3, 2])
     with col1:
@@ -352,7 +339,7 @@ def render_module_1():
 
     if video_file or run_analysis:
         with st.spinner("Analyzing high-speed frames, calculating kinetic launch metrics, and plotting biomechanical vectors..."):
-            time.sleep(2)
+            time.sleep(1.5)
             st.markdown("---")
             st.markdown("### 📈 Biomechanical Diagnostic Report")
             
@@ -412,7 +399,7 @@ def render_module_1():
                 * **Non-Dominant Arm Re-coil**: Left arm tucks into abdomen cleanly to decelerate upper body rotation smoothly.
                 """)
 
-# --- MODULE 2: AI RACKET & STRING TENSION (GRAPHIC & SUGGESTION MATRIX) ---
+# --- MODULE 2: AI RACKET & STRING TENSION ---
 def render_module_2():
     st.subheader("🎯 AI Racket & String Tension Recommendation Engine")
     st.write("Input your playstyle profile, injury history, and performance requirements to generate customized frame specs and string tension matrixes.")
@@ -463,12 +450,12 @@ def render_module_2():
             * **Recommended Tension Differential**: Maintaining a 2 lb drop on cross strings increases dwell time and sweet spot width by up to **14%**.
             """)
         with c_s2:
-            st.markdown("""
+            st.markdown(f"""
             **☀️ Seasonal & Altitude Tension Adjustments:**
             * **Hot Summer Weather (>28°C)**: Increase string tension by **+2 lbs** (e.g., 54 lbs) as ball felt softens and expands.
             * **Cold Winter Weather (<10°C)**: Decrease string tension by **-2 lbs** (e.g., 50 lbs) to maintain arm comfort and depth.
-            * **Restring Frequency Recommendation**: Restring your racket every **{0} months** based on your playing frequency.
-            """.format(max(1, int(12 / matches_per_week))))
+            * **Restring Frequency Recommendation**: Restring your racket every **{max(1, int(12 / matches_per_week))} months** based on your playing frequency.
+            """)
 
 # --- MODULE 3: MEMBERSHIP & SUBSCRIPTIONS ---
 def render_module_membership():
@@ -612,9 +599,9 @@ def render_module_4():
     if subpage == "🏟️ Campus Gallery":
         c1, c2 = st.columns(2)
         with c1:
-            st.image("https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcTlJfjs63KI6QzSpQms4d1rLMcTNoDkcJphyH_y34zqGSvvZbGEs3TmtsDCJLVbWFcYD83uzV10B2lwUR0", caption="Center Court Facility", use_container_width=True)
+            st.image("https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&q=80", caption="Center Court Facility", use_container_width=True)
         with c2:
-            st.image("https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcRI-UXJPpwhWDcFekaYdcs5vb7ShKqOtbpAL6DUhV9W4HTMwQsFOzX3pKb9oNNCgU3VDScBATPtPN4KN5I", caption="Athlete Residence Lounge", use_container_width=True)
+            st.image("https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80", caption="Athlete Residence Lounge", use_container_width=True)
 
     elif subpage == "👥 Group Buying & Voting Hub":
         st.dataframe(pd.DataFrame(st.session_state["academy_group_votes"]))
@@ -626,21 +613,16 @@ def render_module_4():
             if st.form_submit_button("Enroll ($890)"):
                 st.success("🎉 Enrollment Confirmed!")
 
-# --- MODULE 6: MATCHMAKING & COACH DIRECTORY (WITH MEMBERSHIP VERIFICATION) ---
+# --- MODULE 6: MATCHMAKING & COACH DIRECTORY ---
 def render_module_5():
     st.subheader("🤝 Player Matchmaking & Coach Directory")
     st.write("Connect with local hitting partners or book certified tour coaches. Direct messaging requires an active **PRO Pass** or **VIP Gold** membership.")
 
-    # -------------------------------------------------------------
-    # 1. MEMBERSHIP VERIFICATION LOGIC
-    # -------------------------------------------------------------
     is_logged = st.session_state.get("is_logged_in", False)
     user_tier = st.session_state.get("current_user", {}).get("tier", "Free Tier") if is_logged else "Guest"
     
-    # Paid tiers authorized to chat
     has_chat_access = is_logged and user_tier in ["PRO Pass", "VIP Gold"]
 
-    # Visual banner alerting unpaid/guest users
     if not has_chat_access:
         st.warning(
             f"🔒 **Membership Required:** You are currently on `{user_tier}`. "
@@ -650,9 +632,6 @@ def render_module_5():
     st.markdown("---")
     t1, t2 = st.tabs(["🎾 Find Partners", "👨‍🏫 Certified Coaches"])
 
-    # -------------------------------------------------------------
-    # TAB 1: PLAYER MATCHMAKING
-    # -------------------------------------------------------------
     with t1:
         st.markdown("#### 👥 Available Hitting Partners")
         
@@ -672,9 +651,6 @@ def render_module_5():
                     else:
                         st.button("🔒 Locked (Upgrade)", key=f"lock_player_{idx}", disabled=True)
 
-    # -------------------------------------------------------------
-    # TAB 2: COACH DIRECTORY
-    # -------------------------------------------------------------
     with t2:
         st.markdown("#### 👨‍🏫 Certified Tour Coaches")
         
@@ -684,174 +660,117 @@ def render_module_5():
                 
                 with col_info:
                     st.write(f"**Specialty:** {coach['Specialty']}")
-                    st.write(f"**Rate:** {coach['Hourly']}")
-                    st.write(f"**Location:** {coach['City']}")
+                    st.write(f"**Hourly Rate:** {coach['Hourly']}")
+                    st.write(f"**Contact:** `{coach['Contact'] if has_chat_access else '••••••••@••••.org'}`")
                 
                 with col_action:
                     if has_chat_access:
-                        if st.button("💬 Book & Chat", key=f"chat_coach_{idx}"):
-                            st.success(f"Initiating private consultation with {coach['Coach']}...")
+                        if st.button("📅 Book Session", key=f"book_coach_{idx}"):
+                            st.success(f"Booking request sent to {coach['Coach']}!")
                     else:
                         st.button("🔒 Locked (Upgrade)", key=f"lock_coach_{idx}", disabled=True)
 
-# --- MODULE 7: SUPPORT CENTER & TRANSACTION RECEIPTS (MULTILINGUAL) ---
+# --- MODULE 7: SUPPORT & RECEIPTS ---
 def render_module_6():
-    # Detect language (Defaults to EN if not set)
-    lang = st.session_state.get("language", "EN")
-    t = TEXTS.get(lang, TEXTS["EN"])
+    lang = st.session_state.get("language", "English")
+    st.subheader(get_text("title", lang))
+    st.write(get_text("subtitle", lang))
+    st.markdown("---")
 
-    st.subheader(t["title"])
-    st.write(t["subtitle"])
-
-    is_logged = st.session_state.get("is_logged_in", False)
-    current_user = st.session_state.get("current_user") or {}
-
-    tab_tickets, tab_receipts, tab_new_ticket = st.tabs([
-        t["tab_tickets"], 
-        t["tab_receipts"], 
-        t["tab_new_ticket"]
+    tab1, tab2, tab3 = st.tabs([
+        get_text("tab_tickets", lang),
+        get_text("tab_receipts", lang),
+        get_text("tab_new_ticket", lang)
     ])
 
-    # -------------------------------------------------------------
-    # TAB 1: SUPPORT TICKETS LIST
-    # -------------------------------------------------------------
-    with tab_tickets:
-        st.markdown(f"#### {t['active_tickets']}")
-        
-        if not is_logged:
-            st.info(t["login_info"])
-        
-        inquiries_df = pd.DataFrame(st.session_state.get("inquiries", []))
-        st.dataframe(inquiries_df, width="stretch")
+    with tab1:
+        st.markdown(f"#### {get_text('active_tickets', lang)}")
+        if not st.session_state["is_logged_in"]:
+            st.info(get_text("login_info", lang))
+        st.table(pd.DataFrame(st.session_state["inquiries"]))
 
-    # -------------------------------------------------------------
-    # TAB 2: TRANSACTION RECEIPTS & INVOICE GENERATOR
-    # -------------------------------------------------------------
-    with tab_receipts:
-        st.markdown(f"#### {t['billing_history']}")
-        
-        chat_orders = st.session_state.get("chat_orders", [])
-        orders_df = pd.DataFrame(chat_orders)
-        st.dataframe(orders_df, width="stretch")
-        
-        st.markdown("---")
-        st.markdown(f"##### {t['generate_receipt']}")
-        
-        if chat_orders:
-            order_ids = [order["Order ID"] for order in chat_orders]
-            selected_order_id = st.selectbox(t["select_order"], order_ids)
-
-            selected_order = next((item for item in chat_orders if item["Order ID"] == selected_order_id), None)
-
-            if selected_order:
-                with st.expander(f"🧾 Digital Invoice — {selected_order['Order ID']}", expanded=True):
-                    c_a, c_b = st.columns(2)
-                    with c_a:
-                        st.markdown("**Global Tennis Academy & Tech Platform Inc.**")
-                        st.caption("124 Olympic-ro, Songpa-gu, Seoul, South Korea")
-                        st.write(f"**Billed To / 청구 대상:** {current_user.get('name', 'Guest Athlete')}")
-                        st.write(f"**Email / 이메일:** {current_user.get('email', 'N/A')}")
-                    
-                    with c_b:
-                        st.write(f"**Invoice No:** `{selected_order['Order ID']}`")
-                        st.write(f"**Status:** `{selected_order['Status']}`")
-                        st.write(f"**Payment Method:** Visa ending in •••• 4242")
-                    
-                    st.markdown("---")
-                    st.markdown(f"""
-                    | Item Description | Qty | Amount |
-                    | :--- | :---: | :---: |
-                    | **{selected_order['Item']}** | 1 | {selected_order['Amount']} |
-                    | **VAT / Sales Tax (Included)** | - | $0.00 |
-                    | **Total Paid** | | **{selected_order['Amount']}** |
-                    """)
-
-                    st.download_button(
-                        label="📥 Download Receipt (TXT)",
-                        data=f"INVOICE: {selected_order['Order ID']}\nItem: {selected_order['Item']}\nAmount: {selected_order['Amount']}\nStatus: {selected_order['Status']}",
-                        file_name=f"Receipt_{selected_order['Order ID']}.txt",
-                        mime="text/plain"
-                    )
-        else:
-            st.info(t["no_orders"])
-
-    # -------------------------------------------------------------
-    # TAB 3: SUBMIT NEW INQUIRY
-    # -------------------------------------------------------------
-    with tab_new_ticket:
-        st.markdown(f"#### {t['submit_ticket_hdr']}")
-        
-        with st.form("create_ticket_form"):
-            t_category = st.selectbox(t["category"], [
-                "Racket Stringing / Customization Order (라켓 스트링/커스텀)",
-                "Academy Residency & Accommodations (아카데미 숙소/입소)",
-                "AI Biomechanics / Video Analysis Help (AI 분석 문의)",
-                "Membership & Billing Inquiry (멤버십 및 결제)",
-                "Tournament Registration Issue (대회 참가 등록)"
-            ])
-            t_subject = st.text_input(t["subject"])
-            t_details = st.text_area(t["details"])
+    with tab2:
+        st.markdown(f"#### {get_text('billing_history', lang)}")
+        if st.session_state["chat_orders"]:
+            df_orders = pd.DataFrame(st.session_state["chat_orders"])
+            st.dataframe(df_orders, use_container_width=True)
             
-            submit_ticket = st.form_submit_button(t["submit_btn"])
+            st.markdown("---")
+            st.markdown(f"#### {get_text('generate_receipt', lang)}")
+            selected_order_id = st.selectbox(get_text("select_order", lang), df_orders["Order ID"].tolist())
+            
+            if st.button("Generate Tax Invoice PDF"):
+                order_detail = df_orders[df_orders["Order ID"] == selected_order_id].iloc[0]
+                st.success(f"Generated official invoice for **{order_detail['Order ID']}** ({order_detail['Item']} - {order_detail['Amount']})")
+        else:
+            st.write(get_text("no_orders", lang))
 
-            if submit_ticket:
-                if t_subject and t_details:
-                    inquiries = st.session_state.setdefault("inquiries", [])
-                    new_id = f"TK-{len(inquiries) + 1002}"
-                    today_date = datetime.date.today().strftime("%Y-%m-%d")
-                    
-                    inquiries.append({
+    with tab3:
+        st.markdown(f"#### {get_text('submit_ticket_hdr', lang)}")
+        with st.form("support_ticket_form"):
+            cat = st.selectbox(get_text("category", lang), ["Billing & Subscriptions", "Racket & Equipment Service", "Tournament Lodging", "General Inquiry"])
+            subj = st.text_input(get_text("subject", lang))
+            det = st.text_area(get_text("details", lang))
+            
+            if st.form_submit_button(get_text("submit_btn", lang)):
+                if subj and det:
+                    new_id = f"TK-{len(st.session_state['inquiries'])+1002}"
+                    st.session_state["inquiries"].append({
                         "Ticket ID": new_id,
-                        "Subject": f"[{t_category}] {t_subject}",
-                        "Status": "Open (In Review)" if lang == "EN" else "검토 중",
-                        "Date": today_date
+                        "Subject": subj,
+                        "Status": "Open",
+                        "Date": str(datetime.date.today())
                     })
-                    st.success(t["success_msg"].format(id=new_id))
+                    msg = get_text("success_msg", lang).format(id=new_id)
+                    st.success(msg)
                 else:
-                    st.error("Please fill out all required fields. / 모든 필수 항목을 작성해 주세요.")
+                    st.error("Please complete all required fields.")
 
 # --- MODULE 8: ADMIN CONTROL PANEL ---
-def render_module_7():
-    st.subheader("🔒 Platform Admin Control Panel")
-    if st.text_input("Passcode", type="password") == "admin":
-        st.success("Access Granted")
-        st.dataframe(pd.DataFrame.from_dict(st.session_state["registered_users"], orient='index'))
+def render_module_admin():
+    st.subheader("🔒 Platform Administration Panel")
+    
+    if not st.session_state["is_logged_in"] or st.session_state["current_user"]["tier"] != "VIP Gold":
+        st.error("⛔ Access Restricted: Admin credentials or VIP Gold management status required.")
+        return
 
-# --- MODULE 9: SINGLE DEDICATED CONTACT PAGE ---
+    st.success("Authorized Administrator Access Level 1")
+    
+    st.markdown("#### 👥 Registered User Management")
+    st.json(st.session_state["registered_users"])
+    
+    st.markdown("#### 🧾 Global Transaction Logs")
+    st.dataframe(pd.DataFrame(st.session_state["chat_orders"]))
+
+# --- MODULE 9: CONTACT US ---
 def render_module_contact():
-    st.markdown("""
-        <div style="background-color:#FAF8F5; padding:28px; border-radius:12px; border:1px solid #E5E0D8; margin-bottom:24px;">
-            <h2 style="margin-top:0;">📞 Contact Headquarters & Official Channels</h2>
-            <p style="color:#5C544D; margin-bottom:0;">Have questions regarding academy admissions, tournament packages, or AI analysis services? Get in touch with our team directly.</p>
-        </div>
-    """, unsafe_allow_html=True)
+    st.subheader("📞 Contact Global Tennis Platform")
+    st.write("Have questions? Reach out directly to our operations team or headquarters.")
 
     col1, col2 = st.columns(2)
-
     with col1:
-        st.markdown("### 🏢 Global Corporate Office")
         st.markdown("""
-        * **Company Name**: Global Tennis Academy & Tech Platform Inc.
-        * **HQ Address**: 124 Olympic-ro, Songpa-gu, Seoul, 05540, South Korea
-        * **US Branch Office**: 120 Flushing Meadows Way, Queens, NY 11368, USA
-        * **Telephone**: +82 2-555-1004 / +1 (800) 555-TENNIS
-        * **Support Email**: `support@globaltennis.org`
-        * **Admissions Email**: `admissions@globaltennis.org`
-        * **Office Hours**: Monday – Friday: 09:00 – 18:00 KST / EST
-        """)
+        **📍 Headquarters:**
+        Global Tennis Center, Olympic Park
+        Seoul, South Korea
 
+        **📧 Email Direct:**
+        support@globaltennis.org
+
+        **📞 Phone:**
+        +82 (02) 555-8921
+        """)
+    
     with col2:
-        st.markdown("### 🌐 Connect On Social Media")
-        st.markdown("Follow our official channels for tournament updates, student highlights, and AI biomechanics tips:")
-        st.markdown("""
-        <a href="https://youtube.com" target="_blank" class="social-btn">📺 YouTube Channel</a>
-        <a href="https://instagram.com" target="_blank" class="social-btn">📸 Instagram (@GlobalTennisAI)</a>
-        <a href="https://twitter.com" target="_blank" class="social-btn">🐦 X / Twitter</a>
-        <a href="https://linkedin.com" target="_blank" class="social-btn">💼 LinkedIn Official</a>
-        """, unsafe_allow_html=True)
+        with st.form("contact_direct_form"):
+            st.text_input("Your Name")
+            st.text_input("Your Email")
+            st.text_area("Message")
+            if st.form_submit_button("Send Direct Message"):
+                st.success("Message sent! Our team will get back to you shortly.")
 
 # ==========================================
-# 6. ROUTER LOGIC
+# 8. MAIN ROUTER
 # ==========================================
 if menu == "⚡ 1. AI Serve Velocity & Biomechanics Analyzer":
     render_module_1()
@@ -868,6 +787,6 @@ elif menu == "🤝 6. Matchmaking & Coach Directory":
 elif menu == "🎧 7. Support & Ticket Receipts":
     render_module_6()
 elif menu == "🔒 8. Admin Control Panel":
-    render_module_7()
+    render_module_admin()
 elif menu == "📞 9. Contact Us":
     render_module_contact()
