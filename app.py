@@ -562,14 +562,73 @@ def render_module_4():
             if st.form_submit_button("Enroll ($890)"):
                 st.success("🎉 Enrollment Confirmed!")
 
-# --- MODULE 6: MATCHMAKING & COACHES ---
+# --- MODULE 6: MATCHMAKING & COACH DIRECTORY (WITH MEMBERSHIP VERIFICATION) ---
 def render_module_5():
     st.subheader("🤝 Player Matchmaking & Coach Directory")
+    st.write("Connect with local hitting partners or book certified tour coaches. Direct messaging requires an active **PRO Pass** or **VIP Gold** membership.")
+
+    # -------------------------------------------------------------
+    # 1. MEMBERSHIP VERIFICATION LOGIC
+    # -------------------------------------------------------------
+    is_logged = st.session_state.get("is_logged_in", False)
+    user_tier = st.session_state.get("current_user", {}).get("tier", "Free Tier") if is_logged else "Guest"
+    
+    # Paid tiers authorized to chat
+    has_chat_access = is_logged and user_tier in ["PRO Pass", "VIP Gold"]
+
+    # Visual banner alerting unpaid/guest users
+    if not has_chat_access:
+        st.warning(
+            f"🔒 **Membership Required:** You are currently on `{user_tier}`. "
+            "Direct messaging with players and coaches is exclusive to **PRO Pass** and **VIP Gold** members."
+        )
+
+    st.markdown("---")
     t1, t2 = st.tabs(["🎾 Find Partners", "👨‍🏫 Certified Coaches"])
+
+    # -------------------------------------------------------------
+    # TAB 1: PLAYER MATCHMAKING
+    # -------------------------------------------------------------
     with t1:
-        st.dataframe(pd.DataFrame(st.session_state["players_db"]), use_container_width=True)
+        st.markdown("#### 👥 Available Hitting Partners")
+        
+        for idx, player in enumerate(st.session_state["players_db"]):
+            with st.expander(f"🎾 {player['Name']} — NTRP {player['NTRP']} ({player['City']})", expanded=True):
+                col_info, col_action = st.columns([3, 1])
+                
+                with col_info:
+                    st.write(f"**Style:** {player['Style']}")
+                    st.write(f"**City:** {player['City']}")
+                    st.write(f"**Contact:** `{player['Contact'] if has_chat_access else '••••••••@••••.org'}`")
+                
+                with col_action:
+                    if has_chat_access:
+                        if st.button("💬 Chat Now", key=f"chat_player_{idx}"):
+                            st.success(f"Opening secure chat room with {player['Name']}...")
+                    else:
+                        st.button("🔒 Locked (Upgrade)", key=f"lock_player_{idx}", disabled=True)
+
+    # -------------------------------------------------------------
+    # TAB 2: COACH DIRECTORY
+    # -------------------------------------------------------------
     with t2:
-        st.dataframe(pd.DataFrame(st.session_state["coaches_db"]), use_container_width=True)
+        st.markdown("#### 👨‍🏫 Certified Tour Coaches")
+        
+        for idx, coach in enumerate(st.session_state["coaches_db"]):
+            with st.expander(f"🏆 {coach['Coach']} — {coach['Level']} ({coach['City']})", expanded=True):
+                col_info, col_action = st.columns([3, 1])
+                
+                with col_info:
+                    st.write(f"**Specialty:** {coach['Specialty']}")
+                    st.write(f"**Rate:** {coach['Hourly']}")
+                    st.write(f"**Location:** {coach['City']}")
+                
+                with col_action:
+                    if has_chat_access:
+                        if st.button("💬 Book & Chat", key=f"chat_coach_{idx}"):
+                            st.success(f"Initiating private consultation with {coach['Coach']}...")
+                    else:
+                        st.button("🔒 Locked (Upgrade)", key=f"lock_coach_{idx}", disabled=True)
 
 # --- MODULE 7: SUPPORT & TICKETS ---
 def render_module_6():
