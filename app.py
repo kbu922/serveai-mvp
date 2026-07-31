@@ -1092,75 +1092,67 @@ def render_module_membership():
 
 # --- MODULE 4: TOURNAMENTS & LODGING ---
 def render_module_3():
-    st.subheader(get_text("m4_title", curr_lang))
+    st.subheader("🏆 Global Tournaments, Lodging & Group Buying")
 
     selected_event = st.selectbox(
-        get_text("m4_select_event", curr_lang),
+        "📍 Select Target Competition:",
         ["🇺🇸 US Open Championships (Flushing Meadows, NY)", "🇰🇷 Seoul Open Masters (Olympic Park, Korea)", "🇰🇷 Busan Clay Court Cup (Sajik Complex, Korea)"]
     )
 
     subpage = st.radio(
-        get_text("m4_select_path", curr_lang),
-        [
-            get_text("m4_path_1", curr_lang),
-            get_text("m4_path_2", curr_lang),
-            get_text("m4_path_3", curr_lang)
-        ],
+        "Select Pathway:",
+        ["🖼️ Competition Infrastructure & Residence Gallery", "👥 Member Group Buying ($85 Discount)", "👤 Individual Registration & Checkout"],
         horizontal=True
     )
 
     st.markdown("---")
 
-    if subpage == get_text("m4_path_1", curr_lang):
+    if subpage == "🖼️ Competition Infrastructure & Residence Gallery":
         col_img1, col_img2 = st.columns(2)
         with col_img1:
             st.image("https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&q=80", caption="🏟️ Tournament Main Arena & Hard Courts", use_container_width=True)
         with col_img2:
             st.image("https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80", caption="🏨 Official Partner Athlete Residence Suites", use_container_width=True)
 
-    elif subpage == get_text("m4_path_2", curr_lang):
-        st.info(get_text("m4_group_info", curr_lang))
+    elif subpage == "👥 Member Group Buying ($85 Discount)":
+        st.info("💡 Join 5+ athletes to unlock an instant $85/person discount on hotel and tournament packages!")
         votes = len(st.session_state["tournament_group_votes"])
         st.progress(min(votes / 5, 1.0))
-        st.caption(get_text("m4_committed", curr_lang).format(votes))
+        st.caption(f"Current Committed Members: **{votes}/5 Athletes Joined**")
         st.table(pd.DataFrame(st.session_state["tournament_group_votes"]))
 
-    elif subpage == get_text("m4_path_3", curr_lang):
+    elif subpage == "👤 Individual Registration & Checkout":
         with st.form("indiv_tourn_form"):
-            p_name = st.text_input(get_text("m4_p_name", curr_lang), value=st.session_state["current_user"]["name"] if st.session_state["is_logged_in"] else "")
-            p_passport = st.text_input(get_text("m4_passport", curr_lang))
-            card = st.text_input(get_text("m4_card", curr_lang), type="password")
-            if st.form_submit_button(get_text("m4_btn_pay_indiv", curr_lang)):
+            p_name = st.text_input("Player Full Name *", value=st.session_state["current_user"]["name"] if st.session_state["is_logged_in"] else "")
+            p_passport = st.text_input("Passport / Gov ID *")
+            card = st.text_input("Credit Card Number ($300 Standard Rate) *", type="password")
+            if st.form_submit_button("Pay & Confirm Individual Booking ($300.00)"):
                 if p_name and card:
-                    st.success(get_text("m4_success_indiv", curr_lang))
+                    st.success("🎉 Individual tournament entry and hotel package confirmed!")
 
 # --- MODULE 5: ACADEMY & RESIDENCY ---
 def render_module_4():
-    st.subheader(get_text("m5_title", curr_lang))
+    st.subheader("🏛️ Global Tennis Academy & Residency Programs")
     
-    subpage = st.radio(get_text("m5_select_sec", curr_lang), [
-        get_text("m5_sec_1", curr_lang),
-        get_text("m5_sec_2", curr_lang),
-        get_text("m5_sec_3", curr_lang)
-    ], horizontal=True)
+    subpage = st.radio("Select Section:", ["🏟️ Campus Gallery", "👥 Group Buying & Voting Hub", "👤 Individual Enrollment"], horizontal=True)
     st.markdown("---")
 
-    if subpage == get_text("m5_sec_1", curr_lang):
+    if subpage == "🏟️ Campus Gallery":
         c1, c2 = st.columns(2)
         with c1:
             st.image("https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcTlJfjs63KI6QzSpQms4d1rLMcTNoDkcJphyH_y34zqGSvvZbGEs3TmtsDCJLVbWFcYD83uzV10B2lwUR0", caption="Center Court Facility", use_container_width=True)
         with c2:
             st.image("https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcRI-UXJPpwhWDcFekaYdcs5vb7ShKqOtbpAL6DUhV9W4HTMwQsFOzX3pKb9oNNCgU3VDScBATPtPN4KN5I", caption="Athlete Residence Lounge", use_container_width=True)
 
-    elif subpage == get_text("m5_sec_2", curr_lang):
+    elif subpage == "👥 Group Buying & Voting Hub":
         st.dataframe(pd.DataFrame(st.session_state["academy_group_votes"]))
 
-    elif subpage == get_text("m5_sec_3", curr_lang):
+    elif subpage == "👤 Individual Enrollment":
         with st.form("indiv_academy"):
-            full_name = st.text_input(get_text("full_name", curr_lang), value=st.session_state["current_user"]["name"] if st.session_state["is_logged_in"] else "")
+            full_name = st.text_input("Full Name *", value=st.session_state["current_user"]["name"] if st.session_state["is_logged_in"] else "")
             card = st.text_input("Credit Card *", type="password")
-            if st.form_submit_button(get_text("m5_enroll_btn", curr_lang)):
-                st.success(get_text("m5_enroll_success", curr_lang))
+            if st.form_submit_button("Enroll ($890)"):
+                st.success("🎉 Enrollment Confirmed!")
 
 # --- MODULE 6: MATCHMAKING & COACH DIRECTORY (WITH MEMBERSHIP VERIFICATION) ---
 def render_module_5():
