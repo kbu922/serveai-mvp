@@ -48,7 +48,7 @@ TEXTS = {
         "menu_m9": "📞 9. Contact Us",
         # Module 1
         "m1_title": "⚡ AI Serve Velocity & Biomechanics Analyzer",
-        "m1_desc": "Upload high-speed footage to run computer-vision motion vector tracking, shoulder axis analysis, and kinetic kinetic chain evaluation.",
+        "m1_desc": "Upload high-speed footage to run computer-vision motion vector tracking, shoulder axis analysis, and kinetic chain evaluation.",
         "m1_upload": "Upload Serve Video Footage (MP4/MOV)",
         "m1_cam_angle": "Camera Angle",
         "m1_angle_1": "Behind Court (Baseline)",
@@ -56,12 +56,10 @@ TEXTS = {
         "m1_angle_3": "45-Degree Angle",
         "m1_fps": "Frame Rate (FPS)",
         "m1_fps_help": "Higher FPS provides pinpoint accuracy at ball contact frame.",
-        "m1_btn_run": "Run Deep AI Velocity & Motion Analysis",
         "m1_benchmarks": "📊 AI Motion Vector Benchmarks",
         "m1_bench_1": "<strong>Trophy Angle Target:</strong> 25° - 35°",
         "m1_bench_2": "<strong>Pronation Speed Target:</strong> >1,300°/sec",
         "m1_bench_3": "<strong>Kinetic Efficiency Target:</strong> >85%",
-        "m1_spinner": "Analyzing high-speed frames, overlaying standard biomechanical skeleton, and evaluating kinetic chain metrics...",
         "m1_report": "📈 Biomechanical Diagnostic Report",
         "m1_metric_speed": "Peak Serve Speed",
         "m1_metric_speed_delta": "+4.2 mph vs past avg",
@@ -259,12 +257,10 @@ TEXTS = {
         "m1_angle_3": "45도 각도",
         "m1_fps": "프레임 레이트 (FPS)",
         "m1_fps_help": "높은 FPS는 임팩트 순간의 정밀한 정확도를 제공합니다.",
-        "m1_btn_run": "정밀 AI 속도 & 모션 분석 실행",
         "m1_benchmarks": "📊 AI 모션 벡터 벤치마크",
         "m1_bench_1": "<strong>트로피 각도 목표:</strong> 25° - 35°",
         "m1_bench_2": "<strong>내전 회전 속도 목표:</strong> >1,300°/초",
         "m1_bench_3": "<strong>운동 에너지 효율 목표:</strong> >85%",
-        "m1_spinner": "고속 프레임을 분석하고, 표준 인체 뼈대를 중첩하며, 운동 사슬 메트릭을 평가하는 중입니다...",
         "m1_report": "📈 생체역학 진단 보고서",
         "m1_metric_speed": "최고 서브 속도",
         "m1_metric_speed_delta": "이전 평균 대비 +4.2 mph",
@@ -409,7 +405,7 @@ TEXTS = {
         "m8_passcode": "비밀번호",
         "m8_granted": "접근 승인됨",
         # Module 9
-        "m9_title": "📞 본사 연락처 및 공식 채널",
+        "m9_title": "📞 고객센터 및 문의",
         "m9_desc": "아카데미 입학, 토너먼트 패키지 또는 AI 분석 서비스에 대해 궁금한 점이 있으신가요? 저희 팀에 직접 문의하세요.",
         "m9_corp": "### 🏢 글로벌 본사 위치",
         "m9_corp_text": "* **법인명**: Global Tennis Academy & Tech Platform Inc.\n* **한국 본사**: 서울특별시 송파구 올림픽로 124 (05540)\n* **미국 지사**: 120 Flushing Meadows Way, Queens, NY 11368, USA\n* **대표 전화**: +82 2-555-1004 / +1 (800) 555-TENNIS\n* **지원 이메일**: `support@globaltennis.org`\n* **입학 문의**: `admissions@globaltennis.org`\n* **운영 시간**: 월요일 – 금요일: 09:00 – 18:00 KST / EST",
@@ -428,6 +424,7 @@ def get_text(key, lang_str="English"):
 def process_standard_skeleton_overlay(video_file):
     """
     Overlays a legal/standardized AI skeleton onto the uploaded video using OpenCV.
+    Process maximum 120 frames to ensure fast execution speeds on server deployment.
     """
     tfile = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
     tfile.write(video_file.read())
@@ -443,7 +440,9 @@ def process_standard_skeleton_overlay(video_file):
     out = cv2.VideoWriter(temp_output.name, fourcc, fps, (width, height))
     
     frame_count = 0
-    while cap.isOpened():
+    max_frames_to_process = 120  # Limit frame processing count for ultra-fast performance
+
+    while cap.isOpened() and frame_count < max_frames_to_process:
         ret, frame = cap.read()
         if not ret:
             break
@@ -745,11 +744,12 @@ st.markdown("---")
 # 5. ENHANCED MODULE FUNCTIONS
 # ==========================================
 
-# --- MODULE 1: AI SERVE VELOCITY (GRAPHIC & DETAILED + SKELETON + HEALTH ADDED) ---
+# --- MODULE 1: AI SERVE VELOCITY (FAST THREE-SUBPAGE ARCHITECTURE) ---
 def render_module_1():
     st.subheader(get_text("m1_title", curr_lang))
     st.write(get_text("m1_desc", curr_lang))
 
+    # Single Upload Section at top
     col1, col2 = st.columns([3, 2])
     with col1:
         video_file = st.file_uploader(get_text("m1_upload", curr_lang), type=["mp4", "mov"])
@@ -758,8 +758,6 @@ def render_module_1():
             angle = st.selectbox(get_text("m1_cam_angle", curr_lang), [get_text("m1_angle_1", curr_lang), get_text("m1_angle_2", curr_lang), get_text("m1_angle_3", curr_lang)])
         with c_b:
             fps = st.slider(get_text("m1_fps", curr_lang), 30, 240, 120, help=get_text("m1_fps_help", curr_lang))
-
-        run_analysis = st.button(get_text("m1_btn_run", curr_lang))
 
     with col2:
         st.markdown(f"""
@@ -771,85 +769,112 @@ def render_module_1():
         </div>
         """, unsafe_allow_html=True)
 
-    if video_file or run_analysis:
-        with st.spinner(get_text("m1_spinner", curr_lang)):
-            # Processing standard skeleton overlay on uploaded video
-            if video_file is not None:
-                video_file.seek(0)
-                processed_video_path = process_standard_skeleton_overlay(video_file)
-            else:
-                processed_video_path = None
+    st.markdown("---")
+
+    # Three Independent Subpages / Sub-Tabs
+    subpage1, subpage2, subpage3 = st.tabs([
+        "⚡ Phase 1: High-Speed Velocity Analysis",
+        "🎯 Phase 2: Standard Biomechanical Skeleton Overlay",
+        "🩺 Phase 3: AI Health & Predictive Injury Diagnostics"
+    ])
+
+    # -------------------------------------------------------------
+    # SUBPAGE 1: HIGH SPEED FRAMES & VELOCITY METRICS
+    # -------------------------------------------------------------
+    with subpage1:
+        st.markdown("### ⚡ High-Speed Velocity & Frame Tracking")
+        st.write("Click below to run instant motion vector frame extraction and diagnostic metrics.")
+        
+        if st.button("🚀 Run High-Speed Velocity Analysis", key="btn_run_phase1"):
+            with st.spinner("Analyzing high-speed video frames..."):
+                time.sleep(0.5)
                 
-            time.sleep(1)
-            st.markdown("---")
+                st.markdown(f"### {get_text('m1_report', curr_lang)}")
+                
+                # Primary Metrics Row
+                m1, m2, m3, m4 = st.columns(4)
+                m1.metric(get_text("m1_metric_speed", curr_lang), "118.4 mph", delta=get_text("m1_metric_speed_delta", curr_lang))
+                m2.metric(get_text("m1_metric_spin", curr_lang), "2,840 RPM", delta=get_text("m1_metric_spin_delta", curr_lang))
+                m3.metric(get_text("m1_metric_height", curr_lang), "2.88 meters", delta=get_text("m1_metric_height_delta", curr_lang))
+                m4.metric(get_text("m1_metric_transfer", curr_lang), "88.2%", delta=get_text("m1_metric_transfer_delta", curr_lang))
 
-            # --- ADDITION 1: AI STANDARD SKELETON OVERLAY OUTPUT ---
-            st.markdown("### 🎯 AI Standard Skeleton Overlay")
-            if processed_video_path:
-                st.video(processed_video_path)
-            st.info("🔒 **Compliance & IP Safety**: Video rendered using standardized 3D human biomechanical keypoints only.")
+                st.write("")
+                
+                # Interactive Biomechanics Data Charts
+                t_col1, t_col2 = st.columns(2)
+                
+                with t_col1:
+                    st.markdown(f"#### {get_text('m1_chart_vel', curr_lang)}")
+                    chart_data = pd.DataFrame({
+                        "Serve Phase": ["Trophy Position", "Racket Drop", "Acceleration", "Ball Impact", "Follow Through"],
+                        "Racket Speed (mph)": [12, 38, 92, 118, 45],
+                        "Wrist Angular Speed (°/s)": [180, 420, 1100, 1450, 320]
+                    })
+                    st.line_chart(chart_data.set_index("Serve Phase"))
 
-            # --- ADDITION 2: AI HEALTH & INJURY DIAGNOSTICS ---
-            st.markdown("---")
-            st.markdown("### 🩺 AI Health & Predictive Injury Diagnostics")
-            st.caption("Real-time kinematic joint load and impact pressure assessment")
-            
-            h1, h2, h3 = st.columns(3)
-            h1.metric("Elbow Stress Level", "64%", "Elevated Risk", delta_color="inverse")
-            h2.metric("Shoulder Torque", "38%", "Optimal", delta_color="normal")
-            h3.metric("Knee Kinetic Strain", "22%", "Low Risk", delta_color="normal")
-            st.warning("⚠️ **Health Advisory**: High impact shock detected at elbow joint during acceleration phase. Consider adjusting string tension or switching to softer string material in Module 2.")
+                with t_col2:
+                    st.markdown(f"#### {get_text('m1_chart_zone', curr_lang)}")
+                    impact_data = pd.DataFrame({
+                        "Court Zone": ["T-Point (Center)", "Body Serve", "Wide Angle"],
+                        "Consistency %": [68, 84, 52],
+                        "Avg Speed (mph)": [118, 112, 108]
+                    })
+                    st.bar_chart(impact_data.set_index("Court Zone"))
 
-            st.markdown("---")
-            st.markdown(f"### {get_text('m1_report', curr_lang)}")
-            
-            # Primary Metrics Row
-            m1, m2, m3, m4 = st.columns(4)
-            m1.metric(get_text("m1_metric_speed", curr_lang), "118.4 mph", delta=get_text("m1_metric_speed_delta", curr_lang))
-            m2.metric(get_text("m1_metric_spin", curr_lang), "2,840 RPM", delta=get_text("m1_metric_spin_delta", curr_lang))
-            m3.metric(get_text("m1_metric_height", curr_lang), "2.88 meters", delta=get_text("m1_metric_height_delta", curr_lang))
-            m4.metric(get_text("m1_metric_transfer", curr_lang), "88.2%", delta=get_text("m1_metric_transfer_delta", curr_lang))
+                st.markdown(f"#### {get_text('m1_breakdown', curr_lang)}")
+                
+                tab_p1, tab_p2, tab_p3, tab_p4 = st.tabs([
+                    get_text("m1_tab_p1", curr_lang),
+                    get_text("m1_tab_p2", curr_lang),
+                    get_text("m1_tab_p3", curr_lang),
+                    get_text("m1_tab_p4", curr_lang)
+                ])
+                
+                with tab_p1:
+                    st.markdown(get_text("m1_p1_text", curr_lang))
+                with tab_p2:
+                    st.markdown(get_text("m1_p2_text", curr_lang))
+                with tab_p3:
+                    st.markdown(get_text("m1_p3_text", curr_lang))
+                with tab_p4:
+                    st.markdown(get_text("m1_p4_text", curr_lang))
 
-            st.write("")
-            
-            # Interactive Biomechanics Data Charts
-            t_col1, t_col2 = st.columns(2)
-            
-            with t_col1:
-                st.markdown(f"#### {get_text('m1_chart_vel', curr_lang)}")
-                chart_data = pd.DataFrame({
-                    "Serve Phase": ["Trophy Position", "Racket Drop", "Acceleration", "Ball Impact", "Follow Through"],
-                    "Racket Speed (mph)": [12, 38, 92, 118, 45],
-                    "Wrist Angular Speed (°/s)": [180, 420, 1100, 1450, 320]
-                })
-                st.line_chart(chart_data.set_index("Serve Phase"))
+    # -------------------------------------------------------------
+    # SUBPAGE 2: STANDARD BIOMECHANICAL SKELETON OVERLAY
+    # -------------------------------------------------------------
+    with subpage2:
+        st.markdown("### 🎯 Overlay Standard Biomechanical Skeleton")
+        st.write("Click the button below to trigger real-time OpenCV skeleton motion overlay on your uploaded video.")
+        
+        if st.button("🦴 Overlay Standard Biomechanical Skeleton", key="btn_run_phase2"):
+            if video_file is not None:
+                with st.spinner("Processing video frames and overlaying standardized biomechanical skeleton..."):
+                    video_file.seek(0)
+                    processed_video_path = process_standard_skeleton_overlay(video_file)
+                    
+                    st.video(processed_video_path)
+                    st.success("✅ Standard Biomechanical Skeleton Rendering Complete!")
+                    st.info("🔒 **Compliance & IP Safety**: Video rendered using standardized 3D human biomechanical keypoints only.")
+            else:
+                st.warning("⚠️ Please upload a video file above first to overlay the standard skeleton model.")
 
-            with t_col2:
-                st.markdown(f"#### {get_text('m1_chart_zone', curr_lang)}")
-                impact_data = pd.DataFrame({
-                    "Court Zone": ["T-Point (Center)", "Body Serve", "Wide Angle"],
-                    "Consistency %": [68, 84, 52],
-                    "Avg Speed (mph)": [118, 112, 108]
-                })
-                st.bar_chart(impact_data.set_index("Court Zone"))
-
-            st.markdown(f"#### {get_text('m1_breakdown', curr_lang)}")
-            
-            tab_p1, tab_p2, tab_p3, tab_p4 = st.tabs([
-                get_text("m1_tab_p1", curr_lang),
-                get_text("m1_tab_p2", curr_lang),
-                get_text("m1_tab_p3", curr_lang),
-                get_text("m1_tab_p4", curr_lang)
-            ])
-            
-            with tab_p1:
-                st.markdown(get_text("m1_p1_text", curr_lang))
-            with tab_p2:
-                st.markdown(get_text("m1_p2_text", curr_lang))
-            with tab_p3:
-                st.markdown(get_text("m1_p3_text", curr_lang))
-            with tab_p4:
-                st.markdown(get_text("m1_p4_text", curr_lang))
+    # -------------------------------------------------------------
+    # SUBPAGE 3: AI HEALTH & PREDICTIVE DIAGNOSTICS
+    # -------------------------------------------------------------
+    with subpage3:
+        st.markdown("### 🩺 AI Health & Predictive Injury Diagnostics")
+        st.write("Click below to evaluate joint load, elbow torque strain, and landing force levels.")
+        
+        if st.button("🔍 Run Health & Injury Risk Evaluation", key="btn_run_phase3"):
+            with st.spinner("Evaluating kinematic pressure profiles and joint load metrics..."):
+                time.sleep(0.4)
+                
+                h1, h2, h3 = st.columns(3)
+                h1.metric("Elbow Stress Level", "64%", "Elevated Risk", delta_color="inverse")
+                h2.metric("Shoulder Torque", "38%", "Optimal", delta_color="normal")
+                h3.metric("Knee Kinetic Strain", "22%", "Low Risk", delta_color="normal")
+                
+                st.warning("⚠️ **Health Advisory**: High impact shock detected at elbow joint during acceleration phase. Consider adjusting string tension or switching to softer string material in Module 2.")
 
 # --- MODULE 2: AI RACKET & STRING TENSION (GRAPHIC & SUGGESTION MATRIX) ---
 def render_module_2():
@@ -1076,42 +1101,30 @@ def render_module_4():
             if st.form_submit_button(get_text("m5_enroll_btn", curr_lang)):
                 st.success(get_text("m5_enroll_success", curr_lang))
 
-# --- MODULE 6: MATCHMAKING & COACH DIRECTORY (WITH MEMBERSHIP VERIFICATION) ---
+# --- MODULE 6: MATCHMAKING & COACH DIRECTORY ---
 def render_module_5():
     st.subheader(get_text("m6_title", curr_lang))
     st.write(get_text("m6_desc", curr_lang))
 
-    # -------------------------------------------------------------
-    # 1. MEMBERSHIP VERIFICATION LOGIC
-    # -------------------------------------------------------------
     is_logged = st.session_state.get("is_logged_in", False)
     user_tier = st.session_state.get("current_user", {}).get("tier", "Free Tier") if is_logged else "Guest"
-    
-    # Paid tiers authorized to chat
     has_chat_access = is_logged and user_tier in ["PRO Pass", "VIP Gold"]
 
-    # Visual banner alerting unpaid/guest users
     if not has_chat_access:
         st.warning(get_text("m6_warn", curr_lang).format(user_tier))
 
     st.markdown("---")
     t1, t2 = st.tabs([get_text("m6_tab_partners", curr_lang), get_text("m6_tab_coaches", curr_lang)])
 
-    # -------------------------------------------------------------
-    # TAB 1: PLAYER MATCHMAKING
-    # -------------------------------------------------------------
     with t1:
         st.markdown(get_text("m6_avail_partners", curr_lang))
-        
         for idx, player in enumerate(st.session_state["players_db"]):
             with st.expander(f"🎾 {player['Name']} — NTRP {player['NTRP']} ({player['City']})", expanded=True):
                 col_info, col_action = st.columns([3, 1])
-                
                 with col_info:
                     st.write(f"**{get_text('m6_style', curr_lang)}** {player['Style']}")
                     st.write(f"**{get_text('m6_city', curr_lang)}** {player['City']}")
                     st.write(f"**{get_text('m6_contact', curr_lang)}** `{player['Contact'] if has_chat_access else '••••••••@••••.org'}`")
-                
                 with col_action:
                     if has_chat_access:
                         if st.button(get_text("m6_chat_now", curr_lang), key=f"chat_player_{idx}"):
@@ -1119,21 +1132,15 @@ def render_module_5():
                     else:
                         st.button(get_text("m6_locked", curr_lang), key=f"lock_player_{idx}", disabled=True)
 
-    # -------------------------------------------------------------
-    # TAB 2: COACH DIRECTORY
-    # -------------------------------------------------------------
     with t2:
         st.markdown(get_text("m6_avail_coaches", curr_lang))
-        
         for idx, coach in enumerate(st.session_state["coaches_db"]):
             with st.expander(f"🏆 {coach['Coach']} — {coach['Level']} ({coach['City']})", expanded=True):
                 col_info, col_action = st.columns([3, 1])
-                
                 with col_info:
                     st.write(f"**{get_text('m6_specialty', curr_lang)}** {coach['Specialty']}")
                     st.write(f"**{get_text('m6_rate', curr_lang)}** {coach['Hourly']}")
                     st.write(f"**{get_text('m6_location', curr_lang)}** {coach['City']}")
-                
                 with col_action:
                     if has_chat_access:
                         if st.button(get_text("m6_book_chat", curr_lang), key=f"chat_coach_{idx}"):
@@ -1147,7 +1154,6 @@ def render_module_6():
     st.write(get_text("m7_desc", curr_lang))
 
     is_logged = st.session_state.get("is_logged_in", False)
-    
     current_user = st.session_state.get("current_user") or {}
 
     tab_tickets, tab_receipts, tab_new_ticket = st.tabs([
@@ -1156,24 +1162,15 @@ def render_module_6():
         get_text("m7_tab_3", curr_lang)
     ])
 
-    # -------------------------------------------------------------
-    # TAB 1: SUPPORT TICKETS LIST
-    # -------------------------------------------------------------
     with tab_tickets:
         st.markdown(get_text("m7_tickets_title", curr_lang))
-        
         if not is_logged:
             st.info(get_text("m7_login_info", curr_lang))
-        
         inquiries_df = pd.DataFrame(st.session_state.get("inquiries", []))
         st.dataframe(inquiries_df, width="stretch")
 
-    # -------------------------------------------------------------
-    # TAB 2: TRANSACTION RECEIPTS & INVOICE GENERATOR
-    # -------------------------------------------------------------
     with tab_receipts:
         st.markdown(get_text("m7_billing_title", curr_lang))
-        
         chat_orders = st.session_state.get("chat_orders", [])
         orders_df = pd.DataFrame(chat_orders)
         st.dataframe(orders_df, width="stretch")
@@ -1184,7 +1181,6 @@ def render_module_6():
         if chat_orders:
             order_ids = [order["Order ID"] for order in chat_orders]
             selected_order_id = st.selectbox(get_text("m7_select_order", curr_lang), order_ids)
-
             selected_order = next((item for item in chat_orders if item["Order ID"] == selected_order_id), None)
 
             if selected_order:
@@ -1219,12 +1215,8 @@ def render_module_6():
         else:
             st.info(get_text("m7_no_records", curr_lang))
 
-    # -------------------------------------------------------------
-    # TAB 3: SUBMIT NEW INQUIRY
-    # -------------------------------------------------------------
     with tab_new_ticket:
         st.markdown(get_text("m7_create_title", curr_lang))
-        
         with st.form("create_ticket_form"):
             t_category = st.selectbox(get_text("m7_inq_cat", curr_lang), [
                 get_text("m7_cat_1", curr_lang),
@@ -1235,7 +1227,6 @@ def render_module_6():
             ])
             t_subject = st.text_input(get_text("m7_subject", curr_lang))
             t_details = st.text_area(get_text("m7_details", curr_lang))
-            
             submit_ticket = st.form_submit_button(get_text("m7_btn_sub_ticket", curr_lang))
 
             if submit_ticket:
@@ -1271,7 +1262,6 @@ def render_module_contact():
     """, unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
-
     with col1:
         st.markdown(get_text("m9_corp", curr_lang))
         st.markdown(get_text("m9_corp_text", curr_lang))
