@@ -673,7 +673,7 @@ def render_module_membership():
         st.markdown("""
         <div style="background-color:#FAF8F5; border:1px solid #E5E0D8; border-radius:12px; padding:20px; text-align:center;">
             <h3>🆓 Free Athlete</h3>
-            <h2>$0 <span style="font-size:14px;">/ forever</span></h2>
+            20 <span style="font-size:14px;">/ forever</span></h2>
             <hr>
             <p>✓ Basic AI Serve Analysis (3/mo)</p>
             <p>✓ Access Player Directory</p>
@@ -1037,8 +1037,25 @@ def render_module_contact():
         """, unsafe_allow_html=True)
 
 # ==========================================
-# 6. ROUTER LOGIC
+# 6. NAVIGATION & ROUTER LOGIC
 # ==========================================
+curr_lang = st.sidebar.selectbox("🌐 Language / 언어", ["English", "한국어"])
+
+menu = st.sidebar.radio(
+    get_text("select_module", curr_lang),
+    [
+        get_text("menu_m1", curr_lang),
+        get_text("menu_m2", curr_lang),
+        get_text("menu_m3", curr_lang),
+        get_text("menu_m4", curr_lang),
+        get_text("menu_m5", curr_lang),
+        get_text("menu_m6", curr_lang),
+        get_text("menu_m7", curr_lang),
+        get_text("menu_m8", curr_lang),
+        get_text("menu_m9", curr_lang),
+    ]
+)
+
 if menu == get_text("menu_m1", curr_lang):
     render_module_1()
 elif menu == get_text("menu_m2", curr_lang):
