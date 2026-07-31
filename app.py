@@ -1,13 +1,10 @@
-import datetime
-import os
-import tempfile
-import time
-
-import cv2
-import imageio
-import numpy as np
-import pandas as pd
 import streamlit as st
+import pandas as pd
+import datetime
+import time
+import cv2
+import numpy as np
+import tempfile
 
 # ==========================================
 # 0. TRANSLATION DICTIONARY & HELPER
@@ -51,7 +48,7 @@ TEXTS = {
         "menu_m9": "📞 9. Contact Us",
         # Module 1
         "m1_title": "⚡ AI Serve Velocity & Biomechanics Analyzer",
-        "m1_desc": "Upload high-speed footage to run computer-vision motion vector tracking, shoulder axis analysis, and kinetic chain evaluation.",
+        "m1_desc": "Upload high-speed footage to run computer-vision motion vector tracking, shoulder axis analysis, and kinetic kinetic chain evaluation.",
         "m1_upload": "Upload Serve Video Footage (MP4/MOV)",
         "m1_cam_angle": "Camera Angle",
         "m1_angle_1": "Behind Court (Baseline)",
@@ -59,10 +56,12 @@ TEXTS = {
         "m1_angle_3": "45-Degree Angle",
         "m1_fps": "Frame Rate (FPS)",
         "m1_fps_help": "Higher FPS provides pinpoint accuracy at ball contact frame.",
+        "m1_btn_run": "Run Deep AI Velocity & Motion Analysis",
         "m1_benchmarks": "📊 AI Motion Vector Benchmarks",
         "m1_bench_1": "<strong>Trophy Angle Target:</strong> 25° - 35°",
         "m1_bench_2": "<strong>Pronation Speed Target:</strong> >1,300°/sec",
         "m1_bench_3": "<strong>Kinetic Efficiency Target:</strong> >85%",
+        "m1_spinner": "Analyzing high-speed frames, overlaying standard biomechanical skeleton, and evaluating kinetic chain metrics...",
         "m1_report": "📈 Biomechanical Diagnostic Report",
         "m1_metric_speed": "Peak Serve Speed",
         "m1_metric_speed_delta": "+4.2 mph vs past avg",
@@ -146,7 +145,7 @@ TEXTS = {
         # Module 5
         "m5_title": "🏛️ Global Tennis Academy & Residency Programs",
         "m5_select_sec": "Select Section:",
-        "m5_sec_1": "Stadium Campus Gallery",
+        "m5_sec_1": "🏟️ Campus Gallery",
         "m5_sec_2": "👥 Group Buying & Voting Hub",
         "m5_sec_3": "👤 Individual Enrollment",
         "m5_enroll_btn": "Enroll ($890)",
@@ -212,7 +211,7 @@ TEXTS = {
         "m9_corp": "### 🏢 Global Corporate Office",
         "m9_corp_text": "* **Company Name**: Global Tennis Academy & Tech Platform Inc.\n* **HQ Address**: 124 Olympic-ro, Songpa-gu, Seoul, 05540, South Korea\n* **US Branch Office**: 120 Flushing Meadows Way, Queens, NY 11368, USA\n* **Telephone**: +82 2-555-1004 / +1 (800) 555-TENNIS\n* **Support Email**: `support@globaltennis.org`\n* **Admissions Email**: `admissions@globaltennis.org`\n* **Office Hours**: Monday – Friday: 09:00 – 18:00 KST / EST",
         "m9_social": "### 🌐 Connect On Social Media",
-        "m9_social_desc": "Follow our official channels for tournament updates, student highlights, and AI biomechanics tips:",
+        "m9_social_desc": "Follow our official channels for tournament updates, student highlights, and AI biomechanics tips:"
     },
     "KR": {
         # App & Header
@@ -260,10 +259,12 @@ TEXTS = {
         "m1_angle_3": "45도 각도",
         "m1_fps": "프레임 레이트 (FPS)",
         "m1_fps_help": "높은 FPS는 임팩트 순간의 정밀한 정확도를 제공합니다.",
+        "m1_btn_run": "정밀 AI 속도 & 모션 분석 실행",
         "m1_benchmarks": "📊 AI 모션 벡터 벤치마크",
         "m1_bench_1": "<strong>트로피 각도 목표:</strong> 25° - 35°",
         "m1_bench_2": "<strong>내전 회전 속도 목표:</strong> >1,300°/초",
         "m1_bench_3": "<strong>운동 에너지 효율 목표:</strong> >85%",
+        "m1_spinner": "고속 프레임을 분석하고, 표준 인체 뼈대를 중첩하며, 운동 사슬 메트릭을 평가하는 중입니다...",
         "m1_report": "📈 생체역학 진단 보고서",
         "m1_metric_speed": "최고 서브 속도",
         "m1_metric_speed_delta": "이전 평균 대비 +4.2 mph",
@@ -347,7 +348,7 @@ TEXTS = {
         # Module 5
         "m5_title": "🏛️ 글로벌 테니스 아카데미 & 레지던시 프로그램",
         "m5_select_sec": "섹션 선택:",
-        "m5_sec_1": "경기장 캠퍼스 갤러리",
+        "m5_sec_1": "🏟️ 캠퍼스 갤러리",
         "m5_sec_2": "👥 공동 구매 & 투표 허브",
         "m5_sec_3": "👤 개인 등록",
         "m5_enroll_btn": "등록하기 ($890)",
@@ -408,20 +409,77 @@ TEXTS = {
         "m8_passcode": "비밀번호",
         "m8_granted": "접근 승인됨",
         # Module 9
-        "m9_title": "📞 고객센터 및 문의",
+        "m9_title": "📞 본사 연락처 및 공식 채널",
         "m9_desc": "아카데미 입학, 토너먼트 패키지 또는 AI 분석 서비스에 대해 궁금한 점이 있으신가요? 저희 팀에 직접 문의하세요.",
         "m9_corp": "### 🏢 글로벌 본사 위치",
         "m9_corp_text": "* **법인명**: Global Tennis Academy & Tech Platform Inc.\n* **한국 본사**: 서울특별시 송파구 올림픽로 124 (05540)\n* **미국 지사**: 120 Flushing Meadows Way, Queens, NY 11368, USA\n* **대표 전화**: +82 2-555-1004 / +1 (800) 555-TENNIS\n* **지원 이메일**: `support@globaltennis.org`\n* **입학 문의**: `admissions@globaltennis.org`\n* **운영 시간**: 월요일 – 금요일: 09:00 – 18:00 KST / EST",
         "m9_social": "### 🌐 소셜 미디어 채널",
-        "m9_social_desc": "공식 채널을 팔로우하고 대회 소식, 수강생 소식 및 AI 생체역학 팁을 확인하세요:",
-    },
+        "m9_social_desc": "공식 채널을 팔로우하고 대회 소식, 수강생 소식 및 AI 생체역학 팁을 확인하세요:"
+    }
 }
-
 
 def get_text(key, lang_str="English"):
     lang_code = "KR" if lang_str == "한국어" else "EN"
     return TEXTS.get(lang_code, TEXTS["EN"]).get(key, key)
 
+# ==========================================
+# 0.1 HELPER FUNCTIONS: SKELETON & HEALTH
+# ==========================================
+def process_standard_skeleton_overlay(video_file):
+    """
+    Overlays a legal/standardized AI skeleton onto the uploaded video using OpenCV.
+    """
+    tfile = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
+    tfile.write(video_file.read())
+    video_path = tfile.name
+
+    cap = cv2.VideoCapture(video_path)
+    fps = int(cap.get(cv2.CAP_PROP_FPS)) or 30
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)) or 640
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) or 480
+    
+    temp_output = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    out = cv2.VideoWriter(temp_output.name, fourcc, fps, (width, height))
+    
+    frame_count = 0
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+            
+        frame_count += 1
+        overlay = frame.copy()
+        
+        # Calculate standard motion trajectory
+        t = (frame_count % 60) / 60.0
+        
+        std_shoulder = (int(width * 0.45), int(height * 0.42))
+        std_elbow = (int(width * 0.48), int(height * 0.55))
+        std_wrist = (int(width * (0.42 + 0.25 * np.cos(t * 2 * np.pi))), 
+                     int(height * (0.58 - 0.20 * np.sin(t * 2 * np.pi))))
+        
+        bone_color = (0, 215, 255) # Gold/Neon
+        
+        # Standardized Bone Segments
+        cv2.line(overlay, std_shoulder, std_elbow, bone_color, 5)
+        cv2.line(overlay, std_elbow, std_wrist, bone_color, 5)
+        
+        # Joints
+        cv2.circle(overlay, std_shoulder, 7, (255, 255, 255), -1)
+        cv2.circle(overlay, std_elbow, 7, (255, 255, 255), -1)
+        cv2.circle(overlay, std_wrist, 9, (0, 255, 0), -1)
+        
+        # Alpha Blending (50%)
+        cv2.addWeighted(overlay, 0.5, frame, 0.5, 0, frame)
+        cv2.putText(frame, "AI Standard Model: Forehand Topspin", (30, 40), 
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 215, 255), 2, cv2.LINE_AA)
+        
+        out.write(frame)
+
+    cap.release()
+    out.release()
+    return temp_output.name
 
 # ==========================================
 # 1. PAGE CONFIG & LUXURY SAND THEME
@@ -430,22 +488,27 @@ st.set_page_config(
     page_title="Global Tennis Platform & AI Suite",
     page_icon="🎾",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="expanded"
 )
 
-st.markdown(
-    """
+# Custom CSS for Luxury Sand Theme
+st.markdown("""
     <style>
+    /* Main Background & Base Styling */
     .stApp {
         background-color: #F5F2EB;
         color: #211F1D;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
+    
+    /* Headers & Typography */
     h1, h2, h3, h4, h5 {
         color: #211F1D !important;
         font-weight: 600;
         letter-spacing: -0.02em;
     }
+    
+    /* Cards & Containers */
     .stCard, div[data-testid="stExpander"], div[data-testid="stForm"] {
         background-color: #FAF8F5;
         border: 1px solid #E5E0D8;
@@ -453,6 +516,8 @@ st.markdown(
         padding: 24px;
         box-shadow: 0 4px 12px rgba(33, 31, 29, 0.03);
     }
+    
+    /* Buttons */
     .stButton > button, div[data-testid="stForm"] button {
         background-color: #211F1D !important;
         color: #FAF8F5 !important;
@@ -467,16 +532,22 @@ st.markdown(
         background-color: #383430 !important;
         box-shadow: 0 4px 8px rgba(0,0,0,0.12);
     }
+    
+    /* Metrics & Badges */
     div[data-testid="stMetricValue"] {
         color: #211F1D !important;
         font-weight: 700;
     }
+    
+    /* Input Fields */
     .stTextInput>div>div>input, .stSelectbox>div>div>div, .stTextArea>div>div>textarea, .stNumberInput>div>div>input {
         background-color: #FFFFFF !important;
         border: 1px solid #D6D0C4 !important;
         border-radius: 8px !important;
         color: #211F1D !important;
     }
+    
+    /* Tabs Customization */
     button[data-baseweb="tab"] {
         font-weight: 600 !important;
         color: #5C544D !important;
@@ -485,6 +556,7 @@ st.markdown(
         color: #211F1D !important;
         border-bottom-color: #211F1D !important;
     }
+    
     .badge-membership {
         background-color: #E2DCD0;
         color: #211F1D;
@@ -493,6 +565,7 @@ st.markdown(
         font-size: 12px;
         font-weight: 700;
     }
+
     .social-btn {
         display: inline-block;
         background-color: #211F1D;
@@ -509,102 +582,16 @@ st.markdown(
         background-color: #383430;
     }
     </style>
-""",
-    unsafe_allow_html=True,
-)
-
+""", unsafe_allow_html=True)
 
 # ==========================================
-# 2. HELPER FUNCTIONS
+# 2. STATE INITIALIZATION & AUTH SYSTEM
 # ==========================================
-def process_skeleton_to_gif(video_file):
-    """Overlays standard AI skeleton and outputs an animated GIF for smooth playback."""
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tfile:
-        tfile.write(video_file.read())
-        input_path = tfile.name
 
-    cap = cv2.VideoCapture(input_path)
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)) or 640
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) or 480
-
-    frames = []
-    frame_count = 0
-    max_frames_to_process = 60
-
-    while cap.isOpened() and frame_count < max_frames_to_process:
-        ret, frame = cap.read()
-        if not ret:
-            break
-
-        frame_count += 1
-
-        frame = cv2.resize(frame, (480, int(480 * (height / width))))
-        f_h, f_w, _ = frame.shape
-        overlay = frame.copy()
-
-        t = (frame_count % 30) / 30.0
-
-        std_shoulder = (int(f_w * 0.45), int(f_h * 0.42))
-        std_elbow = (int(f_w * 0.48), int(f_h * 0.55))
-        std_wrist = (
-            int(f_w * (0.42 + 0.25 * np.cos(t * 2 * np.pi))),
-            int(f_h * (0.58 - 0.20 * np.sin(t * 2 * np.pi))),
-        )
-
-        bone_color = (0, 215, 255)
-
-        cv2.line(overlay, std_shoulder, std_elbow, bone_color, 4)
-        cv2.line(overlay, std_elbow, std_wrist, bone_color, 4)
-        cv2.circle(overlay, std_shoulder, 6, (255, 255, 255), -1)
-        cv2.circle(overlay, std_elbow, 6, (255, 255, 255), -1)
-        cv2.circle(overlay, std_wrist, 8, (0, 255, 0), -1)
-
-        cv2.addWeighted(overlay, 0.5, frame, 0.5, 0, frame)
-        cv2.putText(
-            frame,
-            "AI Standard Model: Topspin Flash",
-            (20, 30),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.5,
-            (0, 215, 255),
-            2,
-            cv2.LINE_AA,
-        )
-
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        frames.append(frame_rgb)
-
-    cap.release()
-
-    gif_temp = tempfile.NamedTemporaryFile(delete=False, suffix=".gif")
-    gif_path = gif_temp.name
-    gif_temp.close()
-
-    imageio.mimsave(gif_path, frames, fps=20, loop=0)
-
-    if os.path.exists(input_path):
-        os.remove(input_path)
-
-    return gif_path
-
-
-# ==========================================
-# 3. STATE INITIALIZATION & AUTH SYSTEM
-# ==========================================
 if "registered_users" not in st.session_state:
     st.session_state["registered_users"] = {
-        "alex@tennis.org": {
-            "password": "password123",
-            "name": "Alex Mercer",
-            "tier": "PRO Pass",
-            "ntrp": 4.5,
-        },
-        "sarah@tennis.org": {
-            "password": "password123",
-            "name": "Sarah Kim",
-            "tier": "VIP Gold",
-            "ntrp": 5.0,
-        },
+        "alex@tennis.org": {"password": "password123", "name": "Alex Mercer", "tier": "PRO Pass", "ntrp": 4.5},
+        "sarah@tennis.org": {"password": "password123", "name": "Sarah Kim", "tier": "VIP Gold", "ntrp": 5.0}
     }
 
 if "is_logged_in" not in st.session_state:
@@ -616,236 +603,100 @@ if "current_user" not in st.session_state:
 if "language" not in st.session_state:
     st.session_state["language"] = "English"
 
+# Databases
 if "players_db" not in st.session_state:
     st.session_state["players_db"] = [
-        {
-            "Name": "Marcus Vance",
-            "NTRP": 4.5,
-            "City": "Seoul",
-            "Style": "Aggressive Baseline",
-            "Contact": "m.vance@tennis.org",
-        },
-        {
-            "Name": "Elena Rostova",
-            "NTRP": 5.0,
-            "City": "Busan",
-            "Style": "Serve & Volley",
-            "Contact": "elena.r@tennis.org",
-        },
-        {
-            "Name": "Jin-woo Park",
-            "NTRP": 4.0,
-            "City": "Seoul",
-            "Style": "Counter-Puncher",
-            "Contact": "jw.park@tennis.kr",
-        },
-        {
-            "Name": "Sarah Jenkins",
-            "NTRP": 3.5,
-            "City": "Incheon",
-            "Style": "All-Court",
-            "Contact": "s.jenkins@tennis.org",
-        },
+        {"Name": "Marcus Vance", "NTRP": 4.5, "City": "Seoul", "Style": "Aggressive Baseline", "Contact": "m.vance@tennis.org"},
+        {"Name": "Elena Rostova", "NTRP": 5.0, "City": "Busan", "Style": "Serve & Volley", "Contact": "elena.r@tennis.org"},
+        {"Name": "Jin-woo Park", "NTRP": 4.0, "City": "Seoul", "Style": "Counter-Puncher", "Contact": "jw.park@tennis.kr"},
+        {"Name": "Sarah Jenkins", "NTRP": 3.5, "City": "Incheon", "Style": "All-Court", "Contact": "s.jenkins@tennis.org"}
     ]
 
 if "coaches_db" not in st.session_state:
     st.session_state["coaches_db"] = [
-        {
-            "Coach": "Coach Rob",
-            "Level": "USPTR Certified Master",
-            "City": "Seoul",
-            "Hourly": "$80/hr",
-            "Specialty": "Serve Biomechanics",
-        },
-        {
-            "Coach": "Coach Sarah",
-            "Level": "Ex-WTA Tour Player",
-            "City": "Incheon",
-            "Hourly": "$120/hr",
-            "Specialty": "Match Strategy",
-        },
-        {
-            "Coach": "Coach Min-ho",
-            "Level": "KTA High Performance",
-            "City": "Busan",
-            "Hourly": "$95/hr",
-            "Specialty": "Junior Development",
-        },
+        {"Coach": "Coach Rob", "Level": "USPTR Certified Master", "City": "Seoul", "Hourly": "$80/hr", "Specialty": "Serve Biomechanics"},
+        {"Coach": "Coach Sarah", "Level": "Ex-WTA Tour Player", "City": "Incheon", "Hourly": "$120/hr", "Specialty": "Match Strategy"},
+        {"Coach": "Coach Min-ho", "Level": "KTA High Performance", "City": "Busan", "Hourly": "$95/hr", "Specialty": "Junior Development"}
     ]
 
 if "tournament_group_votes" not in st.session_state:
     st.session_state["tournament_group_votes"] = [
-        {
-            "Name": "Chris P.",
-            "Tournament": "US Open Tennis Championships",
-            "Status": "Discount Unlocked ($85)",
-        },
-        {
-            "Name": "Min-ji K.",
-            "Tournament": "Seoul Open Masters",
-            "Status": "Discount Unlocked ($85)",
-        },
-        {
-            "Name": "Kenji S.",
-            "Tournament": "Seoul Open Masters",
-            "Status": "Discount Unlocked ($85)",
-        },
+        {"Name": "Chris P.", "Tournament": "US Open Tennis Championships", "Status": "Discount Unlocked ($85)"},
+        {"Name": "Min-ji K.", "Tournament": "Seoul Open Masters", "Status": "Discount Unlocked ($85)"},
+        {"Name": "Kenji S.", "Tournament": "Seoul Open Masters", "Status": "Discount Unlocked ($85)"}
     ]
 
 if "academy_group_votes" not in st.session_state:
     st.session_state["academy_group_votes"] = [
-        {
-            "name": "Alex M.",
-            "program": "1-Week Intensive Boot Camp",
-            "discount_tier": "15% Off",
-        },
-        {
-            "name": "Sarah K.",
-            "program": "1-Week Intensive Boot Camp",
-            "discount_tier": "15% Off",
-        },
-        {
-            "name": "David L.",
-            "program": "1-Month Pro Residency",
-            "discount_tier": "20% Off",
-        },
+        {"name": "Alex M.", "program": "1-Week Intensive Boot Camp", "discount_tier": "15% Off"},
+        {"name": "Sarah K.", "program": "1-Week Intensive Boot Camp", "discount_tier": "15% Off"},
+        {"name": "David L.", "program": "1-Month Pro Residency", "discount_tier": "20% Off"}
     ]
 
 if "inquiries" not in st.session_state:
     st.session_state["inquiries"] = [
-        {
-            "Ticket ID": "TK-1001",
-            "Subject": "Racket Stringing Order",
-            "Status": "In Progress",
-            "Date": "2026-03-28",
-            "Category": "Racket Stringing / Customization Order",
-        }
+        {"Ticket ID": "TK-1001", "Subject": "Racket Stringing Order", "Status": "Resolved", "Date": "2026-07-15"}
     ]
 
-if "orders_db" not in st.session_state:
-    st.session_state["orders_db"] = [
-        {
-            "Order ID": "ORD-88219",
-            "Item": "VIP Gold Annual Membership",
-            "Date": "2026-01-15",
-            "Amount": "$149.00",
-            "Status": "Paid",
-            "Payment Method": "Visa ending in 4242",
-        },
-        {
-            "Order ID": "ORD-94012",
-            "Item": "Seoul Open Masters Package",
-            "Date": "2026-02-10",
-            "Amount": "$215.00",
-            "Status": "Paid",
-            "Payment Method": "MasterCard ending in 8819",
-        },
+if "chat_orders" not in st.session_state:
+    st.session_state["chat_orders"] = [
+        {"Order ID": "ORD-9921", "Item": "PRO Pass Monthly", "Amount": "$19.99", "Status": "Paid"}
     ]
 
+# Active Language Ref
+curr_lang = st.session_state["language"]
+
 # ==========================================
-# 4. SIDEBAR & NAVIGATION
+# 3. SIDEBAR AUTH & NAVIGATION PANEL
 # ==========================================
-st.sidebar.title("🎾 Global Tennis")
-st.sidebar.caption(get_text("caption", st.session_state["language"]))
+st.sidebar.image("https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=400&q=80", caption=get_text("caption", curr_lang))
 
-lang_selection = st.sidebar.selectbox(
-    "🌐 Language / 언어",
-    options=["English", "한국어"],
-    index=0 if st.session_state["language"] == "English" else 1,
-)
-st.session_state["language"] = lang_selection
-
-st.sidebar.markdown("---")
-
-st.sidebar.subheader(get_text("user_portal", st.session_state["language"]))
+# Account Authenticator Box
+st.sidebar.markdown(f"### {get_text('user_portal', curr_lang)}")
 
 if not st.session_state["is_logged_in"]:
-    tab_login, tab_reg = st.sidebar.tabs([
-        get_text("tab_login", st.session_state["language"]),
-        get_text("tab_register", st.session_state["language"]),
-    ])
-
-    with tab_login:
-        login_email = st.text_input(
-            get_text("email", st.session_state["language"]), key="login_email"
-        )
-        login_pass = st.text_input(
-            get_text("password", st.session_state["language"]),
-            type="password",
-            key="login_pass",
-        )
-        if st.button(
-            get_text("btn_login", st.session_state["language"]),
-            key="btn_login_act",
-        ):
-            if (
-                login_email in st.session_state["registered_users"]
-                and st.session_state["registered_users"][login_email][
-                    "password"
-                ]
-                == login_pass
-            ):
+    auth_tab1, auth_tab2 = st.sidebar.tabs([get_text("tab_login", curr_lang), get_text("tab_register", curr_lang)])
+    
+    with auth_tab1:
+        login_email = st.text_input(get_text("email", curr_lang), key="login_email")
+        login_pass = st.text_input(get_text("password", curr_lang), type="password", key="login_pass")
+        if st.button(get_text("btn_login", curr_lang), key="btn_login"):
+            if login_email in st.session_state["registered_users"] and st.session_state["registered_users"][login_email]["password"] == login_pass:
                 st.session_state["is_logged_in"] = True
-                st.session_state["current_user"] = {
-                    "email": login_email,
-                    **st.session_state["registered_users"][login_email],
-                }
-                st.success(
-                    get_text(
-                        "welcome_back", st.session_state["language"]
-                    ).format(st.session_state["current_user"]["name"])
-                )
+                st.session_state["current_user"] = st.session_state["registered_users"][login_email]
+                st.session_state["current_user"]["email"] = login_email
+                st.sidebar.success(get_text("welcome_back", curr_lang).format(st.session_state['current_user']['name']))
                 st.rerun()
             else:
-                st.error(
-                    get_text("invalid_login", st.session_state["language"])
-                )
+                st.sidebar.error(get_text("invalid_login", curr_lang))
 
-    with tab_reg:
-        reg_name = st.text_input(
-            get_text("full_name", st.session_state["language"])
-        )
-        reg_email = st.text_input(
-            get_text("email", st.session_state["language"]), key="reg_email"
-        )
-        reg_pass = st.text_input(
-            get_text("password", st.session_state["language"]),
-            type="password",
-            key="reg_pass",
-        )
-        reg_ntrp = st.slider(
-            get_text("ntrp_skill", st.session_state["language"]),
-            1.0,
-            7.0,
-            3.5,
-            0.5,
-        )
-        if st.button(get_text("btn_register", st.session_state["language"])):
+    with auth_tab2:
+        reg_name = st.text_input(get_text("full_name", curr_lang), key="reg_name")
+        reg_email = st.text_input(get_text("email", curr_lang), key="reg_email")
+        reg_pass = st.text_input(get_text("password", curr_lang), type="password", key="reg_pass")
+        reg_ntrp = st.slider(get_text("ntrp_skill", curr_lang), 1.0, 7.0, 3.5, 0.5, key="reg_ntrp")
+        if st.button(get_text("btn_register", curr_lang), key="btn_reg"):
             if reg_email and reg_pass and reg_name:
                 st.session_state["registered_users"][reg_email] = {
                     "password": reg_pass,
                     "name": reg_name,
-                    "tier": "Guest / Free",
-                    "ntrp": reg_ntrp,
+                    "tier": "Free Tier",
+                    "ntrp": reg_ntrp
                 }
-                st.success(
-                    get_text("acc_created", st.session_state["language"])
-                )
+                st.session_state["is_logged_in"] = True
+                st.session_state["current_user"] = st.session_state["registered_users"][reg_email]
+                st.session_state["current_user"]["email"] = reg_email
+                st.sidebar.success(get_text("acc_created", curr_lang))
+                st.rerun()
             else:
-                st.warning(get_text("fill_all", st.session_state["language"]))
+                st.sidebar.error(get_text("fill_all", curr_lang))
 else:
     u = st.session_state["current_user"]
-    st.sidebar.markdown(
-        f"**{get_text('logged_in_as', st.session_state['language'])}** {u['name']}"
-    )
-    st.sidebar.markdown(
-        f"**{get_text('membership', st.session_state['language'])}** <span class='badge-membership'>{u['tier']}</span>",
-        unsafe_allow_html=True,
-    )
-    st.sidebar.markdown(
-        f"**{get_text('ntrp_rating', st.session_state['language'])}** {u['ntrp']}"
-    )
-    if st.sidebar.button(get_text("btn_logout", st.session_state["language"])):
+    st.sidebar.markdown(f"**{get_text('logged_in_as', curr_lang)}** `{u['name']}`")
+    st.sidebar.markdown(f"**{get_text('membership', curr_lang)}** <span class='badge-membership'>{u['tier']}</span>", unsafe_allow_html=True)
+    st.sidebar.markdown(f"**{get_text('ntrp_rating', curr_lang)}** `{u['ntrp']}`")
+    
+    if st.sidebar.button(get_text("btn_logout", curr_lang), key="btn_logout"):
         st.session_state["is_logged_in"] = False
         st.session_state["current_user"] = None
         st.rerun()
@@ -853,835 +704,606 @@ else:
 st.sidebar.markdown("---")
 
 menu_options = [
-    get_text("menu_m1", st.session_state["language"]),
-    get_text("menu_m2", st.session_state["language"]),
-    get_text("menu_m3", st.session_state["language"]),
-    get_text("menu_m4", st.session_state["language"]),
-    get_text("menu_m5", st.session_state["language"]),
-    get_text("menu_m6", st.session_state["language"]),
-    get_text("menu_m7", st.session_state["language"]),
-    get_text("menu_m8", st.session_state["language"]),
-    get_text("menu_m9", st.session_state["language"]),
+    get_text("menu_m1", curr_lang),
+    get_text("menu_m2", curr_lang),
+    get_text("menu_m3", curr_lang),
+    get_text("menu_m4", curr_lang),
+    get_text("menu_m5", curr_lang),
+    get_text("menu_m6", curr_lang),
+    get_text("menu_m7", curr_lang),
+    get_text("menu_m8", curr_lang),
+    get_text("menu_m9", curr_lang)
 ]
 
-selected_module = st.sidebar.radio(
-    get_text("select_module", st.session_state["language"]), menu_options
+menu = st.sidebar.radio(
+    get_text("select_module", curr_lang),
+    menu_options
 )
 
-st.title(get_text("page_title", st.session_state["language"]))
-st.caption(get_text("live_stats", st.session_state["language"]))
+# ==========================================
+# 4. TOP NAVIGATION HEADER
+# ==========================================
+col_h1, col_h2, col_h3 = st.columns([4, 2, 2])
+
+with col_h1:
+    st.markdown(f"### 🎾 {get_text('page_title', curr_lang)}")
+    st.caption(get_text("live_stats", curr_lang))
+
+with col_h2:
+    lang = st.selectbox("🌐 Language / 언어", ["English", "한국어"], index=0 if st.session_state["language"] == "English" else 1)
+    if lang != st.session_state["language"]:
+        st.session_state["language"] = lang
+        st.rerun()
+
+with col_h3:
+    current_tier = st.session_state["current_user"]["tier"] if st.session_state["is_logged_in"] else get_text("guest_free", curr_lang)
+    st.markdown(f"**{get_text('status_label', curr_lang)}** `{current_tier}`")
+
 st.markdown("---")
 
 # ==========================================
-# MODULE 1: AI SERVE VELOCITY & BIOMECHANICS
+# 5. ENHANCED MODULE FUNCTIONS
 # ==========================================
-if selected_module == menu_options[0]:
-    st.header(get_text("m1_title", st.session_state["language"]))
-    st.write(get_text("m1_desc", st.session_state["language"]))
 
-    col1, col2 = st.columns([1, 1])
+# --- MODULE 1: AI SERVE VELOCITY (GRAPHIC & DETAILED + SKELETON + HEALTH ADDED) ---
+def render_module_1():
+    st.subheader(get_text("m1_title", curr_lang))
+    st.write(get_text("m1_desc", curr_lang))
 
+    col1, col2 = st.columns([3, 2])
     with col1:
-        uploaded_video = st.file_uploader(
-            get_text("m1_upload", st.session_state["language"]),
-            type=["mp4", "mov"],
-        )
-        cam_angle = st.selectbox(
-            get_text("m1_cam_angle", st.session_state["language"]),
-            [
-                get_text("m1_angle_1", st.session_state["language"]),
-                get_text("m1_angle_2", st.session_state["language"]),
-                get_text("m1_angle_3", st.session_state["language"]),
-            ],
-        )
-        fps_setting = st.slider(
-            get_text("m1_fps", st.session_state["language"]),
-            30,
-            240,
-            120,
-            help=get_text("m1_fps_help", st.session_state["language"]),
-        )
+        video_file = st.file_uploader(get_text("m1_upload", curr_lang), type=["mp4", "mov"])
+        c_a, c_b = st.columns(2)
+        with c_a:
+            angle = st.selectbox(get_text("m1_cam_angle", curr_lang), [get_text("m1_angle_1", curr_lang), get_text("m1_angle_2", curr_lang), get_text("m1_angle_3", curr_lang)])
+        with c_b:
+            fps = st.slider(get_text("m1_fps", curr_lang), 30, 240, 120, help=get_text("m1_fps_help", curr_lang))
+
+        run_analysis = st.button(get_text("m1_btn_run", curr_lang))
 
     with col2:
-        st.markdown(
-            f"### {get_text('m1_benchmarks', st.session_state['language'])}"
-        )
-        st.markdown(
-            f"* {get_text('m1_bench_1', st.session_state['language'])}\n"
-            f"* {get_text('m1_bench_2', st.session_state['language'])}\n"
-            f"* {get_text('m1_bench_3', st.session_state['language'])}",
-            unsafe_allow_html=True,
-        )
+        st.markdown(f"""
+        <div style="background-color:#FAF8F5; border:1px solid #E5E0D8; border-radius:12px; padding:16px;">
+            <h4 style="margin-top:0;">{get_text("m1_benchmarks", curr_lang)}</h4>
+            <p style="font-size:13px; color:#5C544D; margin-bottom:8px;">{get_text("m1_bench_1", curr_lang)}</p>
+            <p style="font-size:13px; color:#5C544D; margin-bottom:8px;">{get_text("m1_bench_2", curr_lang)}</p>
+            <p style="font-size:13px; color:#5C544D; margin-bottom:0;">{get_text("m1_bench_3", curr_lang)}</p>
+        </div>
+        """, unsafe_allow_html=True)
 
-    if uploaded_video is not None:
-        st.markdown("---")
-        with st.spinner(
-            "Analyzing biomechanical motion vectors & processing high-speed video..."
-        ):
-            proc_gif_path = process_skeleton_to_gif(uploaded_video)
+    if video_file or run_analysis:
+        with st.spinner(get_text("m1_spinner", curr_lang)):
+            # Processing standard skeleton overlay on uploaded video
+            if video_file is not None:
+                video_file.seek(0)
+                processed_video_path = process_standard_skeleton_overlay(video_file)
+            else:
+                processed_video_path = None
+                
             time.sleep(1)
+            st.markdown("---")
 
-        st.subheader(get_text("m1_report", st.session_state["language"]))
+            # --- ADDITION 1: AI STANDARD SKELETON OVERLAY OUTPUT ---
+            st.markdown("### 🎯 AI Standard Skeleton Overlay")
+            if processed_video_path:
+                st.video(processed_video_path)
+            st.info("🔒 **Compliance & IP Safety**: Video rendered using standardized 3D human biomechanical keypoints only.")
 
-        m_col1, m_col2, m_col3, m_col4 = st.columns(4)
-        m_col1.metric(
-            get_text("m1_metric_speed", st.session_state["language"]),
-            "118.4 mph",
-            get_text("m1_metric_speed_delta", st.session_state["language"]),
-        )
-        m_col2.metric(
-            get_text("m1_metric_spin", st.session_state["language"]),
-            "2,840 RPM",
-            get_text("m1_metric_spin_delta", st.session_state["language"]),
-        )
-        m_col3.metric(
-            get_text("m1_metric_height", st.session_state["language"]),
-            "2.88 meters",
-            get_text("m1_metric_height_delta", st.session_state["language"]),
-        )
-        m_col4.metric(
-            get_text("m1_metric_transfer", st.session_state["language"]),
-            "89.2%",
-            get_text("m1_metric_transfer_delta", st.session_state["language"]),
-        )
+            # --- ADDITION 2: AI HEALTH & INJURY DIAGNOSTICS ---
+            st.markdown("---")
+            st.markdown("### 🩺 AI Health & Predictive Injury Diagnostics")
+            st.caption("Real-time kinematic joint load and impact pressure assessment")
+            
+            h1, h2, h3 = st.columns(3)
+            h1.metric("Elbow Stress Level", "64%", "Elevated Risk", delta_color="inverse")
+            h2.metric("Shoulder Torque", "38%", "Optimal", delta_color="normal")
+            h3.metric("Knee Kinetic Strain", "22%", "Low Risk", delta_color="normal")
+            st.warning("⚠️ **Health Advisory**: High impact shock detected at elbow joint during acceleration phase. Consider adjusting string tension or switching to softer string material in Module 2.")
 
-        v_col1, v_col2 = st.columns([1.2, 1])
-        with v_col1:
-            st.markdown("#### 🎥 AI Motion Vector Overlay")
-            st.image(proc_gif_path)
+            st.markdown("---")
+            st.markdown(f"### {get_text('m1_report', curr_lang)}")
+            
+            # Primary Metrics Row
+            m1, m2, m3, m4 = st.columns(4)
+            m1.metric(get_text("m1_metric_speed", curr_lang), "118.4 mph", delta=get_text("m1_metric_speed_delta", curr_lang))
+            m2.metric(get_text("m1_metric_spin", curr_lang), "2,840 RPM", delta=get_text("m1_metric_spin_delta", curr_lang))
+            m3.metric(get_text("m1_metric_height", curr_lang), "2.88 meters", delta=get_text("m1_metric_height_delta", curr_lang))
+            m4.metric(get_text("m1_metric_transfer", curr_lang), "88.2%", delta=get_text("m1_metric_transfer_delta", curr_lang))
 
-        with v_col2:
-            st.markdown(
-                f"#### {get_text('m1_chart_vel', st.session_state['language'])}"
-            )
-            chart_data = pd.DataFrame({
-                "Frame": list(range(1, 31)),
-                "Racket Speed (mph)": [
-                    10,
-                    15,
-                    22,
-                    35,
-                    50,
-                    72,
-                    95,
-                    112,
-                    118,
-                    115,
-                    90,
-                    60,
-                    30,
-                    20,
-                    10,
-                    5,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                ],
-                "Angular Velocity (°/s)": [
-                    100,
-                    200,
-                    350,
-                    500,
-                    800,
-                    1100,
-                    1350,
-                    1450,
-                    1400,
-                    1100,
-                    700,
-                    400,
-                    200,
-                    100,
-                    50,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                ],
-            })
-            st.line_chart(chart_data.set_index("Frame"))
+            st.write("")
+            
+            # Interactive Biomechanics Data Charts
+            t_col1, t_col2 = st.columns(2)
+            
+            with t_col1:
+                st.markdown(f"#### {get_text('m1_chart_vel', curr_lang)}")
+                chart_data = pd.DataFrame({
+                    "Serve Phase": ["Trophy Position", "Racket Drop", "Acceleration", "Ball Impact", "Follow Through"],
+                    "Racket Speed (mph)": [12, 38, 92, 118, 45],
+                    "Wrist Angular Speed (°/s)": [180, 420, 1100, 1450, 320]
+                })
+                st.line_chart(chart_data.set_index("Serve Phase"))
 
-        st.markdown(
-            f"### {get_text('m1_breakdown', st.session_state['language'])}"
-        )
-        p_tab1, p_tab2, p_tab3, p_tab4 = st.tabs([
-            get_text("m1_tab_p1", st.session_state["language"]),
-            get_text("m1_tab_p2", st.session_state["language"]),
-            get_text("m1_tab_p3", st.session_state["language"]),
-            get_text("m1_tab_p4", st.session_state["language"]),
-        ])
+            with t_col2:
+                st.markdown(f"#### {get_text('m1_chart_zone', curr_lang)}")
+                impact_data = pd.DataFrame({
+                    "Court Zone": ["T-Point (Center)", "Body Serve", "Wide Angle"],
+                    "Consistency %": [68, 84, 52],
+                    "Avg Speed (mph)": [118, 112, 108]
+                })
+                st.bar_chart(impact_data.set_index("Court Zone"))
 
-        with p_tab1:
-            st.markdown(get_text("m1_p1_text", st.session_state["language"]))
-        with p_tab2:
-            st.markdown(get_text("m1_p2_text", st.session_state["language"]))
-        with p_tab3:
-            st.markdown(get_text("m1_p3_text", st.session_state["language"]))
-        with p_tab4:
-            st.markdown(get_text("m1_p4_text", st.session_state["language"]))
+            st.markdown(f"#### {get_text('m1_breakdown', curr_lang)}")
+            
+            tab_p1, tab_p2, tab_p3, tab_p4 = st.tabs([
+                get_text("m1_tab_p1", curr_lang),
+                get_text("m1_tab_p2", curr_lang),
+                get_text("m1_tab_p3", curr_lang),
+                get_text("m1_tab_p4", curr_lang)
+            ])
+            
+            with tab_p1:
+                st.markdown(get_text("m1_p1_text", curr_lang))
+            with tab_p2:
+                st.markdown(get_text("m1_p2_text", curr_lang))
+            with tab_p3:
+                st.markdown(get_text("m1_p3_text", curr_lang))
+            with tab_p4:
+                st.markdown(get_text("m1_p4_text", curr_lang))
 
-# ==========================================
-# MODULE 2: AI RACKET & STRING TENSION
-# ==========================================
-elif selected_module == menu_options[1]:
-    st.header(get_text("m2_title", st.session_state["language"]))
-    st.write(get_text("m2_desc", st.session_state["language"]))
+# --- MODULE 2: AI RACKET & STRING TENSION (GRAPHIC & SUGGESTION MATRIX) ---
+def render_module_2():
+    st.subheader(get_text("m2_title", curr_lang))
+    st.write(get_text("m2_desc", curr_lang))
 
     col1, col2 = st.columns(2)
     with col1:
-        ntrp = st.select_slider(
-            get_text("m2_ntrp_label", st.session_state["language"]),
-            options=[2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0],
-            value=4.0,
-        )
-        serve_speed = st.number_input(
-            get_text("m2_speed_label", st.session_state["language"]),
-            min_value=50,
-            max_value=150,
-            value=95,
-        )
-        playstyle = st.selectbox(
-            get_text("m2_style_label", st.session_state["language"]),
-            [
-                get_text("m2_style_1", st.session_state["language"]),
-                get_text("m2_style_2", st.session_state["language"]),
-                get_text("m2_style_3", st.session_state["language"]),
-                get_text("m2_style_4", st.session_state["language"]),
-            ],
-        )
+        ntrp = st.slider(get_text("m2_ntrp_label", curr_lang), 1.5, 7.0, 4.0, 0.5)
+        serve_speed = st.number_input(get_text("m2_speed_label", curr_lang), 40, 140, 95)
+        playstyle = st.selectbox(get_text("m2_style_label", curr_lang), [
+            get_text("m2_style_1", curr_lang),
+            get_text("m2_style_2", curr_lang),
+            get_text("m2_style_3", curr_lang),
+            get_text("m2_style_4", curr_lang)
+        ])
+        matches_per_week = st.slider(get_text("m2_freq_label", curr_lang), 1, 7, 3)
+
     with col2:
-        freq = st.slider(
-            get_text("m2_freq_label", st.session_state["language"]), 1, 7, 3
-        )
-        has_elbow = st.radio(
-            get_text("m2_elbow_label", st.session_state["language"]),
-            ["No", "Yes"],
-        )
-        priority = st.selectbox(
-            get_text("m2_priority_label", st.session_state["language"]),
-            [
-                get_text("m2_prio_1", st.session_state["language"]),
-                get_text("m2_prio_2", st.session_state["language"]),
-                get_text("m2_prio_3", st.session_state["language"]),
-            ],
-        )
-        weight_pref = st.selectbox(
-            get_text("m2_weight_label", st.session_state["language"]),
-            [
-                get_text("m2_w_1", st.session_state["language"]),
-                get_text("m2_w_2", st.session_state["language"]),
-                get_text("m2_w_3", st.session_state["language"]),
-            ],
-        )
+        elbow_issue = st.checkbox(get_text("m2_elbow_label", curr_lang))
+        string_durability = st.select_slider(get_text("m2_priority_label", curr_lang), options=[
+            get_text("m2_prio_1", curr_lang),
+            get_text("m2_prio_2", curr_lang),
+            get_text("m2_prio_3", curr_lang)
+        ])
+        racket_weight_pref = st.radio(get_text("m2_weight_label", curr_lang), [
+            get_text("m2_w_1", curr_lang),
+            get_text("m2_w_2", curr_lang),
+            get_text("m2_w_3", curr_lang)
+        ])
 
-    if st.button(get_text("m2_btn_gen", st.session_state["language"])):
+    if st.button(get_text("m2_btn_gen", curr_lang)):
         st.markdown("---")
-        st.subheader(get_text("m2_res_title", st.session_state["language"]))
+        st.markdown(f"### {get_text('m2_res_title', curr_lang)}")
 
-        head_size = "98 sq.in." if ntrp >= 4.0 else "100 sq.in."
-        rec_weight = (
-            "305g (Unstrung)"
-            if "300g-315g" in weight_pref or ntrp >= 4.0
-            else "285g (Unstrung)"
-        )
+        # Top Level Spec Summary Cards
+        r1, r2, r3, r4 = st.columns(4)
+        r1.metric(get_text("m2_m_head", curr_lang), "98 - 100 sq in")
+        r2.metric(get_text("m2_m_weight", curr_lang), "305 grams (Unstrung)")
+        r3.metric(get_text("m2_m_tension", curr_lang), "50 / 48 lbs" if elbow_issue else "54 / 52 lbs")
+        r4.metric(get_text("m2_m_mat", curr_lang), get_text("m2_mat_soft", curr_lang) if elbow_issue else get_text("m2_mat_poly", curr_lang))
 
-        if has_elbow == "Yes":
-            tension = "48 / 46 lbs"
-            string_mat = get_text("m2_mat_soft", st.session_state["language"])
-        else:
-            tension = "52 / 50 lbs" if ntrp >= 4.0 else "50 / 48 lbs"
-            string_mat = get_text("m2_mat_poly", st.session_state["language"])
+        st.write("")
+        st.markdown(f"#### {get_text('m2_chart_title', curr_lang)}")
 
-        r_col1, r_col2, r_col3, r_col4 = st.columns(4)
-        r_col1.metric(
-            get_text("m2_m_head", st.session_state["language"]), head_size
-        )
-        r_col2.metric(
-            get_text("m2_m_weight", st.session_state["language"]), rec_weight
-        )
-        r_col3.metric(
-            get_text("m2_m_tension", st.session_state["language"]), tension
-        )
-        r_col4.metric(
-            get_text("m2_m_mat", st.session_state["language"]), string_mat
-        )
+        # Graphic Tension Matrix Simulation Chart
+        tension_chart = pd.DataFrame({
+            "Tension (Lbs)": [44, 48, 52, 56, 60],
+            "Control & Precision Score": [55, 68, 82, 94, 98],
+            "Trampoline Power & Depth": [96, 88, 74, 60, 48],
+            "Dwell Time / Arm Comfort": [92, 85, 72, 58, 42]
+        })
+        st.line_chart(tension_chart.set_index("Tension (Lbs)"))
 
-        c1, c2 = st.columns([1, 1])
-        with c1:
-            st.markdown(
-                f"#### {get_text('m2_chart_title', st.session_state['language'])}"
-            )
-            tension_df = pd.DataFrame({
-                "Tension Range (lbs)": [45, 48, 50, 52, 55, 58, 60],
-                "Control Index": [40, 52, 65, 75, 88, 94, 98],
-                "Power Index": [98, 90, 80, 72, 60, 48, 38],
-                "Comfort Rating": [95, 90, 82, 74, 60, 45, 30],
-            })
-            st.line_chart(tension_df.set_index("Tension Range (lbs)"))
+        st.markdown(f"#### {get_text('m2_guide_title', curr_lang)}")
+        
+        c_s1, c_s2 = st.columns(2)
+        with c_s1:
+            st.markdown(get_text("m2_guide_col1", curr_lang))
+        with c_s2:
+            st.markdown(get_text("m2_guide_col2", curr_lang).format(max(1, int(12 / matches_per_week))))
 
-        with c2:
-            st.markdown(
-                f"#### {get_text('m2_guide_title', st.session_state['language'])}"
-            )
-            st.markdown(
-                get_text("m2_guide_col1", st.session_state["language"])
-            )
-            restring_months = max(1, 4 - (freq // 2))
-            st.markdown(
-                get_text("m2_guide_col2", st.session_state["language"]).format(
-                    restring_months
-                )
-            )
-
-# ==========================================
-# MODULE 3: MEMBERSHIP & SUBSCRIPTIONS
-# ==========================================
-elif selected_module == menu_options[2]:
-    st.header(get_text("m3_title", st.session_state["language"]))
-    st.write(get_text("m3_desc", st.session_state["language"]))
+# --- MODULE 3: MEMBERSHIP & SUBSCRIPTIONS ---
+def render_module_membership():
+    st.subheader(get_text("m3_title", curr_lang))
+    st.write(get_text("m3_desc", curr_lang))
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.markdown("### 🥉 Free Pass")
-        st.markdown("#### $0 / month")
-        st.markdown(
-            "* Basic Serve Tracking\n* Read-Only Forum\n* Standard Directories"
-        )
-        st.button(
-            get_text("m3_btn_free", st.session_state["language"]),
-            disabled=True,
-        )
+        st.markdown("""
+        <div style="background-color:#FAF8F5; border:1px solid #E5E0D8; border-radius:12px; padding:20px; text-align:center;">
+            <h3>🆓 Free Athlete</h3>
+            <h2>$0 <span style="font-size:14px;">/ forever</span></h2>
+            <hr>
+            <p>✓ Basic AI Serve Analysis (3/mo)</p>
+            <p>✓ Access Player Directory</p>
+            <p>✓ View Campus Facilities</p>
+            <p>✗ Coach Direct Messaging</p>
+            <p>✗ Group Buying Discounts</p>
+        </div>
+        """, unsafe_allow_html=True)
+        st.write("")
+        st.button(get_text("m3_btn_free", curr_lang), disabled=True, key="plan_free")
 
     with col2:
-        st.markdown("### 🥈 PRO Pass")
-        st.markdown("#### $19.99 / month")
-        st.markdown(
-            "* Full AI Biomechanics Tracking\n* Unlimited Coach Messaging\n*"
-            " Group Buying Discounts"
-        )
-        if st.button(get_text("m3_btn_pro", st.session_state["language"])):
+        st.markdown("""
+        <div style="background-color:#FAF8F5; border:2px solid #211F1D; border-radius:12px; padding:20px; text-align:center;">
+            <h3>⚡ PRO Pass</h3>
+            <h2>$19.99 <span style="font-size:14px;">/ month</span></h2>
+            <hr>
+            <p>✓ Unlimited AI Serve Velocity Analysis</p>
+            <p>✓ AI Racket & Tension Optimizer</p>
+            <p>✓ Matchmaking & Coach Messaging</p>
+            <p>✓ Group Tournament Discounts</p>
+            <p>✓ Priority Support Tickets</p>
+        </div>
+        """, unsafe_allow_html=True)
+        st.write("")
+        if st.button(get_text("m3_btn_pro", curr_lang), key="plan_pro"):
             st.session_state["selected_plan"] = ("PRO Pass", "$19.99/mo")
 
     with col3:
-        st.markdown("### 🥇 VIP Gold Pass")
-        st.markdown("#### $149.00 / year")
-        st.markdown(
-            "* Everything in PRO Pass\n* 1-on-1 Monthly Video Review\n*"
-            " Tournament Hospitality Access"
-        )
-        if st.button(get_text("m3_btn_vip", st.session_state["language"])):
+        st.markdown("""
+        <div style="background-color:#FAF8F5; border:1px solid #E5E0D8; border-radius:12px; padding:20px; text-align:center;">
+            <h3>🏆 VIP Gold Residency</h3>
+            <h2>$149.00 <span style="font-size:14px;">/ year</span></h2>
+            <hr>
+            <p>✓ All PRO Features Included</p>
+            <p>✓ 25% Off Academy Residency Camps</p>
+            <p>✓ Quarterly Video Review with Pro Coach</p>
+            <p>✓ Guaranteed Hotel Discount Locking</p>
+            <p>✓ VIP Lounge Access</p>
+        </div>
+        """, unsafe_allow_html=True)
+        st.write("")
+        if st.button(get_text("m3_btn_vip", curr_lang), key="plan_vip"):
             st.session_state["selected_plan"] = ("VIP Gold", "$149.00/yr")
 
     if "selected_plan" in st.session_state:
         plan_name, plan_price = st.session_state["selected_plan"]
         st.markdown("---")
-        st.subheader(
-            get_text("m3_checkout", st.session_state["language"]).format(
-                plan_name, plan_price
-            )
-        )
+        st.markdown(f"### {get_text('m3_checkout', curr_lang).format(plan_name, plan_price)}")
+        
+        with st.form("checkout_payment_form"):
+            c_a, c_b = st.columns(2)
+            with c_a:
+                card_name = st.text_input(get_text("m3_card_name", curr_lang))
+                card_num = st.text_input(get_text("m3_card_num", curr_lang), type="password", placeholder="•••• •••• •••• ••••")
+            with c_b:
+                card_exp = st.text_input(get_text("m3_card_exp", curr_lang), placeholder="08/28")
+                card_cvv = st.text_input(get_text("m3_card_cvv", curr_lang), type="password", placeholder="123")
 
-        c_name = st.text_input(
-            get_text("m3_card_name", st.session_state["language"])
-        )
-        c_num = st.text_input(
-            get_text("m3_card_num", st.session_state["language"]),
-            placeholder="4532 •••• •••• 8892",
-        )
-        p_col1, p_col2 = st.columns(2)
-        c_exp = p_col1.text_input(
-            get_text("m3_card_exp", st.session_state["language"]),
-            placeholder="12/28",
-        )
-        c_cvv = p_col2.text_input(
-            get_text("m3_card_cvv", st.session_state["language"]),
-            type="password",
-            placeholder="123",
-        )
+            pay_submitted = st.form_submit_button(get_text("m3_btn_pay", curr_lang), use_container_width=True)
+            
+            if pay_submitted:
+                if card_name and card_num and card_exp and card_cvv:
+                    if st.session_state["is_logged_in"]:
+                        st.session_state["current_user"]["tier"] = plan_name
+                        user_email = st.session_state["current_user"]["email"]
+                        st.session_state["registered_users"][user_email]["tier"] = plan_name
+                    
+                    st.session_state["chat_orders"].append({
+                        "Order ID": f"ORD-{len(st.session_state['chat_orders'])+9922}",
+                        "Item": f"Subscription: {plan_name}",
+                        "Amount": plan_price,
+                        "Status": "Paid"
+                    })
+                    st.success(get_text("m3_pay_success", curr_lang).format(plan_name))
+                    del st.session_state["selected_plan"]
+                    st.rerun()
+                else:
+                    st.error(get_text("m3_pay_error", curr_lang))
 
-        if st.button(get_text("m3_btn_pay", st.session_state["language"])):
-            if c_name and c_num and c_exp and c_cvv:
-                if st.session_state["is_logged_in"]:
-                    st.session_state["current_user"]["tier"] = plan_name
-                    user_email = st.session_state["current_user"]["email"]
-                    if user_email in st.session_state["registered_users"]:
-                        st.session_state["registered_users"][user_email][
-                            "tier"
-                        ] = plan_name
+# --- MODULE 4: TOURNAMENTS & LODGING ---
+def render_module_3():
+    st.subheader(get_text("m4_title", curr_lang))
 
-                order_id = f"ORD-{np.random.randint(10000, 99999)}"
-                st.session_state["orders_db"].append({
-                    "Order ID": order_id,
-                    "Item": f"{plan_name} Subscription",
-                    "Date": datetime.date.today().strftime("%Y-%m-%d"),
-                    "Amount": plan_price,
-                    "Status": "Paid",
-                    "Payment Method": (
-                        f"Card ending in {c_num[-4:] if len(c_num)>=4 else '4242'}"
-                    ),
-                })
-
-                st.success(
-                    get_text(
-                        "m3_pay_success", st.session_state["language"]
-                    ).format(plan_name)
-                )
-            else:
-                st.error(
-                    get_text("m3_pay_error", st.session_state["language"])
-                )
-
-# ==========================================
-# MODULE 4: TOURNAMENTS & LODGING
-# ==========================================
-elif selected_module == menu_options[3]:
-    st.header(get_text("m4_title", st.session_state["language"]))
-
-    tournament_choice = st.selectbox(
-        get_text("m4_select_event", st.session_state["language"]),
-        [
-            "US Open Tennis Championships (New York, USA)",
-            "Seoul Open Masters (Seoul, Korea)",
-            "Busan Challenger Open (Busan, Korea)",
-        ],
+    selected_event = st.selectbox(
+        get_text("m4_select_event", curr_lang),
+        ["🇺🇸 US Open Championships (Flushing Meadows, NY)", "🇰🇷 Seoul Open Masters (Olympic Park, Korea)", "🇰🇷 Busan Clay Court Cup (Sajik Complex, Korea)"]
     )
 
-    pathway = st.radio(
-        get_text("m4_select_path", st.session_state["language"]),
+    subpage = st.radio(
+        get_text("m4_select_path", curr_lang),
         [
-            get_text("m4_path_1", st.session_state["language"]),
-            get_text("m4_path_2", st.session_state["language"]),
-            get_text("m4_path_3", st.session_state["language"]),
+            get_text("m4_path_1", curr_lang),
+            get_text("m4_path_2", curr_lang),
+            get_text("m4_path_3", curr_lang)
         ],
+        horizontal=True
     )
 
     st.markdown("---")
 
-    if pathway == get_text("m4_path_1", st.session_state["language"]):
-        st.subheader("🏟️ Stadium & Hotel Infrastructure")
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown("#### Official Tournament Courts")
-            st.image(
-                "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&q=80",
-                caption="Tournament Center Court",
-            )
-        with col2:
-            st.markdown("#### Official Residence Partner")
-            st.image(
-                "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80",
-                caption="Official Player Hotel Suite",
-            )
+    if subpage == get_text("m4_path_1", curr_lang):
+        col_img1, col_img2 = st.columns(2)
+        with col_img1:
+            st.image("https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&q=80", caption="🏟️ Tournament Main Arena & Hard Courts", use_container_width=True)
+        with col_img2:
+            st.image("https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80", caption="🏨 Official Partner Athlete Residence Suites", use_container_width=True)
 
-    elif pathway == get_text("m4_path_2", st.session_state["language"]):
-        st.subheader("👥 Group Buying Hub ($85 Discount Threshold)")
-        st.info(get_text("m4_group_info", st.session_state["language"]))
-
-        current_count = len(st.session_state["tournament_group_votes"])
-        st.markdown(
-            get_text("m4_committed", st.session_state["language"]).format(
-                current_count
-            )
-        )
-        st.progress(min(current_count / 5.0, 1.0))
-
+    elif subpage == get_text("m4_path_2", curr_lang):
+        st.info(get_text("m4_group_info", curr_lang))
+        votes = len(st.session_state["tournament_group_votes"])
+        st.progress(min(votes / 5, 1.0))
+        st.caption(get_text("m4_committed", curr_lang).format(votes))
         st.table(pd.DataFrame(st.session_state["tournament_group_votes"]))
 
-        if st.button("➕ Join Current Group Buying Pool"):
-            user_name = (
-                st.session_state["current_user"]["name"]
-                if st.session_state["is_logged_in"]
-                else "Guest Athlete"
-            )
-            st.session_state["tournament_group_votes"].append({
-                "Name": user_name,
-                "Tournament": tournament_choice,
-                "Status": "Discount Unlocked ($85)",
-            })
-            st.success("You have been added to the group buying pool!")
-            st.rerun()
+    elif subpage == get_text("m4_path_3", curr_lang):
+        with st.form("indiv_tourn_form"):
+            p_name = st.text_input(get_text("m4_p_name", curr_lang), value=st.session_state["current_user"]["name"] if st.session_state["is_logged_in"] else "")
+            p_passport = st.text_input(get_text("m4_passport", curr_lang))
+            card = st.text_input(get_text("m4_card", curr_lang), type="password")
+            if st.form_submit_button(get_text("m4_btn_pay_indiv", curr_lang)):
+                if p_name and card:
+                    st.success(get_text("m4_success_indiv", curr_lang))
 
-    elif pathway == get_text("m4_path_3", st.session_state["language"]):
-        st.subheader("👤 Individual Registration & Package Checkout")
-        t_name = st.text_input(
-            get_text("m4_p_name", st.session_state["language"])
-        )
-        t_pass = st.text_input(
-            get_text("m4_passport", st.session_state["language"])
-        )
-        t_card = st.text_input(
-            get_text("m4_card", st.session_state["language"])
-        )
-
-        if st.button(get_text("m4_btn_pay_indiv", st.session_state["language"])):
-            if t_name and t_pass and t_card:
-                order_id = f"ORD-{np.random.randint(10000, 99999)}"
-                st.session_state["orders_db"].append({
-                    "Order ID": order_id,
-                    "Item": f"Tournament Package: {tournament_choice}",
-                    "Date": datetime.date.today().strftime("%Y-%m-%d"),
-                    "Amount": "$300.00",
-                    "Status": "Paid",
-                    "Payment Method": (
-                        f"Card ending in {t_card[-4:] if len(t_card)>=4 else '1111'}"
-                    ),
-                })
-                st.success(
-                    get_text("m4_success_indiv", st.session_state["language"])
-                )
-            else:
-                st.error("Please fill in all registration fields.")
-
-# ==========================================
-# MODULE 5: RESIDENCY & ACADEMY PROGRAMS
-# ==========================================
-elif selected_module == menu_options[4]:
-    st.header(get_text("m5_title", st.session_state["language"]))
-
-    sec = st.radio(
-        get_text("m5_select_sec", st.session_state["language"]),
-        [
-            get_text("m5_sec_1", st.session_state["language"]),
-            get_text("m5_sec_2", st.session_state["language"]),
-            get_text("m5_sec_3", st.session_state["language"]),
-        ],
-    )
-
+# --- MODULE 5: ACADEMY & RESIDENCY ---
+def render_module_4():
+    st.subheader(get_text("m5_title", curr_lang))
+    
+    subpage = st.radio(get_text("m5_select_sec", curr_lang), [
+        get_text("m5_sec_1", curr_lang),
+        get_text("m5_sec_2", curr_lang),
+        get_text("m5_sec_3", curr_lang)
+    ], horizontal=True)
     st.markdown("---")
 
-    if sec == get_text("m5_sec_1", st.session_state["language"]):
-        st.subheader("🏛️ High-Performance Academy Campus")
+    if subpage == get_text("m5_sec_1", curr_lang):
         c1, c2 = st.columns(2)
         with c1:
-            st.image(
-                "https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=800&q=80",
-                caption="Training Courts & Gym Complex",
-            )
+            st.image("https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcTlJfjs63KI6QzSpQms4d1rLMcTNoDkcJphyH_y34zqGSvvZbGEs3TmtsDCJLVbWFcYD83uzV10B2lwUR0", caption="Center Court Facility", use_container_width=True)
         with c2:
-            st.image(
-                "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80",
-                caption="Athlete Residency Accommodation",
-            )
+            st.image("https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcRI-UXJPpwhWDcFekaYdcs5vb7ShKqOtbpAL6DUhV9W4HTMwQsFOzX3pKb9oNNCgU3VDScBATPtPN4KN5I", caption="Athlete Residence Lounge", use_container_width=True)
 
-    elif sec == get_text("m5_sec_2", st.session_state["language"]):
-        st.subheader("👥 Academy Group Buying & Voting Hub")
-        st.table(pd.DataFrame(st.session_state["academy_group_votes"]))
+    elif subpage == get_text("m5_sec_2", curr_lang):
+        st.dataframe(pd.DataFrame(st.session_state["academy_group_votes"]))
 
-    elif sec == get_text("m5_sec_3", st.session_state["language"]):
-        st.subheader("👤 Direct Academy Enrollment")
-        a_name = st.text_input("Athlete Full Name *")
-        a_prog = st.selectbox("Select Program", [
-            "1-Week Intensive Boot Camp ($890)",
-            "1-Month Pro Residency ($2,800)",
-        ])
-        a_card = st.text_input("Credit Card Number *")
+    elif subpage == get_text("m5_sec_3", curr_lang):
+        with st.form("indiv_academy"):
+            full_name = st.text_input(get_text("full_name", curr_lang), value=st.session_state["current_user"]["name"] if st.session_state["is_logged_in"] else "")
+            card = st.text_input("Credit Card *", type="password")
+            if st.form_submit_button(get_text("m5_enroll_btn", curr_lang)):
+                st.success(get_text("m5_enroll_success", curr_lang))
 
-        if st.button(get_text("m5_enroll_btn", st.session_state["language"])):
-            if a_name and a_card:
-                order_id = f"ORD-{np.random.randint(10000, 99999)}"
-                cost = "$890.00" if "1-Week" in a_prog else "$2,800.00"
-                st.session_state["orders_db"].append({
-                    "Order ID": order_id,
-                    "Item": f"Academy Enrollment: {a_prog}",
-                    "Date": datetime.date.today().strftime("%Y-%m-%d"),
-                    "Amount": cost,
-                    "Status": "Paid",
-                    "Payment Method": (
-                        f"Card ending in {a_card[-4:] if len(a_card)>=4 else '9999'}"
-                    ),
-                })
-                st.success(
-                    get_text("m5_enroll_success", st.session_state["language"])
-                )
-            else:
-                st.error("Please fill in required enrollment fields.")
+# --- MODULE 6: MATCHMAKING & COACH DIRECTORY (WITH MEMBERSHIP VERIFICATION) ---
+def render_module_5():
+    st.subheader(get_text("m6_title", curr_lang))
+    st.write(get_text("m6_desc", curr_lang))
 
-# ==========================================
-# MODULE 6: MATCHMAKING & COACH DIRECTORY
-# ==========================================
-elif selected_module == menu_options[5]:
-    st.header(get_text("m6_title", st.session_state["language"]))
-    st.write(get_text("m6_desc", st.session_state["language"]))
+    # -------------------------------------------------------------
+    # 1. MEMBERSHIP VERIFICATION LOGIC
+    # -------------------------------------------------------------
+    is_logged = st.session_state.get("is_logged_in", False)
+    user_tier = st.session_state.get("current_user", {}).get("tier", "Free Tier") if is_logged else "Guest"
+    
+    # Paid tiers authorized to chat
+    has_chat_access = is_logged and user_tier in ["PRO Pass", "VIP Gold"]
 
-    user_tier = (
-        st.session_state["current_user"]["tier"]
-        if st.session_state["is_logged_in"]
-        else "Guest / Free"
-    )
-    can_chat = user_tier in ["PRO Pass", "VIP Gold"]
-
-    if not can_chat:
-        st.warning(
-            get_text("m6_warn", st.session_state["language"]).format(user_tier)
-        )
-
-    tab_p, tab_c = st.tabs([
-        get_text("m6_tab_partners", st.session_state["language"]),
-        get_text("m6_tab_coaches", st.session_state["language"]),
-    ])
-
-    with tab_p:
-        st.markdown(
-            get_text("m6_avail_partners", st.session_state["language"])
-        )
-        for p in st.session_state["players_db"]:
-            with st.expander(f"🎾 {p['Name']} (NTRP {p['NTRP']}) — {p['City']}"):
-                st.write(
-                    f"**{get_text('m6_style', st.session_state['language'])}**"
-                    f" {p['Style']}"
-                )
-                st.write(
-                    f"**{get_text('m6_city', st.session_state['language'])}**"
-                    f" {p['City']}"
-                )
-                st.write(
-                    f"**{get_text('m6_contact', st.session_state['language'])}**"
-                    f" {p['Contact']}"
-                )
-                if can_chat:
-                    if st.button(
-                        f"{get_text('m6_chat_now', st.session_state['language'])} with {p['Name']}",
-                        key=f"p_{p['Name']}",
-                    ):
-                        st.success(
-                            get_text(
-                                "m6_chat_success", st.session_state["language"]
-                            ).format(p["Name"])
-                        )
-                else:
-                    st.button(
-                        get_text("m6_locked", st.session_state["language"]),
-                        key=f"p_lock_{p['Name']}",
-                        disabled=True,
-                    )
-
-    with tab_c:
-        st.markdown(get_text("m6_avail_coaches", st.session_state["language"]))
-        for c in st.session_state["coaches_db"]:
-            with st.expander(f"👨‍🏫 {c['Coach']} — {c['Level']}"):
-                st.write(
-                    f"**{get_text('m6_specialty', st.session_state['language'])}**"
-                    f" {c['Specialty']}"
-                )
-                st.write(
-                    f"**{get_text('m6_rate', st.session_state['language'])}**"
-                    f" {c['Hourly']}"
-                )
-                st.write(
-                    f"**{get_text('m6_location', st.session_state['language'])}**"
-                    f" {c['City']}"
-                )
-                if can_chat:
-                    if st.button(
-                        f"{get_text('m6_book_chat', st.session_state['language'])} with {c['Coach']}",
-                        key=f"c_{c['Coach']}",
-                    ):
-                        st.success(
-                            get_text(
-                                "m6_book_success", st.session_state["language"]
-                            ).format(c["Coach"])
-                        )
-                else:
-                    st.button(
-                        get_text("m6_locked", st.session_state["language"]),
-                        key=f"c_lock_{c['Coach']}",
-                        disabled=True,
-                    )
-
-# ==========================================
-# MODULE 7: SUPPORT & RECEIPTS
-# ==========================================
-elif selected_module == menu_options[6]:
-    st.header(get_text("m7_title", st.session_state["language"]))
-    st.write(get_text("m7_desc", st.session_state["language"]))
-
-    s_tab1, s_tab2, s_tab3 = st.tabs([
-        get_text("m7_tab_1", st.session_state["language"]),
-        get_text("m7_tab_2", st.session_state["language"]),
-        get_text("m7_tab_3", st.session_state["language"]),
-    ])
-
-    with s_tab1:
-        st.markdown(
-            get_text("m7_tickets_title", st.session_state["language"])
-        )
-        if not st.session_state["is_logged_in"]:
-            st.info(get_text("m7_login_info", st.session_state["language"]))
-        st.table(pd.DataFrame(st.session_state["inquiries"]))
-
-    with s_tab2:
-        st.markdown(
-            get_text("m7_billing_title", st.session_state["language"])
-        )
-        if len(st.session_state["orders_db"]) > 0:
-            st.table(pd.DataFrame(st.session_state["orders_db"]))
-
-            st.markdown(
-                get_text("m7_gen_receipt", st.session_state["language"])
-            )
-            order_ids = [o["Order ID"] for o in st.session_state["orders_db"]]
-            selected_order_id = st.selectbox(
-                get_text("m7_select_order", st.session_state["language"]),
-                order_ids,
-            )
-
-            order_data = next(
-                (
-                    item
-                    for item in st.session_state["orders_db"]
-                    if item["Order ID"] == selected_order_id
-                ),
-                None,
-            )
-
-            if order_data:
-                user_name = (
-                    st.session_state["current_user"]["name"]
-                    if st.session_state["is_logged_in"]
-                    else get_text(
-                        "m7_guest_ath", st.session_state["language"]
-                    )
-                )
-                user_email = (
-                    st.session_state["current_user"]["email"]
-                    if st.session_state["is_logged_in"]
-                    else "guest@globaltennis.org"
-                )
-
-                st.markdown(
-                    f"""
-                <div style="background-color: #FAF8F5; border: 1px solid #E5E0D8; border-radius: 12px; padding: 24px; margin-top: 15px;">
-                    <h3>{get_text("m7_digital_inv", st.session_state["language"]).format(order_data["Order ID"])}</h3>
-                    <p><strong>{get_text("m7_company", st.session_state["language"])}</strong><br>
-                    {get_text("m7_company_addr", st.session_state["language"])}</p>
-                    <hr style="border-top: 1px solid #E5E0D8;">
-                    <p><strong>{get_text("m7_billed_to", st.session_state["language"])}</strong> {user_name} ({user_email})<br>
-                    <strong>Date:</strong> {order_data["Date"]}<br>
-                    <strong>{get_text("m7_inv_no", st.session_state["language"])}</strong> INV-{order_data["Order ID"]}</p>
-                    <table style="width:100%; text-align:left; border-collapse: collapse; margin-top: 15px;">
-                        <tr style="border-bottom: 1px solid #E5E0D8;">
-                            <th style="padding: 8px;">Description</th>
-                            <th style="padding: 8px;">Amount</th>
-                        </tr>
-                        <tr style="border-bottom: 1px solid #E5E0D8;">
-                            <td style="padding: 8px;">{order_data["Item"]}</td>
-                            <td style="padding: 8px;">{order_data["Amount"]}</td>
-                        </tr>
-                    </table>
-                    <br>
-                    <p><strong>{get_text("m7_pay_stat", st.session_state["language"])}</strong> <span style="color:green; font-weight:bold;">{order_data["Status"]}</span><br>
-                    <strong>{get_text("m7_pay_meth", st.session_state["language"])}</strong> {order_data["Payment Method"]}</p>
-                </div>
-                """,
-                    unsafe_allow_html=True,
-                )
-        else:
-            st.info(get_text("m7_no_records", st.session_state["language"]))
-
-    with s_tab3:
-        st.markdown(get_text("m7_create_title", st.session_state["language"]))
-        inq_cat = st.selectbox(
-            get_text("m7_inq_cat", st.session_state["language"]),
-            [
-                get_text("m7_cat_1", st.session_state["language"]),
-                get_text("m7_cat_2", st.session_state["language"]),
-                get_text("m7_cat_3", st.session_state["language"]),
-                get_text("m7_cat_4", st.session_state["language"]),
-                get_text("m7_cat_5", st.session_state["language"]),
-            ],
-        )
-        inq_sub = st.text_input(
-            get_text("m7_subject", st.session_state["language"])
-        )
-        inq_body = st.text_area(
-            get_text("m7_details", st.session_state["language"])
-        )
-
-        if st.button(get_text("m7_btn_sub_ticket", st.session_state["language"])):
-            if inq_sub and inq_body:
-                new_id = f"TK-{np.random.randint(1000, 9999)}"
-                st.session_state["inquiries"].append({
-                    "Ticket ID": new_id,
-                    "Subject": inq_sub,
-                    "Status": "Pending Review",
-                    "Date": datetime.date.today().strftime("%Y-%m-%d"),
-                    "Category": inq_cat,
-                })
-                st.success(
-                    get_text(
-                        "m7_ticket_success", st.session_state["language"]
-                    ).format(new_id)
-                )
-            else:
-                st.error(
-                    get_text("m7_ticket_error", st.session_state["language"])
-                )
-
-# ==========================================
-# MODULE 8: ADMIN CONTROL PANEL
-# ==========================================
-elif selected_module == menu_options[7]:
-    st.header(get_text("m8_title", st.session_state["language"]))
-
-    passcode = st.text_input(
-        get_text("m8_passcode", st.session_state["language"]), type="password"
-    )
-    if passcode == "admin123":
-        st.success(get_text("m8_granted", st.session_state["language"]))
-
-        st.markdown("### Registered Users Database")
-        st.write(st.session_state["registered_users"])
-
-        st.markdown("### System Inquiries")
-        st.table(pd.DataFrame(st.session_state["inquiries"]))
-
-        st.markdown("### Platform Order Records")
-        st.table(pd.DataFrame(st.session_state["orders_db"]))
-    elif passcode:
-        st.error("Invalid passcode.")
-
-# ==========================================
-# MODULE 9: CONTACT US
-# ==========================================
-elif selected_module == menu_options[8]:
-    st.header(get_text("m9_title", st.session_state["language"]))
-    st.write(get_text("m9_desc", st.session_state["language"]))
-
-    st.markdown(get_text("m9_corp", st.session_state["language"]))
-    st.markdown(get_text("m9_corp_text", st.session_state["language"]))
+    # Visual banner alerting unpaid/guest users
+    if not has_chat_access:
+        st.warning(get_text("m6_warn", curr_lang).format(user_tier))
 
     st.markdown("---")
-    st.markdown(get_text("m9_social", st.session_state["language"]))
-    st.write(get_text("m9_social_desc", st.session_state["language"]))
+    t1, t2 = st.tabs([get_text("m6_tab_partners", curr_lang), get_text("m6_tab_coaches", curr_lang)])
 
-    st.markdown(
-        """
+    # -------------------------------------------------------------
+    # TAB 1: PLAYER MATCHMAKING
+    # -------------------------------------------------------------
+    with t1:
+        st.markdown(get_text("m6_avail_partners", curr_lang))
+        
+        for idx, player in enumerate(st.session_state["players_db"]):
+            with st.expander(f"🎾 {player['Name']} — NTRP {player['NTRP']} ({player['City']})", expanded=True):
+                col_info, col_action = st.columns([3, 1])
+                
+                with col_info:
+                    st.write(f"**{get_text('m6_style', curr_lang)}** {player['Style']}")
+                    st.write(f"**{get_text('m6_city', curr_lang)}** {player['City']}")
+                    st.write(f"**{get_text('m6_contact', curr_lang)}** `{player['Contact'] if has_chat_access else '••••••••@••••.org'}`")
+                
+                with col_action:
+                    if has_chat_access:
+                        if st.button(get_text("m6_chat_now", curr_lang), key=f"chat_player_{idx}"):
+                            st.success(get_text("m6_chat_success", curr_lang).format(player['Name']))
+                    else:
+                        st.button(get_text("m6_locked", curr_lang), key=f"lock_player_{idx}", disabled=True)
+
+    # -------------------------------------------------------------
+    # TAB 2: COACH DIRECTORY
+    # -------------------------------------------------------------
+    with t2:
+        st.markdown(get_text("m6_avail_coaches", curr_lang))
+        
+        for idx, coach in enumerate(st.session_state["coaches_db"]):
+            with st.expander(f"🏆 {coach['Coach']} — {coach['Level']} ({coach['City']})", expanded=True):
+                col_info, col_action = st.columns([3, 1])
+                
+                with col_info:
+                    st.write(f"**{get_text('m6_specialty', curr_lang)}** {coach['Specialty']}")
+                    st.write(f"**{get_text('m6_rate', curr_lang)}** {coach['Hourly']}")
+                    st.write(f"**{get_text('m6_location', curr_lang)}** {coach['City']}")
+                
+                with col_action:
+                    if has_chat_access:
+                        if st.button(get_text("m6_book_chat", curr_lang), key=f"chat_coach_{idx}"):
+                            st.success(get_text("m6_book_success", curr_lang).format(coach['Coach']))
+                    else:
+                        st.button(get_text("m6_locked", curr_lang), key=f"lock_coach_{idx}", disabled=True)
+
+# --- MODULE 7: SUPPORT CENTER & TRANSACTION RECEIPTS ---
+def render_module_6():
+    st.subheader(get_text("m7_title", curr_lang))
+    st.write(get_text("m7_desc", curr_lang))
+
+    is_logged = st.session_state.get("is_logged_in", False)
+    
+    current_user = st.session_state.get("current_user") or {}
+
+    tab_tickets, tab_receipts, tab_new_ticket = st.tabs([
+        get_text("m7_tab_1", curr_lang),
+        get_text("m7_tab_2", curr_lang),
+        get_text("m7_tab_3", curr_lang)
+    ])
+
+    # -------------------------------------------------------------
+    # TAB 1: SUPPORT TICKETS LIST
+    # -------------------------------------------------------------
+    with tab_tickets:
+        st.markdown(get_text("m7_tickets_title", curr_lang))
+        
+        if not is_logged:
+            st.info(get_text("m7_login_info", curr_lang))
+        
+        inquiries_df = pd.DataFrame(st.session_state.get("inquiries", []))
+        st.dataframe(inquiries_df, width="stretch")
+
+    # -------------------------------------------------------------
+    # TAB 2: TRANSACTION RECEIPTS & INVOICE GENERATOR
+    # -------------------------------------------------------------
+    with tab_receipts:
+        st.markdown(get_text("m7_billing_title", curr_lang))
+        
+        chat_orders = st.session_state.get("chat_orders", [])
+        orders_df = pd.DataFrame(chat_orders)
+        st.dataframe(orders_df, width="stretch")
+        
+        st.markdown("---")
+        st.markdown(get_text("m7_gen_receipt", curr_lang))
+        
+        if chat_orders:
+            order_ids = [order["Order ID"] for order in chat_orders]
+            selected_order_id = st.selectbox(get_text("m7_select_order", curr_lang), order_ids)
+
+            selected_order = next((item for item in chat_orders if item["Order ID"] == selected_order_id), None)
+
+            if selected_order:
+                with st.expander(get_text("m7_digital_inv", curr_lang).format(selected_order['Order ID']), expanded=True):
+                    c_a, c_b = st.columns(2)
+                    with c_a:
+                        st.markdown(f"**{get_text('m7_company', curr_lang)}**")
+                        st.caption(get_text("m7_company_addr", curr_lang))
+                        st.write(f"**{get_text('m7_billed_to', curr_lang)}** {current_user.get('name', get_text('m7_guest_ath', curr_lang))}")
+                        st.write(f"**{get_text('email', curr_lang)}:** {current_user.get('email', 'N/A')}")
+                    
+                    with c_b:
+                        st.write(f"**{get_text('m7_inv_no', curr_lang)}** `{selected_order['Order ID']}`")
+                        st.write(f"**{get_text('m7_pay_stat', curr_lang)}** `{selected_order['Status']}`")
+                        st.write(f"**{get_text('m7_pay_meth', curr_lang)}** Visa ending in •••• 4242")
+                    
+                    st.markdown("---")
+                    st.markdown(f"""
+                    | Item Description | Qty | Amount |
+                    | :--- | :---: | :---: |
+                    | **{selected_order['Item']}** | 1 | {selected_order['Amount']} |
+                    | **VAT / Sales Tax (Included)** | - | $0.00 |
+                    | **Total Paid** | | **{selected_order['Amount']}** |
+                    """)
+
+                    st.download_button(
+                        label="📥 Download Receipt (TXT)",
+                        data=f"INVOICE: {selected_order['Order ID']}\nItem: {selected_order['Item']}\nAmount: {selected_order['Amount']}\nStatus: {selected_order['Status']}",
+                        file_name=f"Receipt_{selected_order['Order ID']}.txt",
+                        mime="text/plain"
+                    )
+        else:
+            st.info(get_text("m7_no_records", curr_lang))
+
+    # -------------------------------------------------------------
+    # TAB 3: SUBMIT NEW INQUIRY
+    # -------------------------------------------------------------
+    with tab_new_ticket:
+        st.markdown(get_text("m7_create_title", curr_lang))
+        
+        with st.form("create_ticket_form"):
+            t_category = st.selectbox(get_text("m7_inq_cat", curr_lang), [
+                get_text("m7_cat_1", curr_lang),
+                get_text("m7_cat_2", curr_lang),
+                get_text("m7_cat_3", curr_lang),
+                get_text("m7_cat_4", curr_lang),
+                get_text("m7_cat_5", curr_lang)
+            ])
+            t_subject = st.text_input(get_text("m7_subject", curr_lang))
+            t_details = st.text_area(get_text("m7_details", curr_lang))
+            
+            submit_ticket = st.form_submit_button(get_text("m7_btn_sub_ticket", curr_lang))
+
+            if submit_ticket:
+                if t_subject and t_details:
+                    inquiries = st.session_state.setdefault("inquiries", [])
+                    new_id = f"TK-{len(inquiries) + 1002}"
+                    today_date = datetime.date.today().strftime("%Y-%m-%d")
+                    
+                    inquiries.append({
+                        "Ticket ID": new_id,
+                        "Subject": f"[{t_category}] {t_subject}",
+                        "Status": "Open (In Review)",
+                        "Date": today_date
+                    })
+                    st.success(get_text("m7_ticket_success", curr_lang).format(new_id))
+                else:
+                    st.error(get_text("m7_ticket_error", curr_lang))
+
+# --- MODULE 8: ADMIN CONTROL PANEL ---
+def render_module_7():
+    st.subheader(get_text("m8_title", curr_lang))
+    if st.text_input(get_text("m8_passcode", curr_lang), type="password") == "admin":
+        st.success(get_text("m8_granted", curr_lang))
+        st.dataframe(pd.DataFrame.from_dict(st.session_state["registered_users"], orient='index'))
+
+# --- MODULE 9: SINGLE DEDICATED CONTACT PAGE ---
+def render_module_contact():
+    st.markdown(f"""
+        <div style="background-color:#FAF8F5; padding:28px; border-radius:12px; border:1px solid #E5E0D8; margin-bottom:24px;">
+            <h2 style="margin-top:0;">{get_text("m9_title", curr_lang)}</h2>
+            <p style="color:#5C544D; margin-bottom:0;">{get_text("m9_desc", curr_lang)}</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown(get_text("m9_corp", curr_lang))
+        st.markdown(get_text("m9_corp_text", curr_lang))
+
+    with col2:
+        st.markdown(get_text("m9_social", curr_lang))
+        st.markdown(get_text("m9_social_desc", curr_lang))
+        st.markdown("""
         <a href="https://youtube.com" target="_blank" class="social-btn">📺 YouTube Channel</a>
-        <a href="https://instagram.com" target="_blank" class="social-btn">📸 Instagram</a>
-        <a href="https://facebook.com" target="_blank" class="social-btn">🌐 Facebook Community</a>
-    """,
-        unsafe_allow_html=True,
-    )
+        <a href="https://instagram.com" target="_blank" class="social-btn">📸 Instagram (@GlobalTennisAI)</a>
+        <a href="https://twitter.com" target="_blank" class="social-btn">🐦 X / Twitter</a>
+        <a href="https://linkedin.com" target="_blank" class="social-btn">💼 LinkedIn Official</a>
+        """, unsafe_allow_html=True)
+
+# ==========================================
+# 6. ROUTER LOGIC
+# ==========================================
+if menu == get_text("menu_m1", curr_lang):
+    render_module_1()
+elif menu == get_text("menu_m2", curr_lang):
+    render_module_2()
+elif menu == get_text("menu_m3", curr_lang):
+    render_module_membership()
+elif menu == get_text("menu_m4", curr_lang):
+    render_module_3()
+elif menu == get_text("menu_m5", curr_lang):
+    render_module_4()
+elif menu == get_text("menu_m6", curr_lang):
+    render_module_5()
+elif menu == get_text("menu_m7", curr_lang):
+    render_module_6()
+elif menu == get_text("menu_m8", curr_lang):
+    render_module_7()
+elif menu == get_text("menu_m9", curr_lang):
+    render_module_contact()
