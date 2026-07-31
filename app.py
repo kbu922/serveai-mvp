@@ -421,64 +421,87 @@ def get_text(key, lang_str="English"):
 # ==========================================
 # 0.1 HELPER FUNCTIONS: SKELETON & HEALTH
 # ==========================================
+import os
+import cv2
+import tempfile
+import numpy as np
+
+# ==========================================
+# HELPER: FAST SKELETON OVERLAY (BROWSER PLAYABLE)
+# ==========================================
 def process_standard_skeleton_overlay(video_file):
     """
-    Overlays a legal/standardized AI skeleton onto the uploaded video using OpenCV.
-    Process maximum 120 frames to ensure fast execution speeds on server deployment.
+    Overlays a standardized AI skeleton onto the uploaded video using OpenCV.
+    Uses H.264 codec so it plays properly inside Streamlit's HTML5 video player.
     """
-    tfile = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
-    tfile.write(video_file.read())
-    video_path = tfile.name
+    # 1. Save uploaded file to temp path
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as tfile:
+        tfile.write(video_file.read())
+        input_path = tfile.name
 
-    cap = cv2.VideoCapture(video_path)
+    cap = cv2.VideoCapture(input_path)
     fps = int(cap.get(cv2.CAP_PROP_FPS)) or 30
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)) or 640
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) or 480
-    
-    temp_output = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter(temp_output.name, fourcc, fps, (width, height))
-    
+
+    # 2. Setup output temp file
+    output_temp = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
+    output_path = output_temp.name
+    output_temp.close()  # Close handle so OpenCV can write to it freely
+
+    # 3. Use H264 / avc1 for HTML5 video playback compatibility
+    fourcc = cv2.VideoWriter_fourcc(*'avc1') 
+    out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+
+    # Fallback if 'avc1' fails on your local server environment
+    if not out.isOpened():
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+
     frame_count = 0
-    max_frames_to_process = 120  # Limit frame processing count for ultra-fast performance
+    max_frames_to_process = 120  # Fast limit for performance
 
     while cap.isOpened() and frame_count < max_frames_to_process:
         ret, frame = cap.read()
         if not ret:
             break
-            
+
         frame_count += 1
         overlay = frame.copy()
-        
-        # Calculate standard motion trajectory
+
         t = (frame_count % 60) / 60.0
-        
+
         std_shoulder = (int(width * 0.45), int(height * 0.42))
         std_elbow = (int(width * 0.48), int(height * 0.55))
-        std_wrist = (int(width * (0.42 + 0.25 * np.cos(t * 2 * np.pi))), 
+        std_wrist = (int(width * (0.42 + 0.25 * np.cos(t * 2 * np.pi))),
                      int(height * (0.58 - 0.20 * np.sin(t * 2 * np.pi))))
-        
-        bone_color = (0, 215, 255) # Gold/Neon
-        
-        # Standardized Bone Segments
+
+        bone_color = (0, 215, 255)  # Gold/Neon
+
+        # Skeleton Lines
         cv2.line(overlay, std_shoulder, std_elbow, bone_color, 5)
         cv2.line(overlay, std_elbow, std_wrist, bone_color, 5)
-        
+
         # Joints
         cv2.circle(overlay, std_shoulder, 7, (255, 255, 255), -1)
         cv2.circle(overlay, std_elbow, 7, (255, 255, 255), -1)
         cv2.circle(overlay, std_wrist, 9, (0, 255, 0), -1)
-        
+
         # Alpha Blending (50%)
         cv2.addWeighted(overlay, 0.5, frame, 0.5, 0, frame)
-        cv2.putText(frame, "AI Standard Model: Forehand Topspin", (30, 40), 
+        cv2.putText(frame, "AI Standard Model: Forehand Topspin", (30, 40),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 215, 255), 2, cv2.LINE_AA)
-        
+
         out.write(frame)
 
     cap.release()
     out.release()
-    return temp_output.name
+    
+    # Cleanup input temp file
+    if os.path.exists(input_path):
+        os.remove(input_path)
+
+    return output_path
 
 # ==========================================
 # 1. PAGE CONFIG & LUXURY SAND THEME
