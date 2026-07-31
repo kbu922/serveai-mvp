@@ -426,72 +426,9 @@ def get_text(key, lang_str="English"):
     return TEXTS.get(lang_code, TEXTS["EN"]).get(key, key)
 
 # ==========================================
-# 0.1 SESSION STATE INITIALIZATION
+# 0.1 HELPER FUNCTIONS: SKELETON & HEALTH
 # ==========================================
-if "is_logged_in" not in st.session_state:
-    st.session_state["is_logged_in"] = False
-if "current_user" not in st.session_state:
-    st.session_state["current_user"] = {"name": "Guest Athlete", "email": "guest@example.com", "tier": "Free Tier"}
-if "registered_users" not in st.session_state:
-    st.session_state["registered_users"] = {}
-if "chat_orders" not in st.session_state:
-    st.session_state["chat_orders"] = [
-        {"Order ID": "ORD-9921", "Item": "Subscription: PRO Pass", "Amount": "$19.99", "Status": "Paid"}
-    ]
-if "inquiries" not in st.session_state:
-    st.session_state["inquiries"] = []
-if "tournament_group_votes" not in st.session_state:
-    st.session_state["tournament_group_votes"] = [{"Athlete": "Alex M.", "Status": "Confirmed"}, {"Athlete": "Sarah K.", "Status": "Confirmed"}]
-if "academy_group_votes" not in st.session_state:
-    st.session_state["academy_group_votes"] = [{"Member": "David L.", "Vote": "Summer Camp 2026"}]
-
-if "players_db" not in st.session_state:
-    st.session_state["players_db"] = [
-        {"Name": "Alex Chen", "NTRP": 4.5, "Style": "Aggressive Baseline", "City": "Seoul", "Contact": "alex@example.com"},
-        {"Name": "Sarah Jenkins", "NTRP": 4.0, "Style": "All-Court", "City": "New York", "Contact": "sarah@example.com"}
-    ]
-
-if "coaches_db" not in st.session_state:
-    st.session_state["coaches_db"] = [
-        {"Coach": "Coach Marc", "Level": "PTR Certified", "Specialty": "Serve & Kinetic Motion", "Hourly": "$80/hr", "City": "Seoul"},
-        {"Coach": "Coach Elena", "Level": "USPTA Elite", "Specialty": "Tactical Match Play", "Hourly": "$100/hr", "City": "New York"}
-    ]
-
-# ==========================================
-# 0.2 SIDEBAR & ROUTER SETUP
-# ==========================================
-st.sidebar.title("🌐 Language / 언어")
-curr_lang = st.sidebar.selectbox("Select Language", ["English", "한국어"])
-
-st.sidebar.markdown("---")
-st.sidebar.title(get_text("user_portal", curr_lang))
-
-if st.session_state["is_logged_in"]:
-    st.sidebar.write(f"**{get_text('logged_in_as', curr_lang)}** {st.session_state['current_user']['name']}")
-    st.sidebar.write(f"**{get_text('membership', curr_lang)}** `{st.session_state['current_user']['tier']}`")
-    if st.sidebar.button(get_text("btn_logout", curr_lang)):
-        st.session_state["is_logged_in"] = False
-        st.session_state["current_user"] = {"name": "Guest Athlete", "email": "guest@example.com", "tier": "Free Tier"}
-        st.rerun()
-else:
-    st.sidebar.info(get_text("guest_free", curr_lang))
-
-st.sidebar.markdown("---")
-st.sidebar.title(get_text("select_module", curr_lang))
-
-menu_options = [
-    get_text("menu_m1", curr_lang),
-    get_text("menu_m2", curr_lang),
-    get_text("menu_m3", curr_lang),
-    get_text("menu_m4", curr_lang),
-    get_text("menu_m5", curr_lang),
-    get_text("menu_m6", curr_lang),
-    get_text("menu_m7", curr_lang),
-    get_text("menu_m8", curr_lang),
-    get_text("menu_m9", curr_lang),
-]
-
-menu = st.sidebar.radio("Navigate", menu_options, label_visibility="collapsed")
+import streamlit.components.v1 as components
 
 # --- MODULE 1: AI SERVE VELOCITY & BIOMECHANICS ANALYZER ---
 def render_module_1():
