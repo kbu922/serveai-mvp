@@ -5,6 +5,8 @@ import time
 import cv2
 import numpy as np
 import tempfile
+import subprocess
+import os
 
 # ==========================================
 # 0. TRANSLATION DICTIONARY & HELPER
@@ -427,7 +429,8 @@ def get_text(key, lang_str="English"):
 # ==========================================
 def process_standard_skeleton_overlay(video_file):
     """
-    Overlays a legal/standardized AI skeleton onto the uploaded video using OpenCV.
+    Overlays a legal/standardized AI skeleton onto the uploaded video using OpenCV,
+    then transcodes to web-standard H.264 (yuv420p) for smooth Chrome playback.
     """
     tfile = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
     tfile.write(video_file.read())
@@ -438,9 +441,9 @@ def process_standard_skeleton_overlay(video_file):
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)) or 640
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) or 480
     
-    temp_output = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
+    raw_output = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter(temp_output.name, fourcc, fps, (width, height))
+    out = cv2.VideoWriter(raw_output.name, fourcc, fps, (width, height))
     
     frame_count = 0
     while cap.isOpened():
@@ -479,7 +482,20 @@ def process_standard_skeleton_overlay(video_file):
 
     cap.release()
     out.release()
-    return temp_output.name
+
+    # Fast Web-Transcoding to H.264 (yuv420p) for smooth playback in Chrome/Edge/Safari
+    smooth_output = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
+    try:
+        subprocess.run(
+            ['ffmpeg', '-y', '-i', raw_output.name, '-vcodec', 'libx264', '-pix_fmt', 'yuv420p', smooth_output.name],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=True
+        )
+        return smooth_output.name
+    except Exception:
+        # Fallback to raw file if ffmpeg binary is absent in local runtime
+        return raw_output.name
 
 # ==========================================
 # 1. PAGE CONFIG & LUXURY SAND THEME
