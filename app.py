@@ -7,6 +7,7 @@ import numpy as np
 import tempfile
 import subprocess
 import os
+import streamlit.components.v1 as components
 
 # ==========================================
 # 0. TRANSLATION DICTIONARY & HELPER
@@ -425,299 +426,58 @@ def get_text(key, lang_str="English"):
     return TEXTS.get(lang_code, TEXTS["EN"]).get(key, key)
 
 # ==========================================
-# 0.1 HELPER FUNCTIONS: SKELETON & HEALTH
+# 0.1 SESSION STATE INITIALIZATION
 # ==========================================
-def process_standard_skeleton_overlay(video_file):
-    """
-    Overlays a legal/standardized AI skeleton onto the uploaded video using OpenCV,
-    then transcodes to web-standard H.264 (yuv420p) for smooth Chrome playback.
-    """
-    tfile = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
-    tfile.write(video_file.read())
-    video_path = tfile.name
-
-    cap = cv2.VideoCapture(video_path)
-    fps = int(cap.get(cv2.CAP_PROP_FPS)) or 30
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)) or 640
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) or 480
-    
-    raw_output = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter(raw_output.name, fourcc, fps, (width, height))
-    
-    frame_count = 0
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
-            
-        frame_count += 1
-        overlay = frame.copy()
-        
-        # Calculate standard motion trajectory
-        t = (frame_count % 60) / 60.0
-        
-        std_shoulder = (int(width * 0.45), int(height * 0.42))
-        std_elbow = (int(width * 0.48), int(height * 0.55))
-        std_wrist = (int(width * (0.42 + 0.25 * np.cos(t * 2 * np.pi))), 
-                     int(height * (0.58 - 0.20 * np.sin(t * 2 * np.pi))))
-        
-        bone_color = (0, 215, 255) # Gold/Neon
-        
-        # Standardized Bone Segments
-        cv2.line(overlay, std_shoulder, std_elbow, bone_color, 5)
-        cv2.line(overlay, std_elbow, std_wrist, bone_color, 5)
-        
-        # Joints
-        cv2.circle(overlay, std_shoulder, 7, (255, 255, 255), -1)
-        cv2.circle(overlay, std_elbow, 7, (255, 255, 255), -1)
-        cv2.circle(overlay, std_wrist, 9, (0, 255, 0), -1)
-        
-        # Alpha Blending (50%)
-        cv2.addWeighted(overlay, 0.5, frame, 0.5, 0, frame)
-        cv2.putText(frame, "AI Standard Model: Forehand Topspin", (30, 40), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 215, 255), 2, cv2.LINE_AA)
-        
-        out.write(frame)
-
-    cap.release()
-    out.release()
-
-    # Fast Web-Transcoding to H.264 (yuv420p) for smooth playback in Chrome/Edge/Safari
-    smooth_output = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
-    try:
-        subprocess.run(
-            ['ffmpeg', '-y', '-i', raw_output.name, '-vcodec', 'libx264', '-pix_fmt', 'yuv420p', smooth_output.name],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            check=True
-        )
-        return smooth_output.name
-    except Exception:
-        # Fallback to raw file if ffmpeg binary is absent in local runtime
-        return raw_output.name
-
-# ==========================================
-# 1. PAGE CONFIG & LUXURY SAND THEME
-# ==========================================
-st.set_page_config(
-    page_title="Global Tennis Platform & AI Suite",
-    page_icon="🎾",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-# Custom CSS for Luxury Sand Theme
-st.markdown("""
-    <style>
-    /* Main Background & Base Styling */
-    .stApp {
-        background-color: #F5F2EB;
-        color: #211F1D;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-    
-    /* Headers & Typography */
-    h1, h2, h3, h4, h5 {
-        color: #211F1D !important;
-        font-weight: 600;
-        letter-spacing: -0.02em;
-    }
-    
-    /* Cards & Containers */
-    .stCard, div[data-testid="stExpander"], div[data-testid="stForm"] {
-        background-color: #FAF8F5;
-        border: 1px solid #E5E0D8;
-        border-radius: 12px;
-        padding: 24px;
-        box-shadow: 0 4px 12px rgba(33, 31, 29, 0.03);
-    }
-    
-    /* Buttons */
-    .stButton > button, div[data-testid="stForm"] button {
-        background-color: #211F1D !important;
-        color: #FAF8F5 !important;
-        border-radius: 8px !important;
-        border: none !important;
-        font-weight: 600 !important;
-        padding: 12px 24px !important;
-        transition: all 0.2s ease;
-        width: 100%;
-    }
-    .stButton > button:hover {
-        background-color: #383430 !important;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.12);
-    }
-    
-    /* Metrics & Badges */
-    div[data-testid="stMetricValue"] {
-        color: #211F1D !important;
-        font-weight: 700;
-    }
-    
-    /* Input Fields */
-    .stTextInput>div>div>input, .stSelectbox>div>div>div, .stTextArea>div>div>textarea, .stNumberInput>div>div>input {
-        background-color: #FFFFFF !important;
-        border: 1px solid #D6D0C4 !important;
-        border-radius: 8px !important;
-        color: #211F1D !important;
-    }
-    
-    /* Tabs Customization */
-    button[data-baseweb="tab"] {
-        font-weight: 600 !important;
-        color: #5C544D !important;
-    }
-    button[aria-selected="true"] {
-        color: #211F1D !important;
-        border-bottom-color: #211F1D !important;
-    }
-    
-    .badge-membership {
-        background-color: #E2DCD0;
-        color: #211F1D;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    .social-btn {
-        display: inline-block;
-        background-color: #211F1D;
-        color: #FAF8F5 !important;
-        padding: 10px 20px;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 14px;
-        margin-right: 10px;
-        margin-top: 10px;
-    }
-    .social-btn:hover {
-        background-color: #383430;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# ==========================================
-# 2. STATE INITIALIZATION & AUTH SYSTEM
-# ==========================================
-
-if "registered_users" not in st.session_state:
-    st.session_state["registered_users"] = {
-        "alex@tennis.org": {"password": "password123", "name": "Alex Mercer", "tier": "PRO Pass", "ntrp": 4.5},
-        "sarah@tennis.org": {"password": "password123", "name": "Sarah Kim", "tier": "VIP Gold", "ntrp": 5.0}
-    }
-
 if "is_logged_in" not in st.session_state:
     st.session_state["is_logged_in"] = False
-
 if "current_user" not in st.session_state:
-    st.session_state["current_user"] = None
+    st.session_state["current_user"] = {"name": "Guest Athlete", "email": "guest@example.com", "tier": "Free Tier"}
+if "registered_users" not in st.session_state:
+    st.session_state["registered_users"] = {}
+if "chat_orders" not in st.session_state:
+    st.session_state["chat_orders"] = [
+        {"Order ID": "ORD-9921", "Item": "Subscription: PRO Pass", "Amount": "$19.99", "Status": "Paid"}
+    ]
+if "inquiries" not in st.session_state:
+    st.session_state["inquiries"] = []
+if "tournament_group_votes" not in st.session_state:
+    st.session_state["tournament_group_votes"] = [{"Athlete": "Alex M.", "Status": "Confirmed"}, {"Athlete": "Sarah K.", "Status": "Confirmed"}]
+if "academy_group_votes" not in st.session_state:
+    st.session_state["academy_group_votes"] = [{"Member": "David L.", "Vote": "Summer Camp 2026"}]
 
-if "language" not in st.session_state:
-    st.session_state["language"] = "English"
-
-# Databases
 if "players_db" not in st.session_state:
     st.session_state["players_db"] = [
-        {"Name": "Marcus Vance", "NTRP": 4.5, "City": "Seoul", "Style": "Aggressive Baseline", "Contact": "m.vance@tennis.org"},
-        {"Name": "Elena Rostova", "NTRP": 5.0, "City": "Busan", "Style": "Serve & Volley", "Contact": "elena.r@tennis.org"},
-        {"Name": "Jin-woo Park", "NTRP": 4.0, "City": "Seoul", "Style": "Counter-Puncher", "Contact": "jw.park@tennis.kr"},
-        {"Name": "Sarah Jenkins", "NTRP": 3.5, "City": "Incheon", "Style": "All-Court", "Contact": "s.jenkins@tennis.org"}
+        {"Name": "Alex Chen", "NTRP": 4.5, "Style": "Aggressive Baseline", "City": "Seoul", "Contact": "alex@example.com"},
+        {"Name": "Sarah Jenkins", "NTRP": 4.0, "Style": "All-Court", "City": "New York", "Contact": "sarah@example.com"}
     ]
 
 if "coaches_db" not in st.session_state:
     st.session_state["coaches_db"] = [
-        {"Coach": "Coach Rob", "Level": "USPTR Certified Master", "City": "Seoul", "Hourly": "$80/hr", "Specialty": "Serve Biomechanics"},
-        {"Coach": "Coach Sarah", "Level": "Ex-WTA Tour Player", "City": "Incheon", "Hourly": "$120/hr", "Specialty": "Match Strategy"},
-        {"Coach": "Coach Min-ho", "Level": "KTA High Performance", "City": "Busan", "Hourly": "$95/hr", "Specialty": "Junior Development"}
+        {"Coach": "Coach Marc", "Level": "PTR Certified", "Specialty": "Serve & Kinetic Motion", "Hourly": "$80/hr", "City": "Seoul"},
+        {"Coach": "Coach Elena", "Level": "USPTA Elite", "Specialty": "Tactical Match Play", "Hourly": "$100/hr", "City": "New York"}
     ]
-
-if "tournament_group_votes" not in st.session_state:
-    st.session_state["tournament_group_votes"] = [
-        {"Name": "Chris P.", "Tournament": "US Open Tennis Championships", "Status": "Discount Unlocked ($85)"},
-        {"Name": "Min-ji K.", "Tournament": "Seoul Open Masters", "Status": "Discount Unlocked ($85)"},
-        {"Name": "Kenji S.", "Tournament": "Seoul Open Masters", "Status": "Discount Unlocked ($85)"}
-    ]
-
-if "academy_group_votes" not in st.session_state:
-    st.session_state["academy_group_votes"] = [
-        {"name": "Alex M.", "program": "1-Week Intensive Boot Camp", "discount_tier": "15% Off"},
-        {"name": "Sarah K.", "program": "1-Week Intensive Boot Camp", "discount_tier": "15% Off"},
-        {"name": "David L.", "program": "1-Month Pro Residency", "discount_tier": "20% Off"}
-    ]
-
-if "inquiries" not in st.session_state:
-    st.session_state["inquiries"] = [
-        {"Ticket ID": "TK-1001", "Subject": "Racket Stringing Order", "Status": "Resolved", "Date": "2026-07-15"}
-    ]
-
-if "chat_orders" not in st.session_state:
-    st.session_state["chat_orders"] = [
-        {"Order ID": "ORD-9921", "Item": "PRO Pass Monthly", "Amount": "$19.99", "Status": "Paid"}
-    ]
-
-# Active Language Ref
-curr_lang = st.session_state["language"]
 
 # ==========================================
-# 3. SIDEBAR AUTH & NAVIGATION PANEL
+# 0.2 SIDEBAR & ROUTER SETUP
 # ==========================================
-st.sidebar.image("https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=400&q=80", caption=get_text("caption", curr_lang))
-
-# Account Authenticator Box
-st.sidebar.markdown(f"### {get_text('user_portal', curr_lang)}")
-
-if not st.session_state["is_logged_in"]:
-    auth_tab1, auth_tab2 = st.sidebar.tabs([get_text("tab_login", curr_lang), get_text("tab_register", curr_lang)])
-    
-    with auth_tab1:
-        login_email = st.text_input(get_text("email", curr_lang), key="login_email")
-        login_pass = st.text_input(get_text("password", curr_lang), type="password", key="login_pass")
-        if st.button(get_text("btn_login", curr_lang), key="btn_login"):
-            if login_email in st.session_state["registered_users"] and st.session_state["registered_users"][login_email]["password"] == login_pass:
-                st.session_state["is_logged_in"] = True
-                st.session_state["current_user"] = st.session_state["registered_users"][login_email]
-                st.session_state["current_user"]["email"] = login_email
-                st.sidebar.success(get_text("welcome_back", curr_lang).format(st.session_state['current_user']['name']))
-                st.rerun()
-            else:
-                st.sidebar.error(get_text("invalid_login", curr_lang))
-
-    with auth_tab2:
-        reg_name = st.text_input(get_text("full_name", curr_lang), key="reg_name")
-        reg_email = st.text_input(get_text("email", curr_lang), key="reg_email")
-        reg_pass = st.text_input(get_text("password", curr_lang), type="password", key="reg_pass")
-        reg_ntrp = st.slider(get_text("ntrp_skill", curr_lang), 1.0, 7.0, 3.5, 0.5, key="reg_ntrp")
-        if st.button(get_text("btn_register", curr_lang), key="btn_reg"):
-            if reg_email and reg_pass and reg_name:
-                st.session_state["registered_users"][reg_email] = {
-                    "password": reg_pass,
-                    "name": reg_name,
-                    "tier": "Free Tier",
-                    "ntrp": reg_ntrp
-                }
-                st.session_state["is_logged_in"] = True
-                st.session_state["current_user"] = st.session_state["registered_users"][reg_email]
-                st.session_state["current_user"]["email"] = reg_email
-                st.sidebar.success(get_text("acc_created", curr_lang))
-                st.rerun()
-            else:
-                st.sidebar.error(get_text("fill_all", curr_lang))
-else:
-    u = st.session_state["current_user"]
-    st.sidebar.markdown(f"**{get_text('logged_in_as', curr_lang)}** `{u['name']}`")
-    st.sidebar.markdown(f"**{get_text('membership', curr_lang)}** <span class='badge-membership'>{u['tier']}</span>", unsafe_allow_html=True)
-    st.sidebar.markdown(f"**{get_text('ntrp_rating', curr_lang)}** `{u['ntrp']}`")
-    
-    if st.sidebar.button(get_text("btn_logout", curr_lang), key="btn_logout"):
-        st.session_state["is_logged_in"] = False
-        st.session_state["current_user"] = None
-        st.rerun()
+st.sidebar.title("🌐 Language / 언어")
+curr_lang = st.sidebar.selectbox("Select Language", ["English", "한국어"])
 
 st.sidebar.markdown("---")
+st.sidebar.title(get_text("user_portal", curr_lang))
+
+if st.session_state["is_logged_in"]:
+    st.sidebar.write(f"**{get_text('logged_in_as', curr_lang)}** {st.session_state['current_user']['name']}")
+    st.sidebar.write(f"**{get_text('membership', curr_lang)}** `{st.session_state['current_user']['tier']}`")
+    if st.sidebar.button(get_text("btn_logout", curr_lang)):
+        st.session_state["is_logged_in"] = False
+        st.session_state["current_user"] = {"name": "Guest Athlete", "email": "guest@example.com", "tier": "Free Tier"}
+        st.rerun()
+else:
+    st.sidebar.info(get_text("guest_free", curr_lang))
+
+st.sidebar.markdown("---")
+st.sidebar.title(get_text("select_module", curr_lang))
 
 menu_options = [
     get_text("menu_m1", curr_lang),
@@ -728,40 +488,12 @@ menu_options = [
     get_text("menu_m6", curr_lang),
     get_text("menu_m7", curr_lang),
     get_text("menu_m8", curr_lang),
-    get_text("menu_m9", curr_lang)
+    get_text("menu_m9", curr_lang),
 ]
 
-menu = st.sidebar.radio(
-    get_text("select_module", curr_lang),
-    menu_options
-)
+menu = st.sidebar.radio("Navigate", menu_options, label_visibility="collapsed")
 
-# ==========================================
-# 4. TOP NAVIGATION HEADER
-# ==========================================
-col_h1, col_h2, col_h3 = st.columns([4, 2, 2])
-
-with col_h1:
-    st.markdown(f"### 🎾 {get_text('page_title', curr_lang)}")
-    st.caption(get_text("live_stats", curr_lang))
-
-with col_h2:
-    lang = st.selectbox("🌐 Language / 언어", ["English", "한국어"], index=0 if st.session_state["language"] == "English" else 1)
-    if lang != st.session_state["language"]:
-        st.session_state["language"] = lang
-        st.rerun()
-
-with col_h3:
-    current_tier = st.session_state["current_user"]["tier"] if st.session_state["is_logged_in"] else get_text("guest_free", curr_lang)
-    st.markdown(f"**{get_text('status_label', curr_lang)}** `{current_tier}`")
-
-st.markdown("---")
-
-# ==========================================
-# 5. ENHANCED MODULE FUNCTIONS
-# ==========================================
-
-# --- MODULE 1: AI SERVE VELOCITY (GRAPHIC & DETAILED + SKELETON + HEALTH ADDED) ---
+# --- MODULE 1: AI SERVE VELOCITY & BIOMECHANICS ANALYZER ---
 def render_module_1():
     st.subheader(get_text("m1_title", curr_lang))
     st.write(get_text("m1_desc", curr_lang))
@@ -789,23 +521,88 @@ def render_module_1():
 
     if video_file or run_analysis:
         with st.spinner(get_text("m1_spinner", curr_lang)):
-            # Processing standard skeleton overlay on uploaded video
-            if video_file is not None:
-                video_file.seek(0)
-                processed_video_path = process_standard_skeleton_overlay(video_file)
-            else:
-                processed_video_path = None
-                
             time.sleep(1)
             st.markdown("---")
 
-            # --- ADDITION 1: AI STANDARD SKELETON OVERLAY OUTPUT ---
-            st.markdown("### 🎯 AI Standard Skeleton Overlay")
-            if processed_video_path:
-                st.video(processed_video_path)
-            st.info("🔒 **Compliance & IP Safety**: Video rendered using standardized 3D human biomechanical keypoints only.")
+            # --- DYNAMIC CANVAS FLASH / SKELETON ANIMATION ---
+            st.markdown("### ⚡ AI Standard Skeleton Overlay")
+            
+            # Interactive HTML5 Animated Visual Flash
+            flash_html = """
+            <div style="text-align: center; background-color: #111; padding: 15px; border-radius: 12px; border: 1px solid #333;">
+                <canvas id="skeletonCanvas" width="600" height="320" style="background: #181818; border-radius: 8px;"></canvas>
+            </div>
+            <script>
+                const canvas = document.getElementById('skeletonCanvas');
+                const ctx = canvas.getContext('2d');
+                let frame = 0;
 
-            # --- ADDITION 2: AI HEALTH & INJURY DIAGNOSTICS ---
+                function drawFrame() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Grid lines (Court Background)
+                    ctx.strokeStyle = "#333333";
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(100, 280); ctx.lineTo(500, 280);
+                    ctx.moveTo(200, 200); ctx.lineTo(400, 200);
+                    ctx.stroke();
+
+                    // Animate motion curve
+                    let t = (frame % 60) / 60;
+                    let handX = 300 + Math.cos(t * Math.PI * 2) * 80;
+                    let handY = 160 - Math.sin(t * Math.PI * 2) * 50;
+
+                    // Standard AI Joint Vectors
+                    let shoulder = {x: 280, y: 180};
+                    let elbow = {x: 310, y: 160};
+                    let wrist = {x: handX, y: handY};
+
+                    // Bone Connections
+                    ctx.strokeStyle = "#00FFCC";
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    ctx.moveTo(shoulder.x, shoulder.y);
+                    ctx.lineTo(elbow.x, elbow.y);
+                    ctx.lineTo(wrist.x, wrist.y);
+                    ctx.stroke();
+
+                    // Joint Nodes
+                    [shoulder, elbow, wrist].forEach(pt => {
+                        ctx.fillStyle = "#FFFFFF";
+                        ctx.beginPath();
+                        ctx.arc(pt.x, pt.y, 6, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+
+                    // Impact Flash Circle Effect
+                    if (frame % 60 > 25 && frame % 60 < 35) {
+                        ctx.fillStyle = "rgba(255, 215, 0, 0.4)";
+                        ctx.beginPath();
+                        ctx.arc(wrist.x, wrist.y, 25, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        ctx.fillStyle = "#FFD700";
+                        ctx.font = "bold 14px sans-serif";
+                        ctx.fillText("⚡ IMPACT DETECTED", wrist.x + 15, wrist.y - 15);
+                    }
+
+                    // Watermark Label
+                    ctx.fillStyle = "#00FFCC";
+                    ctx.font = "12px monospace";
+                    ctx.fillText("AI Biomechanical Track Vector v2.4", 20, 35);
+
+                    frame++;
+                    requestAnimationFrame(drawFrame);
+                }
+                drawFrame();
+            </script>
+            """
+            components.html(flash_html, height=360)
+
+            st.info("🔒 **Compliance & IP Safety**: Visual rendered using standardized 3D human biomechanical keypoints only.")
+
+            # --- AI HEALTH & PREDICTIVE INJURY DIAGNOSTICS ---
             st.markdown("---")
             st.markdown("### 🩺 AI Health & Predictive Injury Diagnostics")
             st.caption("Real-time kinematic joint load and impact pressure assessment")
