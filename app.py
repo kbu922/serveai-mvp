@@ -8,6 +8,7 @@ import tempfile
 import subprocess
 import os
 import streamlit.components.v1 as components
+
 # ==========================================
 # 0. TRANSLATION DICTIONARY & HELPER
 # ==========================================
@@ -688,85 +689,6 @@ st.markdown("---")
 # 5. ENHANCED MODULE FUNCTIONS
 # ==========================================
 
-# --- MODULE 1: AI SERVE VELOCITY (GRAPHIC & DETAILED) ---
-def render_module_1():
-    st.subheader(get_text("m1_title", curr_lang))
-    st.write(get_text("m1_desc", curr_lang))
-
-    col1, col2 = st.columns([3, 2])
-    with col1:
-        video_file = st.file_uploader(get_text("m1_upload", curr_lang), type=["mp4", "mov"])
-        c_a, c_b = st.columns(2)
-        with c_a:
-            angle = st.selectbox(get_text("m1_cam_angle", curr_lang), [get_text("m1_angle_1", curr_lang), get_text("m1_angle_2", curr_lang), get_text("m1_angle_3", curr_lang)])
-        with c_b:
-            fps = st.slider(get_text("m1_fps", curr_lang), 30, 240, 120, help=get_text("m1_fps_help", curr_lang))
-
-        run_analysis = st.button(get_text("m1_btn_run", curr_lang))
-
-    with col2:
-        st.markdown(f"""
-        <div style="background-color:#FAF8F5; border:1px solid #E5E0D8; border-radius:12px; padding:16px;">
-            <h4 style="margin-top:0;">{get_text("m1_benchmarks", curr_lang)}</h4>
-            <p style="font-size:13px; color:#5C544D; margin-bottom:8px;">{get_text("m1_bench_1", curr_lang)}</p>
-            <p style="font-size:13px; color:#5C544D; margin-bottom:8px;">{get_text("m1_bench_2", curr_lang)}</p>
-            <p style="font-size:13px; color:#5C544D; margin-bottom:0;">{get_text("m1_bench_3", curr_lang)}</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    if video_file or run_analysis:
-        with st.spinner(get_text("m1_spinner", curr_lang)):
-            time.sleep(2)
-            st.markdown("---")
-            st.markdown(f"### {get_text('m1_report', curr_lang)}")
-            
-            # Primary Metrics Row
-            m1, m2, m3, m4 = st.columns(4)
-            m1.metric(get_text("m1_metric_speed", curr_lang), "118.4 mph", delta=get_text("m1_metric_speed_delta", curr_lang))
-            m2.metric(get_text("m1_metric_spin", curr_lang), "2,840 RPM", delta=get_text("m1_metric_spin_delta", curr_lang))
-            m3.metric(get_text("m1_metric_height", curr_lang), "2.88 meters", delta=get_text("m1_metric_height_delta", curr_lang))
-            m4.metric(get_text("m1_metric_transfer", curr_lang), "88.2%", delta=get_text("m1_metric_transfer_delta", curr_lang))
-
-            st.write("")
-            
-            # Interactive Biomechanics Data Charts
-            t_col1, t_col2 = st.columns(2)
-            
-            with t_col1:
-                st.markdown(f"#### {get_text('m1_chart_vel', curr_lang)}")
-                chart_data = pd.DataFrame({
-                    "Serve Phase": ["Trophy Position", "Racket Drop", "Acceleration", "Ball Impact", "Follow Through"],
-                    "Racket Speed (mph)": [12, 38, 92, 118, 45],
-                    "Wrist Angular Speed (°/s)": [180, 420, 1100, 1450, 320]
-                })
-                st.line_chart(chart_data.set_index("Serve Phase"))
-
-            with t_col2:
-                st.markdown(f"#### {get_text('m1_chart_zone', curr_lang)}")
-                impact_data = pd.DataFrame({
-                    "Court Zone": ["T-Point (Center)", "Body Serve", "Wide Angle"],
-                    "Consistency %": [68, 84, 52],
-                    "Avg Speed (mph)": [118, 112, 108]
-                })
-                st.bar_chart(impact_data.set_index("Court Zone"))
-
-            st.markdown(f"#### {get_text('m1_breakdown', curr_lang)}")
-            
-            tab_p1, tab_p2, tab_p3, tab_p4 = st.tabs([
-                get_text("m1_tab_p1", curr_lang),
-                get_text("m1_tab_p2", curr_lang),
-                get_text("m1_tab_p3", curr_lang),
-                get_text("m1_tab_p4", curr_lang)
-            ])
-            
-            with tab_p1:
-                st.markdown(get_text("m1_p1_text", curr_lang))
-            with tab_p2:
-                st.markdown(get_text("m1_p2_text", curr_lang))
-            with tab_p3:
-                st.markdown(get_text("m1_p3_text", curr_lang))
-            with tab_p4:
-                st.markdown(get_text("m1_p4_text", curr_lang))
 # --- MODULE 1: AI SERVE VELOCITY & BIOMECHANICS ANALYZER ---
 def render_module_1():
     st.subheader(get_text("m1_title", curr_lang))
@@ -998,6 +920,7 @@ def render_module_2():
             st.markdown(get_text("m2_guide_col1", curr_lang))
         with c_s2:
             st.markdown(get_text("m2_guide_col2", curr_lang).format(max(1, int(12 / matches_per_week))))
+
 # --- MODULE 3: MEMBERSHIP & SUBSCRIPTIONS ---
 def render_module_membership():
     st.subheader(get_text("m3_title", curr_lang))
@@ -1069,7 +992,7 @@ def render_module_membership():
                 card_exp = st.text_input(get_text("m3_card_exp", curr_lang), placeholder="08/28")
                 card_cvv = st.text_input(get_text("m3_card_cvv", curr_lang), type="password", placeholder="123")
 
-            pay_submitted = st.form_submit_button(get_text("m3_btn_pay", curr_lang), use_container_width=True)
+            pay_submitted = st.form_submit_button(get_text("m3_btn_pay", curr_lang), width="stretch")
             
             if pay_submitted:
                 if card_name and card_num and card_exp and card_cvv:
@@ -1110,9 +1033,9 @@ def render_module_3():
     if subpage == "🖼️ Competition Infrastructure & Residence Gallery":
         col_img1, col_img2 = st.columns(2)
         with col_img1:
-            st.image("https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&q=80", caption="🏟️ Tournament Main Arena & Hard Courts", use_container_width=True)
+            st.image("https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&q=80", caption="🏟️ Tournament Main Arena & Hard Courts", width="stretch")
         with col_img2:
-            st.image("https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80", caption="🏨 Official Partner Athlete Residence Suites", use_container_width=True)
+            st.image("https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80", caption="🏨 Official Partner Athlete Residence Suites", width="stretch")
 
     elif subpage == "👥 Member Group Buying ($85 Discount)":
         st.info("💡 Join 5+ athletes to unlock an instant $85/person discount on hotel and tournament packages!")
@@ -1140,9 +1063,9 @@ def render_module_4():
     if subpage == "🏟️ Campus Gallery":
         c1, c2 = st.columns(2)
         with c1:
-            st.image("https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcTlJfjs63KI6QzSpQms4d1rLMcTNoDkcJphyH_y34zqGSvvZbGEs3TmtsDCJLVbWFcYD83uzV10B2lwUR0", caption="Center Court Facility", use_container_width=True)
+            st.image("https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcTlJfjs63KI6QzSpQms4d1rLMcTNoDkcJphyH_y34zqGSvvZbGEs3TmtsDCJLVbWFcYD83uzV10B2lwUR0", caption="Center Court Facility", width="stretch")
         with c2:
-            st.image("https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcRI-UXJPpwhWDcFekaYdcs5vb7ShKqOtbpAL6DUhV9W4HTMwQsFOzX3pKb9oNNCgU3VDScBATPtPN4KN5I", caption="Athlete Residence Lounge", use_container_width=True)
+            st.image("https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcRI-UXJPpwhWDcFekaYdcs5vb7ShKqOtbpAL6DUhV9W4HTMwQsFOzX3pKb9oNNCgU3VDScBATPtPN4KN5I", caption="Athlete Residence Lounge", width="stretch")
 
     elif subpage == "👥 Group Buying & Voting Hub":
         st.dataframe(pd.DataFrame(st.session_state["academy_group_votes"]))
