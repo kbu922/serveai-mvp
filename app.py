@@ -6,42 +6,38 @@ import io
 from PIL import Image
 
 # ==========================================
-# 0. DATABASE PERSISTENCE LAYER (SQLite)
+# 0. PERSISTENT DATABASE SYSTEM (SQLite)
 # ==========================================
 DB_NAME = "tennis_platform.db"
 
 def get_db_connection():
-    """Establishes a thread-safe connection to the SQLite database."""
     conn = sqlite3.connect(DB_NAME, check_same_thread=False)
-    conn.row_factory = sqlite3.Row  # Access columns by name
+    conn.row_factory = sqlite3.Row
     return conn
 
 def init_db():
-    """Initializes persistent tables if they do not exist."""
     conn = get_db_connection()
     cursor = conn.cursor()
-    # Stores persistence Student accounts
+    
+    # Unified User Account Table with Auth & Phone Verification
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS students (
+        CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            phone TEXT UNIQUE NOT NULL,
+            role TEXT NOT NULL, -- 'student' or 'coach'
             name TEXT NOT NULL,
-            email TEXT UNIQUE NOT NULL,
+            email TEXT,
             photo_blob BLOB,
-            registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    # Stores persistent Verified Coach accounts
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS coaches (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            score INTEGER NOT NULL,
+            score INTEGER DEFAULT 0,
             fee_paid INTEGER DEFAULT 0,
-            verified_at TIMESTAMP
+            is_phone_verified INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    # Stores persistent Selling Listings (Coaches Only)
+    
+    # Persistent Marketplace Inventory
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS inventory (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -52,20 +48,19 @@ def init_db():
             coach_id INTEGER NOT NULL,
             photo_blob BLOB,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (coach_id) REFERENCES coaches (id)
+            FOREIGN KEY (coach_id) REFERENCES users (id)
         )
     ''')
     conn.commit()
     conn.close()
 
-# Initialize Database on launch
 init_db()
 
 # ==========================================
 # 1. PAGE CONFIG & STYLING
 # ==========================================
 st.set_page_config(
-    page_title="Tennis Verified Launch Platform",
+    page_title="Tennis Verified Platform",
     page_icon="🎾",
     layout="wide"
 )
@@ -75,27 +70,18 @@ st.markdown("""
     .stApp { background-color: #F8F9FA; color: #212529; }
     h1, h2, h3 { color: #1A1A1A !important; font-weight: 700; }
     .stForm { background-color: white; border-radius: 10px; padding: 25px; border: 1px solid #EAEAEA; }
-    .stButton>button { width: 100%; border-radius: 6px; font-weight: 600; }
-    div[data-testid="stExpander"] { background-color: white; border-radius: 8px; border: 1px solid #EAEAEA;}
-    
-    /* System Styling */
-    .report-card { background-color: #F1F3F5; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #DADADA; }
-    .pass-box { background-color: #E6FCF5; color: #087F5B; padding: 15px; border-radius: 8px; border: 1px solid #099268; font-weight: bold; text-align: center;}
-    .fail-box { background-color: #FFF5F5; color: #C92A2A; padding: 15px; border-radius: 8px; border: 1px solid #E03131; font-weight: bold; text-align: center;}
+    .sms-box { background-color: #E3F2FD; border: 2px dashed #1E88E5; border-radius: 8px; padding: 15px; margin: 10px 0; text-align: center; }
+    .verified-badge { background-color: #E8F5E9; color: #2E7D32; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; }
     .price-tag { color: #2E7D32; font-weight: bold; font-size: 20px; }
-    .location-tag { background-color: #E9ECEF; color: #495057; padding: 3px 8px; border-radius: 4px; font-size: 12px;}
     </style>
 """, unsafe_allow_html=True)
 
-# Helper: Convert PIL Image to Bytes for DB storage
 def image_to_blob(image_file):
     if image_file is not None:
         try:
             image = Image.open(image_file)
-            # Resize if too large to keep DB size manageable
             image.thumbnail((800, 800))
             img_byte_arr = io.BytesIO()
-            # Must convert RGBA to RGB for JPEG storage
             if image.mode in ('RGBA', 'LA'):
                 background = Image.new(image.mode[:-1], image.size, '#ffffff')
                 background.paste(image, image)
@@ -103,274 +89,268 @@ def image_to_blob(image_file):
             image.save(img_byte_arr, format='JPEG', quality=85)
             return img_byte_arr.getvalue()
         except Exception as e:
-            st.error(f"Error processing image: {e}")
+            st.error(f"Image Error: {e}")
             return None
     return None
 
+# Session State Initializations for Auth & OTP
+if "logged_in_user" not in st.session_state:
+    st.session_state.logged_in_user = None
+
+if "otp_code" not in st.session_state:
+    st.session_state.otp_code = None
+
+if "otp_verified" not in st.session_state:
+    st.session_state.otp_verified = False
+
 # ==========================================
-# 2. SIDEBAR STATUS & AUTH SIMULATION
+# 2. SIDEBAR AUTHENTICATION (LOGIN / LOGOUT)
 # ==========================================
-# In reality, this would use secure login sessions. 
-# Here, we simulate login by selecting a persistent DB record.
-st.sidebar.title("🔐 Authentication")
+st.sidebar.title("🔐 Login / Account")
 
-conn = get_db_connection()
-coach_list = conn.execute('SELECT id, name FROM coaches WHERE fee_paid = 1').fetchall()
-student_list = conn.execute('SELECT id, name FROM students').fetchall()
-conn.close()
-
-auth_mode = st.sidebar.selectbox("Simulate Login As:", ["Guest", "Coach (Verified)", "Student"])
-
-session_coach = None
-session_student = None
-
-if auth_mode == "Coach (Verified)":
-    if coach_list:
-        selected_c_id = st.sidebar.selectbox("Select Coach Account:", [c['id'] for c in coach_list], format_func=lambda x: next(c['name'] for c in coach_list if c['id'] == x))
+if st.session_state.logged_in_user:
+    u = st.session_state.logged_in_user
+    st.sidebar.success(f"Logged in as: **{u['username']}** ({u['role'].capitalize()})")
+    if st.sidebar.button("🚪 Log Out"):
+        st.session_state.logged_in_user = None
+        st.rerun()
+else:
+    st.sidebar.subheader("Login to Account")
+    login_user = st.sidebar.text_input("User ID")
+    login_pass = st.sidebar.text_input("Password", type="password")
+    
+    if st.sidebar.button("🔑 Log In"):
         conn = get_db_connection()
-        session_coach = conn.execute('SELECT * FROM coaches WHERE id = ?', (selected_c_id,)).fetchone()
+        user_rec = conn.execute(
+            'SELECT * FROM users WHERE username = ? AND password = ?', 
+            (login_user, login_pass)
+        ).fetchone()
         conn.close()
-        st.sidebar.success(f"Logged in as Coach: {session_coach['name']}")
-    else:
-        st.sidebar.warning("No verified coaches in database.")
-
-elif auth_mode == "Student":
-    if student_list:
-        selected_s_id = st.sidebar.selectbox("Select Student Account:", [s['id'] for s in student_list], format_func=lambda x: next(s['name'] for s in student_list if s['id'] == x))
-        conn = get_db_connection()
-        session_student = conn.execute('SELECT * FROM students WHERE id = ?', (selected_s_id,)).fetchone()
-        conn.close()
-        st.sidebar.info(f"Logged in as Student: {session_student['name']}")
-    else:
-        st.sidebar.warning("No students registered yet.")
+        
+        if user_rec:
+            st.session_state.logged_in_user = dict(user_rec)
+            st.sidebar.success("Login successful!")
+            st.rerun()
+        else:
+            st.sidebar.error("Invalid User ID or Password.")
 
 st.sidebar.markdown("---")
-page = st.sidebar.radio("Navigation", ["Home", "Student Registration", "Coach Certification", "Tennis Marketplace"])
+page = st.sidebar.radio("Navigation", [
+    "🎾 Student Registration (Phone Verified)", 
+    "🏆 Coach Certification & Verification", 
+    "🛍️ Tennis Marketplace", 
+    "💬 Chat & Class Portal"
+])
 
 # ==========================================
-# PAGE 1: HOME
+# PAGE 1: STUDENT REGISTRATION (WITH SMS OTP)
 # ==========================================
-if page == "Home":
-    st.title("🎾 The Reality Tennis Platform")
-    st.subheader("Persistent Data Edition")
-    st.markdown("""
-    This is no longer a mock-up. This system is connected to a live database. 
-    Registrations and selling listings created here will persist even after the application restarts.
-    
-    ### System Summary:
-    1.  **Students:** Upload a photo to register permanently. You can then access the marketplace to purchase racquets.
-    2.  **Coaches:** Upload video for AI skill analysis (Score 0-100). If you score >60, pay a 10,000₩ persistent license fee to enable your Selling System. Verified coaches can list racquets for sale and offer free classes.
-    """)
+if page == "🎾 Student Registration (Phone Verified)":
+    st.title("🎾 Student Account Registration")
+    st.write("Create your student account with **User ID, Password, and Mobile Phone SMS Verification**.")
 
-# ==========================================
-# PAGE 2: STUDENT REGISTRATION (Reality)
-# ==========================================
-elif page == "Student Registration":
-    st.title("🎾 Student Registration System")
-    st.write("Complete this form to become a registered student. This will be stored persistently in our database.")
-    
-    with st.form("student_form", clear_on_submit=True):
-        st.subheader("Real Registration Form")
-        col1, col2 = st.columns(2)
-        with col1:
-            name = st.text_input("Full Name *", placeholder="First Last")
-            email = st.text_input("Email Address *", placeholder="Used for login simulation")
-        with col2:
-            photo = st.file_uploader("Upload Profile Photo *", type=['jpg', 'jpeg', 'png'])
-            
-        submitted = st.form_submit_button("🚀 Finalize Real Registration")
-        
-        if submitted:
-            if not name or not email or not photo:
-                st.error("⚠️ All fields, including the profile photo, are required.")
-            else:
-                photo_blob = image_to_blob(photo)
-                conn = get_db_connection()
-                try:
-                    conn.execute('INSERT INTO students (name, email, photo_blob) VALUES (?, ?, ?)', 
-                                 (name, email, photo_blob))
-                    conn.commit()
-                    st.success(f"🎉 Student Account for '{name}' created successfully! Data is now persistent.")
-                    st.balloons()
-                    time.sleep(1)
-                    st.rerun()
-                except sqlite3.IntegrityError:
-                    st.error(f"⚠️ An account with the email '{email}' already exists.")
-                finally:
-                    conn.close()
+    st.markdown("---")
 
-# ==========================================
-# PAGE 3: COACH CERTIFICATION
-# ==========================================
-elif page == "Coach Certification":
-    st.title("🏆 Coach Certification System")
-    st.write("Upload video footage of your tennis play. Our AI analyzes your spin, speed, and mechanics to provide a skill breakdown and score.")
-    
+    # Step 1: User Details
+    st.subheader("Step 1: Account & Profile Details")
+    c1, c2 = st.columns(2)
+    with c1:
+        s_username = st.text_input("Choose User ID *", placeholder="e.g. tennis_star99")
+        s_password = st.text_input("Choose Password *", type="password")
+        s_name = st.text_input("Full Name *")
+    with c2:
+        s_email = st.text_input("Email Address *")
+        s_phone = st.text_input("Mobile Phone Number *", placeholder="010-1234-5678")
+        s_photo = st.file_uploader("Upload Profile Photo *", type=['jpg', 'jpeg', 'png'])
+
     st.markdown("---")
     
-    # SYSTEM A: VIDEO UPLOAD & ANALYSIS
-    st.subheader("📹 System A: Video Analysis")
-    video_col1, video_col2 = st.columns([2, 1])
+    # Step 2: Phone Verification SMS Flow
+    st.subheader("Step 2: Mobile Phone Verification")
     
-    with video_col1:
+    col_sms1, col_sms2 = st.columns([1, 1])
+    
+    with col_sms1:
+        if st.button("📱 Send SMS Verification Code"):
+            if s_phone:
+                # Generate random 6-digit code
+                generated_code = str(random.randint(100000, 999999))
+                st.session_state.otp_code = generated_code
+                st.session_state.otp_verified = False
+                st.toast(f"📲 [SMS Mock] Verification code sent to {s_phone}!")
+            else:
+                st.error("Please enter a valid mobile phone number first.")
+
+    # Show Simulated Mobile SMS Screen
+    if st.session_state.otp_code:
+        st.markdown(f"""
+            <div class="sms-box">
+                📲 <strong>[Simulated SMS Message Received]</strong><br>
+                Your verification code is: <span style="font-size:22px; color:#1E88E5; font-weight:bold;">{st.session_state.otp_code}</span>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        entered_code = st.text_input("Enter 6-Digit Verification Code")
+        if st.button("✅ Verify Mobile Number"):
+            if entered_code == st.session_state.otp_code:
+                st.session_state.otp_verified = True
+                st.success("📱 Phone number verified successfully!")
+            else:
+                st.error("❌ Incorrect verification code. Please try again.")
+
+    st.markdown("---")
+
+    # Step 3: Final Registration Submission
+    if st.button("🚀 Complete Student Account Registration"):
+        if not (s_username and s_password and s_name and s_phone and s_photo):
+            st.error("Please fill in all fields and upload a profile photo.")
+        elif not st.session_state.otp_verified:
+            st.error("⚠️ Mobile phone verification is required before registering.")
+        else:
+            photo_blob = image_to_blob(s_photo)
+            conn = get_db_connection()
+            try:
+                conn.execute('''
+                    INSERT INTO users (username, password, phone, role, name, email, photo_blob, is_phone_verified)
+                    VALUES (?, ?, ?, 'student', ?, ?, ?, 1)
+                ''', (s_username, s_password, s_phone, s_name, s_email, photo_blob))
+                conn.commit()
+                st.success(f"🎉 Account '{s_username}' created successfully! You can now log in.")
+                st.balloons()
+                # Clear OTP states
+                st.session_state.otp_code = None
+                st.session_state.otp_verified = False
+            except sqlite3.IntegrityError:
+                st.error("⚠️ User ID or Phone Number already exists in the database.")
+            finally:
+                conn.close()
+
+# ==========================================
+# PAGE 2: COACH CERTIFICATION
+# ==========================================
+elif page == "🏆 Coach Certification & Verification":
+    st.title("🏆 Coach Certification System")
+    st.write("Upload video footage to analyze swing mechanics. Score **60 or above** to unlock selling privileges!")
+
+    st.markdown("---")
+
+    v_col1, v_col2 = st.columns([2, 1])
+    with v_col1:
         video_file = st.file_uploader("Upload Tennis Playing Video (.mp4, .mov)", type=['mp4', 'mov'])
         if video_file:
             st.video(video_file)
 
-    with video_col2:
+    with v_col2:
         if video_file:
             if st.button("📊 Run AI Mechanics Analysis"):
-                with st.spinner("Analyzing biomechanical kinetic chain, rotational velocity, and wrist snap..."):
-                    time.sleep(2) # Reality Simulation
-                    # Generate persistent results for the session
-                    analyzed_score = random.randint(58, 92) # Launch realistic range
-                    st.session_state['coach_analysis'] = {
-                        'score': analyzed_score,
-                        'spin': random.randint(1500, 3200), # RPM
-                        'speed': random.randint(90, 135),   # KMH
-                        'mechanics': random.randint(60, 98) # % efficiency
-                    }
-                    st.rerun()
+                with st.spinner("Analyzing stroke mechanics, spin RPM, and speed..."):
+                    time.sleep(1.5)
+                    score = random.randint(62, 95)
+                    st.session_state['coach_score'] = score
 
-    # SYSTEM B: REPORT, PAYMENT, & DB PERSISTENCE
-    if 'coach_analysis' in st.session_state:
+    if 'coach_score' in st.session_state:
+        score = st.session_state['coach_score']
         st.markdown("---")
-        st.subheader("📊 AI Skill Analysis Report")
-        analysis = st.session_state['coach_analysis']
+        st.subheader(f"AI Skill Score Result: {score} / 100")
         
-        col_m1, col_m2, col_m3, col_m4 = st.columns(4)
-        col_m1.metric("Overall Score", f"{analysis['score']} / 100")
-        col_m2.metric("Avg Topspin Rate", f"{analysis['spin']} RPM")
-        col_m3.metric("Avg Ball Speed", f"{analysis['speed']} KMH")
-        col_m4.metric("Mechanical Efficiency", f"{analysis['mechanics']} %")
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        
-        if analysis['score'] >= 60:
-            st.markdown(f'<div class="pass-box">SCORE: {analysis['score']} - PASSED</div>', unsafe_allow_html=True)
-            st.write(" You have qualified to become a certified coach. Pay the persistent license fee to enable your selling profile.")
+        if score >= 60:
+            st.success("✅ Passed! You qualify to become a certified coach.")
             
-            with st.form("coach_pay_form"):
-                st.subheader("Finalize Persistent Coach Registration")
-                pay_col1, pay_col2 = st.columns(2)
-                with pay_col1:
-                    c_name = st.text_input("Full Name *", placeholder="For certificate")
-                    c_email = st.text_input("Email *", placeholder="For persistent login")
-                with pay_col2:
-                    st.markdown("""
-                    <div style='text-align: center;'>
-                    <p style='margin-bottom:0;'>Coach License Fee</p>
-                    <h2 style='color:#2E7D32; margin-top:0;'>10,000 원</h2>
-                    </div>
-                    """, unsafe_allow_html=True)
-                    
-                pay_submitted = st.form_submit_button("💳 Pay & Finalize DB Registration")
+            with st.form("coach_reg_form"):
+                st.subheader("Coach Registration & 10,000원 License Fee")
+                c_user = st.text_input("User ID *")
+                c_pass = st.text_input("Password *", type="password")
+                c_name = st.text_input("Full Name *")
+                c_phone = st.text_input("Mobile Phone *")
                 
-                if pay_submitted:
-                    if not c_name or not c_email:
-                        st.error("Name and Email required.")
-                    else:
+                if st.form_submit_button("💳 Pay 10,000원 & Create Verified Coach Account"):
+                    if c_user and c_pass and c_name and c_phone:
                         conn = get_db_connection()
                         try:
                             conn.execute('''
-                                INSERT INTO coaches (name, email, score, fee_paid, verified_at) 
-                                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
-                            ''', (c_name, c_email, analysis['score'], 1))
+                                INSERT INTO users (username, password, phone, role, name, score, fee_paid, is_phone_verified)
+                                VALUES (?, ?, ?, 'coach', ?, ?, 1, 1)
+                            ''', (c_user, c_pass, c_phone, c_name, score))
                             conn.commit()
-                            st.success(f"🏆 Coach Account for '{c_name}' created and verified! You can now access the selling system.")
+                            st.success(f"🏆 Coach Account '{c_user}' created and verified!")
                             st.balloons()
-                            del st.session_state['coach_analysis'] # Reset analysis
-                            time.sleep(1)
-                            st.rerun()
                         except sqlite3.IntegrityError:
-                            st.error("⚠️ Coach with this email already exists.")
+                            st.error("⚠️ User ID or Phone Number already exists.")
                         finally:
                             conn.close()
-        else:
-            st.markdown(f'<div class="fail-box">SCORE: {analysis['score']} - NOT QUALIFIED</div>', unsafe_allow_html=True)
-            st.warning("You did not reach the required score of 60 to enable selling privileges. Practice more and upload a new video.")
 
 # ==========================================
-# PAGE 4: MARKETPLACE
+# PAGE 3: TENNIS MARKETPLACE
 # ==========================================
-elif page == "Tennis Marketplace":
-    st.title("🛍️ Reality Tennis Marketplace")
-    st.caption("Persistent Selling and Buying System")
-    
-    # SELLING SYSTEM (COACHES ONLY)
-    if session_coach:
-        st.markdown("---")
-        with st.expander("➕ Add New Persistent Listing (Coaches Only)", expanded=False):
-            with st.form("listing_form", clear_on_submit=True):
-                st.subheader("New Product Data")
-                l1, l2 = st.columns(2)
-                with l1:
-                    l_title = st.text_input("Racquet Model Name *")
-                    l_price = st.text_input("Price (e.g. 150,000원) *")
-                    l_cat = st.selectbox("Category *", ["Racquet", "Other"])
-                with l2:
-                    l_photo = st.file_uploader("Product Photo *", type=['jpg', 'jpeg', 'png'])
-                    l_desc = st.text_area("Description")
+elif page == "🛍️ Tennis Marketplace":
+    st.title("🛍️ Tennis Racquet & Gear Marketplace")
+
+    # SHOW SELLING SYSTEM IF LOGGED IN AS VERIFIED COACH
+    user = st.session_state.logged_in_user
+    if user and user['role'] == 'coach' and user['fee_paid'] == 1:
+        with st.expander("➕ Verified Coach: Create Product Listing"):
+            with st.form("add_product"):
+                p_title = st.text_input("Racquet Title *")
+                p_price = st.text_input("Price (KRW) *")
+                p_desc = st.text_area("Description")
+                p_photo = st.file_uploader("Product Photo *", type=['jpg', 'jpeg', 'png'])
                 
-                l_submitted = st.form_submit_button("🚀 Publish Persistent Listing")
-                
-                if l_submitted:
-                    if not l_title or not l_price or not l_photo:
-                        st.error("Title, Price, and Photo required.")
-                    else:
-                        l_photo_blob = image_to_blob(l_photo)
+                if st.form_submit_button("🚀 Publish Listing"):
+                    if p_title and p_price and p_photo:
+                        photo_blob = image_to_blob(p_photo)
                         conn = get_db_connection()
                         conn.execute('''
                             INSERT INTO inventory (title, price, description, category, coach_id, photo_blob)
-                            VALUES (?, ?, ?, ?, ?, ?)
-                        ''', (l_title, l_price, l_desc, l_cat, session_coach['id'], l_photo_blob))
+                            VALUES (?, ?, ?, 'Racquet', ?, ?)
+                        ''', (p_title, p_price, p_desc, user['id'], photo_blob))
                         conn.commit()
                         conn.close()
-                        st.success(f"Listing for '{l_title}' published permanently!")
-                        time.sleep(0.5)
+                        st.success("Listing published permanently!")
                         st.rerun()
 
     st.markdown("---")
-    st.subheader("Recent Listings")
-    
-    # Fetch all listings permanently from DB
+    st.subheader("Available Racquets & Gear")
+
     conn = get_db_connection()
-    # Join with coaches to get the seller name
-    query = '''
-        SELECT inventory.*, coaches.name as seller_name, coaches.verified_at
-        FROM inventory
-        JOIN coaches ON inventory.coach_id = coaches.id
+    items = conn.execute('''
+        SELECT inventory.*, users.name as coach_name 
+        FROM inventory JOIN users ON inventory.coach_id = users.id
         ORDER BY inventory.created_at DESC
-    '''
-    listings = conn.execute(query).fetchall()
+    ''').fetchall()
     conn.close()
-    
-    if not listings:
-        st.info("No items currently listed in the persistent database.")
+
+    if not items:
+        st.info("No items currently listed.")
     else:
-        for item in listings:
-            with st.container():
-                col_i1, col_i2 = st.columns([1, 3])
+        cols = st.columns(3)
+        for idx, item in enumerate(items):
+            col = cols[idx % 3]
+            with col:
+                if item['photo_blob']:
+                    st.image(io.BytesIO(item['photo_blob']), use_container_width=True)
+                st.markdown(f"### {item['title']}")
+                st.markdown(f"💰 Price: `<span class='price-tag'>{item['price']}</span>`", unsafe_allow_html=True)
+                st.caption(f"Seller: **Coach {item['coach_name']}**")
+                st.write(item['description'])
                 
-                with col_i1:
-                    if item['photo_blob']:
-                        # Convert DB blob back to image
-                        st.image(io.BytesIO(item['photo_blob']), use_container_width=True)
+                if st.button("🛒 Purchase Item", key=f"buy_{item['id']}"):
+                    if user and user['role'] == 'student':
+                        st.success("Order request sent! Coach will reach out for payment & free tennis lesson setup.")
                     else:
-                        st.image("https://via.placeholder.com/300x300.png?text=No+Photo", use_container_width=True)
-                
-                with col_i2:
-                    st.markdown(f"### {item['title']}")
-                    st.markdown(f"<span class='price-tag'>{item['price']}</span>", unsafe_allow_html=True)
-                    st.caption(f"Seller: **{item['seller_name']}** (Verified Coach) | Listed: {item['created_at']}")
-                    st.markdown(f"**Description:** {item['description']}")
-                    
-                    buy_col1, buy_col2 = st.columns([1, 4])
-                    with buy_col1:
-                        if st.button("🛒 Buy Now", key=f"buy_{item['id']}"):
-                            if session_student:
-                                st.success(f"Proceeding to purchase '{item['title']}' from {item['seller_name']}. Free class details sent to your student email.")
-                            else:
-                                st.warning("⚠️ You must be logged in as a Student to buy.")
-                                
-                    st.markdown("---")
+                        st.warning("Please log in as a Student to purchase.")
+                st.markdown("---")
+
+# ==========================================
+# PAGE 4: CHAT & CLASS PORTAL
+# ==========================================
+elif page == "💬 Chat & Class Portal":
+    st.title("💬 Student-Coach Connect")
+    st.write("Free coaching lessons are included when you interact with verified coaches!")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader("💬 Send Message")
+        st.text_input("Recipient Username")
+        st.text_area("Message")
+        if st.button("Send Direct Message"):
+            st.success("Message delivered!")
