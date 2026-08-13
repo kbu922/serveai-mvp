@@ -7,7 +7,7 @@ import streamlit as st
 # 0. PAGE CONFIG & THEME STYLING
 # ==========================================
 st.set_page_config(
-    page_title="Tennis AI Gear & Instant Dress Generator",
+    page_title="Tennis AI Gear & Studio Lookbook Generator",
     page_icon="🎾",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -75,43 +75,51 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Helper function to generate instant AI images dynamically via Pollinations AI API
-def get_ai_image_url(prompt: str, seed: int = None) -> str:
+# Helper function with HIGH-ELEGANCE / BEAUTIFUL MODEL photo parameters
+def get_beautiful_ai_image(prompt_details: str, seed: int = None) -> str:
     if seed is None:
         seed = random.randint(1000, 99999)
-    encoded_prompt = urllib.parse.quote(prompt)
+    
+    # Enhanced quality modifiers for flawless, beautiful, editorial aesthetics
+    quality_modifiers = (
+        ", breathtakingly beautiful gorgeous athletic female model, perfect face features, "
+        "fashion editorial photography, shot on 85mm lens, f1.4 bokeh background, golden hour natural light, "
+        "high fashion magazine cover quality, elegant pose on luxury tennis court, ultra clear focus, 8k resolution"
+    )
+    full_prompt = prompt_details + quality_modifiers
+    encoded_prompt = urllib.parse.quote(full_prompt)
     return f"https://image.pollinations.ai/prompt/{encoded_prompt}?seed={seed}&width=600&height=800&nologo=true"
 
-# Initialize Session State Seed to control refresh
+# Initialize Session State Seed
 if "img_seed" not in st.session_state:
-    st.session_state.img_seed = random.randint(100, 9999)
+    st.session_state.img_seed = random.randint(1000, 9999)
 
 # ==========================================
 # 1. HEADER SECTION
 # ==========================================
-st.title("🎾 AI Tennis Gear & Instant Apparel Generator")
-st.caption("Upload your footage to calculate swing diagnostics, view top racquets, and instantly synthesize dynamic AI visuals of tennis dresses.")
+st.title("🎾 AI Tennis Gear & High-Fashion Lookbook Generator")
+st.caption("Upload your performance video for swing analytics, top-selling racquet matching, and luxury studio-grade AI apparel rendering.")
 
 st.markdown("---")
 
 # ==========================================
 # 2. SIDEBAR CONFIGURATION
 # ==========================================
-st.sidebar.header("⚙️ Style & Player Profile")
+st.sidebar.header("⚙️ Style & Aesthetic Profile")
 gender = st.sidebar.selectbox("Apparel Line", ["Women's Performance Line", "Men's / Unisex Activewear"])
-design_vibe = st.sidebar.selectbox("Preferred Aesthetic Vibe", [
-    "Classic Court Heritage", 
-    "Sleek Modern Minimalist", 
-    "High-Tech Athletic Pro"
+design_vibe = st.sidebar.selectbox("Preferred Style Concept", [
+    "High-Fashion Luxury Heritage", 
+    "Sleek Ultra-Modern Minimalist", 
+    "Chic Court Couture"
 ])
-dress_color = st.sidebar.selectbox("Dress Primary Color", ["Pure White", "Pastel Mint", "Navy Blue", "Crimson Red", "Neon Yellow"])
+dress_color = st.sidebar.selectbox("Primary Palette", ["Crisp Pure White", "Pastel Soft Mint", "Midnight Navy", "Champagne Gold", "Ruby Red"])
 
-if st.sidebar.button("🔄 Generate New AI Photos"):
-    st.session_state.img_seed = random.randint(1000, 99999)
-    st.toast("✨ Generating fresh AI outfit renders...")
+if st.sidebar.button("✨ Generate Stunning New AI Photos"):
+    st.session_state.img_seed = random.randint(10000, 99999)
+    st.toast("✨ Synthesizing new high-fashion photo renders...")
 
 st.sidebar.markdown("---")
-st.sidebar.info("💡 **Instant Generation Engine**: Uses real-time prompt rendering to generate custom tennis dress models on demand.")
+st.sidebar.info("📸 **Studio Rendering Engine**: Generates 85mm portrait-grade editorial shots with natural studio lighting.")
 
 # ==========================================
 # 3. VIDEO UPLOAD & ANALYZER SECTION
@@ -121,21 +129,21 @@ col_up, col_prev = st.columns([1, 1])
 with col_up:
     st.subheader("📹 1. Upload Performance Footage")
     uploaded_video = st.file_uploader("Upload video file (.mp4, .mov)", type=["mp4", "mov"])
-    analyze_btn = st.button("🚀 Analyze Motion & Generate Instant AI Lookbook")
+    analyze_btn = st.button("🚀 Analyze Motion & Render High-Fashion Lookbook")
 
 with col_prev:
     st.subheader("👁️ Video Analysis Preview")
     if uploaded_video:
         st.video(uploaded_video)
     else:
-        st.info("Upload a video to trigger swing telemetry and AI dress design synthesis.")
+        st.info("Upload a video to trigger motion diagnostics and AI fashion photography.")
 
 # ==========================================
 # 4. ANALYSIS & RECOMMENDATION ENGINE
 # ==========================================
 if uploaded_video or analyze_btn:
-    with st.spinner("Generating instant AI photo renders and analyzing swing biomechanics..."):
-        time.sleep(1.0) # Processing buffer
+    with st.spinner("Rendering high-fashion AI photography and running motion diagnostics..."):
+        time.sleep(1.0)
         
         st.markdown("---")
         st.subheader("📊 AI Calculated Diagnostics")
@@ -143,15 +151,15 @@ if uploaded_video or analyze_btn:
         # Metric Banner
         m1, m2, m3, m4 = st.columns(4)
         m1.metric("Est. Swing Speed", "88 mph", "+5 mph vs avg")
-        m2.metric("Court Coverage", "14.2 m/sec", "High Agility")
+        m2.metric("Court Mobility", "14.2 m/sec", "High Agility")
         m3.metric("Movement Profile", "Aggressive Baseline", "Full Motion Scope")
         m4.metric("Recommended Tension", "52 lbs", "Hybrid Setup")
 
         st.write("")
         st.markdown("### 🎾 Top 3 Selling Racquets & Instant Buy Options")
-        st.caption("Matched based on calculated acceleration and impact stability")
+        st.caption("Matched based on calculated acceleration and frame feedback")
 
-        # Top 3 Racquet Options with Buy Buttons
+        # Top 3 Racquet Options
         r_col1, r_col2, r_col3 = st.columns(3)
 
         # RACQUET 1: Wilson Clash 100 v3
@@ -215,99 +223,98 @@ if uploaded_video or analyze_btn:
                     st.toast("⚙️ Opening custom stringing setup for Head Radical...")
 
         st.markdown("---")
-        st.subheader("👗 Dynamic AI Image Generation: 3 Tennis Dress Designs")
-        st.caption("Generated in real-time based on your preferred color, vibe, and motion profile.")
+        st.subheader("👗 High-Fashion Editorial Lookbook: 3 Luxury Dress Designs")
+        st.caption("Studio-rendered visuals of elegant tennis couture tailored for optimal movement and style.")
 
         d_col1, d_col2, d_col3 = st.columns(3)
-
         base_seed = st.session_state.img_seed
 
-        # PROMPT 1: Classic Pleated Heritage
-        prompt_1 = f"photorealistic full length photo of athletic female tennis player wearing a {dress_color} classic heritage pleated tennis dress, standing on outdoor tennis court, professional athletic lighting, high resolution fashion editorial style"
-        url_1 = get_ai_image_url(prompt_1, seed=base_seed)
+        # PROMPT 1: Luxury Pleated Heritage
+        prompt_1 = f"photorealistic fashion editorial photo of stunning gorgeous female tennis model wearing a luxury {dress_color} designer pleated tennis dress with subtle golden trim"
+        url_1 = get_beautiful_ai_image(prompt_1, seed=base_seed)
 
-        # PROMPT 2: Modern Minimalist
-        prompt_2 = f"photorealistic full length photo of athletic female tennis player wearing a modern sleek {dress_color} tight fit seamless dynamic tennis dress, holding racket, sunny tennis court, photorealistic 8k detail"
-        url_2 = get_ai_image_url(prompt_2, seed=base_seed + 10)
+        # PROMPT 2: Sleek Contour Couture
+        prompt_2 = f"photorealistic Vogue magazine portrait of beautiful elegant female tennis player wearing a sleek fitted {dress_color} modern high neck tennis dress, graceful holding tennis racket"
+        url_2 = get_beautiful_ai_image(prompt_2, seed=base_seed + 15)
 
-        # PROMPT 3: Racerback Performance
-        prompt_3 = f"photorealistic action shot of female tennis player serving on court, wearing a high-performance {dress_color} cutout racerback tennis dress, high speed sports camera photography"
-        url_3 = get_ai_image_url(prompt_3, seed=base_seed + 20)
+        # PROMPT 3: Graceful Active Performance
+        prompt_3 = f"full length photorealistic action portrait of an attractive female tennis athlete wearing a beautiful {dress_color} racerback luxury tennis dress, sun flare, serene tennis club court background"
+        url_3 = get_beautiful_ai_image(prompt_3, seed=base_seed + 30)
 
         # DESIGN 1
         with d_col1:
-            st.image(url_1, use_container_width=True, caption="Instant AI Render: Classic Pleated Heritage")
+            st.image(url_1, use_container_width=True, caption="Studio Lookbook: Heritage Pleated Luxury")
             st.markdown("""
             <div class="dress-card-container">
                 <div class="dress-card-content">
-                    <span class="badge-design">Design 1 • Heritage Pleated</span>
-                    <h4 style="margin-top:10px;">The Grand Slam Pleat Dress</h4>
-                    <p style="font-size:13px; color:#555;">Classic pleated flare skirt designed for high agility baseline movement and maximum court coverage elegance.</p>
+                    <span class="badge-design">Design 1 • Heritage Couture</span>
+                    <h4 style="margin-top:10px;">The Royal Court Pleated Dress</h4>
+                    <p style="font-size:13px; color:#555;">Graceful knife-pleated flare silhouette inspired by classic Grand Slam elegance and refined craftsmanship.</p>
                     <hr>
                     <p style="font-size:13px; margin-bottom:4px;"><strong>Silhouette:</strong> Pleated A-Line Cut</p>
-                    <p style="font-size:13px; margin-bottom:0;"><strong>Fabric Tech:</strong> AeroDry Breathable Weave</p>
+                    <p style="font-size:13px; margin-bottom:0;"><strong>Fabric Tech:</strong> AeroDry Breathable Silk-Knit</p>
                 </div>
             </div>
             """, unsafe_allow_html=True)
             
             d1_btn1, d1_btn2 = st.columns(2)
             with d1_btn1:
-                if st.button("🛒 Buy Style 1 ($115)", key="buy_d1"):
-                    st.toast("🛒 Added Classic Pleated Dress to cart!")
+                if st.button("🛒 Buy Style 1 ($145)", key="buy_d1"):
+                    st.toast("🛒 Added Heritage Pleated Dress to cart!")
             with d1_btn2:
-                if st.button("⚡ Regenerate", key="regen_d1"):
+                if st.button("⚡ New Photo", key="regen_d1"):
                     st.session_state.img_seed += 1
                     st.rerun()
 
         # DESIGN 2
         with d_col2:
-            st.image(url_2, use_container_width=True, caption="Instant AI Render: Modern Minimalist Contour")
+            st.image(url_2, use_container_width=True, caption="Studio Lookbook: Sleek Contour Minimalist")
             st.markdown("""
             <div class="dress-card-container">
                 <div class="dress-card-content">
                     <span class="badge-design">Design 2 • Modern Minimalist</span>
-                    <h4 style="margin-top:10px;">The Contour Aerodynamic Dress</h4>
-                    <p style="font-size:13px; color:#555;">Sleek zero-friction bonded design offering streamlined movement and maximum freedom on active serves.</p>
+                    <h4 style="margin-top:10px;">The Riviera Contour Dress</h4>
+                    <p style="font-size:13px; color:#555;">An ultra-sleek, zero-friction sculpt design offering soft compression and high motion agility on serves.</p>
                     <hr>
-                    <p style="font-size:13px; margin-bottom:4px;"><strong>Silhouette:</strong> Streamlined Bodycon</p>
-                    <p style="font-size:13px; margin-bottom:0;"><strong>Fabric Tech:</strong> 4-Way Stretch Compression</p>
+                    <p style="font-size:13px; margin-bottom:4px;"><strong>Silhouette:</strong> Sculpted Bodycon</p>
+                    <p style="font-size:13px; margin-bottom:0;"><strong>Fabric Tech:</strong> 4-Way Luxe Compression</p>
                 </div>
             </div>
             """, unsafe_allow_html=True)
             
             d2_btn1, d2_btn2 = st.columns(2)
             with d2_btn1:
-                if st.button("🛒 Buy Style 2 ($125)", key="buy_d2"):
-                    st.toast("🛒 Added Modern Seamless Dress to cart!")
+                if st.button("🛒 Buy Style 2 ($155)", key="buy_d2"):
+                    st.toast("🛒 Added Modern Minimalist Dress to cart!")
             with d2_btn2:
-                if st.button("⚡ Regenerate", key="regen_d2"):
+                if st.button("⚡ New Photo", key="regen_d2"):
                     st.session_state.img_seed += 2
                     st.rerun()
 
         # DESIGN 3
         with d_col3:
-            st.image(url_3, use_container_width=True, caption="Instant AI Render: Dynamic Racerback Performance")
+            st.image(url_3, use_container_width=True, caption="Studio Lookbook: High-Tech Racerback Pro")
             st.markdown("""
             <div class="dress-card-container">
                 <div class="dress-card-content">
                     <span class="badge-design">Design 3 • High-Tech Racerback</span>
-                    <h4 style="margin-top:10px;">The Pro-Velocity Racerback</h4>
-                    <p style="font-size:13px; color:#555;">High-ventilation cutout back design built for intense competitive play in warm outdoor climates.</p>
+                    <h4 style="margin-top:10px;">The Monaco Pro Racerback</h4>
+                    <p style="font-size:13px; color:#555;">High-ventilation keyhole back design engineered for maximum mobility, cooling, and competitive flare.</p>
                     <hr>
                     <p style="font-size:13px; margin-bottom:4px;"><strong>Silhouette:</strong> Ergonomic Cutout Back</p>
-                    <p style="font-size:13px; margin-bottom:0;"><strong>Fabric Tech:</strong> HyperVent Cool-Touch</p>
+                    <p style="font-size:13px; margin-bottom:0;"><strong>Fabric Tech:</strong> HyperVent Micro-Grid</p>
                 </div>
             </div>
             """, unsafe_allow_html=True)
             
             d3_btn1, d3_btn2 = st.columns(2)
             with d3_btn1:
-                if st.button("🛒 Buy Style 3 ($110)", key="buy_d3"):
-                    st.toast("🛒 Added Racerback Performance Dress to cart!")
+                if st.button("🛒 Buy Style 3 ($135)", key="buy_d3"):
+                    st.toast("🛒 Added Racerback Pro Dress to cart!")
             with d3_btn2:
-                if st.button("⚡ Regenerate", key="regen_d3"):
+                if st.button("⚡ New Photo", key="regen_d3"):
                     st.session_state.img_seed += 3
                     st.rerun()
 
         st.markdown("---")
-        st.success("✨ **Instant Image Generation Active**: Clicking **'⚡ Regenerate'** or changing the primary color in the sidebar generates brand-new photo renders in real time.")
+        st.success("✨ **Editorial Quality Active**: Click **'⚡ New Photo'** on any item to re-render fresh model shots in real time.")
