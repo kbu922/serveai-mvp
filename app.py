@@ -7,7 +7,7 @@ import streamlit as st
 # 0. PAGE CONFIG & GLOBAL THEME
 # ==========================================
 st.set_page_config(
-    page_title="Free Tennis Academy & Karrot Marketplace",
+    page_title="Free Tennis Academy & Second-Hand Market",
     page_icon="🎾",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -80,11 +80,11 @@ st.markdown("""
         font-size: 14px;
         border: 1px solid #A2CC00;
     }
-    .karrot-badge {
-        background-color: #FF6F00;
+    .location-badge {
+        background-color: #2D6A4F;
         color: white;
-        padding: 2px 8px;
-        border-radius: 4px;
+        padding: 3px 10px;
+        border-radius: 6px;
         font-weight: bold;
         font-size: 12px;
     }
@@ -159,7 +159,7 @@ app_mode = st.sidebar.radio(
         "🏆 Register as a Coach (AI Assessment)", 
         "🎾 Register as a Student (Free Lessons)", 
         "📋 Community Directory & Ball Leaderboard",
-        "🥕 당근 Second-Hand Tennis Market"
+        "🛍️ Neighborhood Second-Hand Market"
     ]
 )
 
@@ -341,16 +341,16 @@ elif app_mode == "📋 Community Directory & Ball Leaderboard":
                     st.markdown("---")
 
 # ==========================================
-# SECTION 4: 🥕 당근 SECOND-HAND MARKETPLACE
+# SECTION 4: 🛍️ NEIGHBORHOOD SECOND-HAND MARKETPLACE
 # ==========================================
-elif app_mode == "🥕 당근 Second-Hand Tennis Market":
-    st.title("🥕 당근 Tennis Second-Hand Market")
-    st.caption("Buy and sell pre-owned tennis racquets, shoes, dresses, and gear directly with players & coaches in your neighborhood!")
+elif app_mode == "🛍️ Neighborhood Second-Hand Market":
+    st.title("🛍️ Neighborhood Tennis Second-Hand Market")
+    st.caption("Buy and sell pre-owned tennis racquets, shoes, dresses, and gear directly with players & coaches in your area!")
 
     st.markdown("---")
 
     # EXPANDER TO POST A NEW ITEM
-    with st.expander("➕ Sell Your Second-Hand Gear (Create Listing)"):
+    with st.expander("➕ Sell Your Pre-Owned Gear (Create Listing)"):
         with st.form("sell_item_form"):
             p1, p2 = st.columns(2)
             with p1:
@@ -367,7 +367,6 @@ elif app_mode == "🥕 당근 Second-Hand Tennis Market":
 
             if st.form_submit_button("🚀 Post Item to Market"):
                 if item_title and item_price and item_loc and seller_name:
-                    # Default placeholder if user didn't upload photo
                     img_url = "https://images.unsplash.com/photo-1617083934555-ac7d4fed8824?w=500"
                     if item_photo:
                         img_url = item_photo
@@ -383,12 +382,12 @@ elif app_mode == "🥕 당근 Second-Hand Tennis Market":
                         "image": img_url
                     }
                     st.session_state.marketplace_items.insert(0, new_item)
-                    st.success("🥕 Item successfully listed on the 당근 Tennis Market!")
+                    st.success("🎉 Item successfully listed on the Second-Hand Tennis Market!")
                     st.rerun()
                 else:
                     st.error("Please fill in all required fields (*).")
 
-    st.markdown("### 🛍️ Recent Second-Hand Listings Nearby")
+    st.markdown("### 🛍️ Recent Pre-Owned Listings Nearby")
 
     # CATEGORY FILTER
     cat_filter = st.radio("Filter Category:", ["All Gear", "Racquet", "Shoes", "Dress/Outfit", "Bags/Accessories"], horizontal=True)
@@ -407,7 +406,7 @@ elif app_mode == "🥕 당근 Second-Hand Tennis Market":
         with col:
             with st.container():
                 st.image(item["image"], use_container_width=True)
-                st.markdown(f"<span class='karrot-badge'>📍 {item['location']}</span>", unsafe_allow_html=True)
+                st.markdown(f"<span class='location-badge'>📍 {item['location']}</span>", unsafe_allow_html=True)
                 st.markdown(f"#### {item['title']}")
                 st.markdown(f"💰 **Price**: `{item['price']}`")
                 st.caption(f"✨ Condition: **{item['condition']}** | Seller: **{item['seller']}**")
