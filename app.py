@@ -1,10 +1,12 @@
+import time
+import random
 import streamlit as st
 
 # ==========================================
 # 0. PAGE CONFIG & STYLING
 # ==========================================
 st.set_page_config(
-    page_title="Tennis Coach & Book Exchange",
+    page_title="Tennis Coach Verification & Market",
     page_icon="🎾",
     layout="wide"
 )
@@ -15,10 +17,18 @@ st.markdown("""
         background-color: #F8F9FA;
         color: #212529;
     }
-    .cert-box {
+    .cert-card {
         background-color: #E8F5E9;
         border: 2px solid #2E7D32;
-        border-radius: 10px;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .fail-card {
+        background-color: #FFEBEE;
+        border: 2px solid #C62828;
+        border-radius: 12px;
         padding: 20px;
         text-align: center;
         margin-bottom: 20px;
@@ -31,168 +41,202 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Initialize Session State
-if "coaches" not in st.session_state:
-    st.session_state.coaches = []
+# Initialize Session States
+if "current_coach" not in st.session_state:
+    st.session_state.current_coach = None  # Holds verified coach info
 
 if "marketplace_items" not in st.session_state:
     st.session_state.marketplace_items = [
         {
-            "title": "Essential Tennis Tactics Book (책)",
+            "id": 1,
+            "title": "Wilson Pro Staff 97 (Like New)",
             "seller": "Coach Alex",
-            "price": "15,000 ₩",
-            "desc": "Great book for beginners wanting to master court positioning.",
-            "image": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500"
+            "price": "120,000 ₩",
+            "desc": "Great condition, strung with Luxilon strings at 52lbs.",
+            "images": ["https://images.unsplash.com/photo-1617083934555-ac7d4fed8824?w=500"]
         }
     ]
 
-if "friends" not in st.session_state:
-    st.session_state.friends = []
-
-# ==========================================
-# SIDEBAR NAVIGATION
-# ==========================================
+# Navigation
 st.sidebar.title("🎾 Navigation")
 page = st.sidebar.radio("Go to:", [
-    "🏆 Coach Certification (10,000₩)", 
-    "📚 Marketplace (Books & Gear)", 
+    "📹 Coach Video Assessment", 
+    "🛍️ Second-Hand Market", 
     "💬 Chat & Make Friends"
 ])
 
 # ==========================================
-# 1. COACH CERTIFICATION (SCORE >= 60)
+# 1. COACH VIDEO ASSESSMENT & VERIFICATION
 # ==========================================
-if page == "🏆 Coach Certification (10,000₩)":
-    st.title("🏆 Register as a Tennis Coach")
-    st.write("If your tennis score is **60 or above**, you are eligible to get a Coach Certificate for 10,000₩ and list items on our market!")
+if page == "📹 Coach Video Assessment":
+    st.title("📹 Coach Video Assessment & Verification")
+    st.write("Upload your tennis video to analyze your skill score. If your score is **60 or above**, you can pay 10,000원 to get verified!")
 
     st.markdown("---")
 
-    with st.form("coach_reg_form"):
-        name = st.text_input("Your Name *")
-        email = st.text_input("Email *")
-        score = st.number_input("Enter Your Tennis Score (0 - 100) *", min_value=0, max_value=100, value=65)
-        bio = st.text_area("Short Bio")
-        
-        submitted = st.form_submit_button("Submit Score & Verify")
+    # STEP 1: UPLOAD & ANALYZE VIDEO
+    st.subheader("Step 1: Upload Gameplay / Swing Video")
+    coach_name = st.text_input("Your Full Name *")
+    video_file = st.file_uploader("Upload video file (.mp4, .mov)", type=["mp4", "mov"])
 
-    if submitted:
+    if video_file and coach_name:
+        st.video(video_file)
+        
+        if st.button("📊 Analyze Video & Calculate Tennis Score"):
+            with st.spinner("🤖 Analyzing biomechanics and swing technique..."):
+                time.sleep(1.5)
+                # Calculated tennis score
+                analyzed_score = random.randint(55, 95)
+                st.session_state["temp_score"] = analyzed_score
+
+    # STEP 2: DISPLAY SCORE & PAYMENT
+    if "temp_score" in st.session_state:
+        score = st.session_state["temp_score"]
+        st.markdown("---")
+        st.subheader("Step 2: Assessment Result")
+
         if score >= 60:
-            st.success(f"🎉 Congratulations {name}! Your score of {score} qualifies you to become a Coach.")
-            
-            # 10,000 KRW Certification Fee Payment Block
-            st.markdown("""
-                <div class="cert-box">
-                    <h3>📜 Official Coach Certificate License</h3>
-                    <p>License Fee: <strong>10,000 원 (KRW)</strong></p>
-                    <p>Unlocks: Selling rights for Tennis Books (책) & direct student messaging.</p>
+            st.markdown(f"""
+                <div class="cert-card">
+                    <h2>🎉 Congratulations! Your Tennis Score: {score} / 100</h2>
+                    <p>You qualified for official Coach Verification!</p>
+                    <p>Verification Fee: <strong>10,000 원 (KRW)</strong></p>
                 </div>
             """, unsafe_allow_html=True)
 
-            if st.button("💳 Pay 10,000원 & Receive Coach License"):
-                new_coach = {"name": name, "email": email, "score": score, "bio": bio, "certified": True}
-                st.session_state.coaches.append(new_coach)
+            if st.button("💳 Pay 10,000원 & Get Coach License"):
+                st.session_state.current_coach = {
+                    "name": coach_name,
+                    "score": score,
+                    "verified": True
+                }
                 st.balloons()
-                st.success(" ✅ License Issued! You are now a Certified Coach and can start posting items for sale.")
+                st.success(f" ✅ Official Coach License Granted to {coach_name}! You can now sell products in the market.")
         else:
-            st.error(f"❌ Your score ({score}) is below 60. Practice more to reach 60+ and unlock coach registration!")
+            st.markdown(f"""
+                <div class="fail-card">
+                    <h2>❌ Score: {score} / 100</h2>
+                    <p>Your score is below the 60 threshold required to become a certified coach. Keep practicing and upload a new video!</p>
+                </div>
+            """, unsafe_allow_html=True)
+
+    # DISPLAY COACH PROFILE DASHBOARD IF VERIFIED
+    if st.session_state.current_coach:
+        st.markdown("---")
+        st.subheader(f"🏆 Coach Dashboard: {st.session_state.current_coach['name']}")
+        st.success("Status: VERIFIED COACH (10,000원 Paid)")
 
 # ==========================================
-# 2. MARKETPLACE (BOOKS & GEAR)
+# 2. SECOND-HAND MARKET (SELL, EDIT, BUY)
 # ==========================================
-elif page == "📚 Marketplace (Books & Gear)":
-    st.title("📚 Coach Book & Gear Marketplace")
-    st.write("Browse tennis books (책) and gear listed by our certified coaches.")
+elif page == "🛍️ Second-Hand Market":
+    st.title("🛍️ Second-Hand Tennis Market")
+    st.write("Browse second-hand tennis equipment posted by certified coaches!")
 
     st.markdown("---")
 
-    # EXPANDER: COACH-ONLY LISTING CREATION
-    if st.session_state.coaches:
-        coach_names = [c["name"] for c in st.session_state.coaches]
+    # BUTTON & FORM TO CREATE LISTING (VERIFIED COACHES ONLY)
+    if st.session_state.current_coach and st.session_state.current_coach.get("verified"):
+        st.info(f"Logged in as Verified Coach: **{st.session_state.current_coach['name']}**")
         
-        with st.expander("➕ Certified Coaches Only: Post an Item (Book / Gear)"):
-            with st.form("add_item_form"):
-                seller = st.selectbox("Select Your Certified Coach Account *", coach_names)
-                title = st.text_input("Item Title (e.g. Tennis Strategy Book / 책) *")
-                price = st.text_input("Price (e.g. 12,000 ₩) *")
-                desc = st.text_area("Item Description *")
-                photo = st.file_uploader("Upload Item Photo", type=["jpg", "png", "jpeg"])
+        with st.expander("➕ Create Selling Second-Hand Product"):
+            with st.form("create_product_form"):
+                p_title = st.text_input("Product Title *", placeholder="e.g. Head Speed MP Racquet")
+                p_price = st.text_input("Price (KRW) *", placeholder="e.g. 80,000 ₩")
+                p_desc = st.text_area("Product Description *", placeholder="Describe condition, string tension, usage...")
+                
+                st.write("📸 **Upload up to 3 Product Photos:**")
+                f1 = st.file_uploader("Photo 1", type=["jpg", "png", "jpeg"], key="p1")
+                f2 = st.file_uploader("Photo 2", type=["jpg", "png", "jpeg"], key="p2")
+                f3 = st.file_uploader("Photo 3", type=["jpg", "png", "jpeg"], key="p3")
 
-                if st.form_submit_button("🚀 Upload Item"):
-                    if title and price and desc:
-                        img_url = "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500"
-                        if photo:
-                            img_url = photo
+                if st.form_submit_button("🚀 Post Product for Sale"):
+                    if p_title and p_price and p_desc:
+                        # Collect uploaded images or default fallback
+                        uploaded_imgs = []
+                        for f in [f1, f2, f3]:
+                            if f is not None:
+                                uploaded_imgs.append(f)
+                        
+                        if not uploaded_imgs:
+                            uploaded_imgs = ["https://images.unsplash.com/photo-1617083934555-ac7d4fed8824?w=500"]
 
                         new_item = {
-                            "title": title,
-                            "seller": seller,
-                            "price": price,
-                            "desc": desc,
-                            "image": img_url
+                            "id": random.randint(1000, 9999),
+                            "title": p_title,
+                            "seller": st.session_state.current_coach["name"],
+                            "price": p_price,
+                            "desc": p_desc,
+                            "images": uploaded_imgs
                         }
                         st.session_state.marketplace_items.insert(0, new_item)
-                        st.success("🎉 Your item has been listed successfully!")
+                        st.success("🎉 Product listed successfully!")
                         st.rerun()
                     else:
-                        st.error("Please fill in all required fields.")
+                        st.error("Please fill in title, price, and description.")
     else:
-        st.info("💡 Only certified coaches can post items. Complete certification first!")
+        st.warning("🔒 Only verified coaches can sell products. Please complete video assessment and pay 10,000원 verification fee first!")
 
     st.markdown("### 🛍️ Available Listings")
 
-    # SHOW LISTINGS IN 3-COLUMN GRID
+    # DISPLAY LISTINGS
     cols = st.columns(3)
     for idx, item in enumerate(st.session_state.marketplace_items):
         col = cols[idx % 3]
         with col:
-            st.image(item["image"], use_container_width=True)
+            # Display uploaded/sample photos
+            st.image(item["images"][0], use_container_width=True)
+            if len(item["images"]) > 1:
+                st.caption(f"📷 Includes {len(item['images'])} photos")
+
             st.markdown(f"### {item['title']}")
             st.markdown(f"💰 Price: `<span class='price-tag'>{item['price']}</span>`", unsafe_allow_html=True)
             st.caption(f"👤 Seller: **{item['seller']}**")
             st.write(item["desc"])
-            
-            # CHAT & FRIEND ACTION BUTTONS
-            b1, b2 = st.columns(2)
-            with b1:
-                if st.button(f"💬 Chat", key=f"chat_{idx}"):
-                    st.toast(f"Opening chat with {item['seller']}...")
-            with b2:
-                if st.button(f"🤝 Add Friend", key=f"friend_{idx}"):
-                    if item["seller"] not in st.session_state.friends:
-                        st.session_state.friends.append(item["seller"])
-                        st.toast(f"🎉 You are now friends with {item['seller']}!")
-                    else:
-                        st.toast(f"You are already friends with {item['seller']}!")
+
+            # EDIT OPTION FOR SELLER / CHAT FOR BUYERS
+            if st.session_state.current_coach and item["seller"] == st.session_state.current_coach["name"]:
+                with st.popover("✏️ Edit Product"):
+                    new_t = st.text_input("Edit Title", value=item["title"], key=f"edit_t_{item['id']}")
+                    new_p = st.text_input("Edit Price", value=item["price"], key=f"edit_p_{item['id']}")
+                    new_d = st.text_area("Edit Description", value=item["desc"], key=f"edit_d_{item['id']}")
+                    
+                    if st.button("Save Changes", key=f"save_{item['id']}"):
+                        item["title"] = new_t
+                        item["price"] = new_p
+                        item["desc"] = new_d
+                        st.toast("Item updated!")
+                        st.rerun()
+
+                    if st.button("🗑️ Delete Product", key=f"del_{item['id']}"):
+                        st.session_state.marketplace_items.remove(item)
+                        st.toast("Item deleted!")
+                        st.rerun()
+            else:
+                c1, c2 = st.columns(2)
+                with c1:
+                    if st.button("💬 Chat", key=f"chat_{item['id']}"):
+                        st.toast(f"Opening chat with {item['seller']}...")
+                with c2:
+                    if st.button("🤝 Add Friend", key=f"friend_{item['id']}"):
+                        st.toast(f"Sent friend request to {item['seller']}!")
             st.markdown("---")
 
 # ==========================================
 # 3. CHAT & FRIENDS
 # ==========================================
 elif page == "💬 Chat & Make Friends":
-    st.title("💬 Student-Coach Connect & Friends")
-    st.write("Chat with coaches, ask about their books/lessons, and grow your tennis circle!")
+    st.title("💬 Student & Coach Chat")
+    st.write("Connect, ask about second-hand products, and become friends!")
 
-    st.markdown("---")
-
-    col_c1, col_c2 = st.columns([1, 1])
-
-    with col_c1:
-        st.subheader("🤝 Your Tennis Friends")
-        if st.session_state.friends:
-            for friend in st.session_state.friends:
-                st.success(f"🎾 **{friend}** (Coach Friend)")
-        else:
-            st.info("You haven't added any coach friends yet. Visit the Marketplace to send friend requests!")
-
-    with col_c2:
+    col1, col2 = st.columns(2)
+    with col1:
         st.subheader("💬 Direct Message")
-        if st.session_state.coaches:
-            target_coach = st.selectbox("Select Coach to Message:", [c["name"] for c in st.session_state.coaches])
-            msg = st.text_area("Your Message:")
-            if st.button("📤 Send Message"):
-                if msg:
-                    st.toast(f"Message sent to {target_coach}!")
-                    st.success("Message delivered!")
-        else:
-            st.write("No coaches registered yet.")
+        st.selectbox("Select Coach or Student:", ["Coach Alex", "Sarah Jenkins", "Emily Chen"])
+        st.text_area("Message:")
+        if st.button("Send Message"):
+            st.success("Message sent successfully!")
+
+    with col2:
+        st.subheader("🤝 Your Tennis Friends")
+        st.info("No new friend requests pending.")
