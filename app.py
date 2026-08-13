@@ -1,4 +1,3 @@
-import datetime
 import time
 import pandas as pd
 import streamlit as st
@@ -7,7 +6,7 @@ import streamlit as st
 # 0. PAGE CONFIG & THEME STYLING
 # ==========================================
 st.set_page_config(
-    page_title="Tennis AI Equipment & Apparel Matcher",
+    page_title="Tennis AI Gear & Apparel Matcher",
     page_icon="🎾",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -62,19 +61,9 @@ st.markdown("""
     .dress-card-content {
         padding: 18px;
     }
-    .badge-recommend {
+    .badge-design {
         background-color: #1A1918;
         color: #FFFFFF;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-    }
-    .badge-standard {
-        background-color: #E2DDD5;
-        color: #1A1918;
         padding: 4px 10px;
         border-radius: 20px;
         font-size: 11px;
@@ -88,26 +77,25 @@ st.markdown("""
 # ==========================================
 # 1. HEADER SECTION
 # ==========================================
-st.title("🎾 AI Tennis Gear & Visual Dress Matcher")
-st.caption("Upload playing footage for motion analytics, top-selling racquet matching, and 1-click order fulfillment.")
+st.title("🎾 AI Tennis Gear & Apparel Design Matcher")
+st.caption("Upload performance video to analyze biomechanics, choose top-selling racquets, and explore AI-styled tennis dress design concepts.")
 
 st.markdown("---")
 
 # ==========================================
 # 2. SIDEBAR CONFIGURATION
 # ==========================================
-st.sidebar.header("⚙️ Athlete Body Profile")
-gender = st.sidebar.selectbox("Outfit Fitting Line", ["Women's Performance Line", "Men's / Unisex Activewear"])
-height_cm = st.sidebar.number_input("Height (cm)", min_value=140, max_value=210, value=168)
-weight_kg = st.sidebar.number_input("Weight (kg)", min_value=40, max_value=120, value=58)
-style_pref = st.sidebar.selectbox("Preferred Style Cut", [
-    "Aerodynamic Slim Fit", 
-    "Classic Pleated & Balanced", 
-    "Relaxed Motion Cut"
+st.sidebar.header("⚙️ Style & Player Profile")
+gender = st.sidebar.selectbox("Apparel Line", ["Women's Performance Line", "Men's / Unisex Activewear"])
+design_vibe = st.sidebar.selectbox("Preferred Aesthetic Vibe", [
+    "Classic Court Heritage", 
+    "Sleek Modern Minimalist", 
+    "High-Tech Athletic Pro"
 ])
+color_palette = st.sidebar.select_slider("Color Palette", options=["Monochrome", "Pastel Court", "Vibrant Accent"])
 
 st.sidebar.markdown("---")
-st.sidebar.info("💡 **AI Sizing Vector**: Video body tracking calibrates recommended dress frame and torso proportions.")
+st.sidebar.info("💡 **AI Design Vector**: Video pose tracking matches dress swing-skirt silhouettes to your stroke movement patterns.")
 
 # ==========================================
 # 3. VIDEO UPLOAD & ANALYZER SECTION
@@ -117,20 +105,20 @@ col_up, col_prev = st.columns([1, 1])
 with col_up:
     st.subheader("📹 1. Upload Performance Footage")
     uploaded_video = st.file_uploader("Upload video file (.mp4, .mov)", type=["mp4", "mov"])
-    analyze_btn = st.button("🚀 Analyze Motion & Generate AI Outfit Lookbook")
+    analyze_btn = st.button("🚀 Analyze Motion & Match Equipment & Style Design")
 
 with col_prev:
     st.subheader("👁️ Video Analysis Preview")
     if uploaded_video:
         st.video(uploaded_video)
     else:
-        st.info("Upload a video to initialize swing telemetry & AI outfit sizing.")
+        st.info("Upload a video to trigger swing telemetry and AI dress design recommendation.")
 
 # ==========================================
 # 4. ANALYSIS & RECOMMENDATION ENGINE
 # ==========================================
 if uploaded_video or analyze_btn:
-    with st.spinner("Processing computer-vision pose estimation, swing velocity & dress size matching..."):
+    with st.spinner("Analyzing computer-vision swing vectors, mobility range & style recommendations..."):
         time.sleep(1.2) # Simulated processing delay
         
         st.markdown("---")
@@ -139,8 +127,8 @@ if uploaded_video or analyze_btn:
         # Metric Banner
         m1, m2, m3, m4 = st.columns(4)
         m1.metric("Est. Swing Speed", "88 mph", "+5 mph vs avg")
-        m2.metric("Posture Stability", "91%", "Optimal Core Balance")
-        m3.metric("Measured Body Frame", f"{height_cm}cm / {weight_kg}kg", "Athletic Proportions")
+        m2.metric("Court Coverage Radius", "14.2 m/sec", "High Agility")
+        m3.metric("Movement Style", "Aggressive Baseline", "Full Motion Scope")
         m4.metric("Recommended Tension", "52 lbs", "Hybrid Setup")
 
         st.write("")
@@ -211,82 +199,97 @@ if uploaded_video or analyze_btn:
                     st.toast("⚙️ Opening custom stringing setup for Head Radical...")
 
         st.markdown("---")
-        st.subheader("👗 3 AI Tennis Dress Size & Style Visual Recommendations")
-        st.caption(f"Visualized for profile height: **{height_cm} cm** | weight: **{weight_kg} kg**")
+        st.subheader("👗 3 AI Tennis Dress Design & Style Visual Recommendations")
+        st.caption("AI-selected silhouette styles tailored to match court movement and aesthetics")
 
         d_col1, d_col2, d_col3 = st.columns(3)
 
-        # AI Photo Dress 1
+        # DESIGN 1: Classic Pleated Heritage
         with d_col1:
             st.image(
                 "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=600&q=80",
                 use_container_width=True,
-                caption="AI Model Preview: Size Small Fit Profile"
+                caption="AI Lookbook: Style 1 • Classic Pleated Heritage"
             )
             st.markdown("""
             <div class="dress-card-container">
                 <div class="dress-card-content">
-                    <span class="badge-standard">Option 1 • Size S</span>
-                    <h4 style="margin-top:10px;">Pro Match Aerodynamic Cut</h4>
-                    <p style="font-size:13px; color:#555;">Snug contouring for high-speed dynamic movements with minimal air resistance.</p>
+                    <span class="badge-design">Design 1 • Heritage Pleated</span>
+                    <h4 style="margin-top:10px;">The Grand Slam Pleat Dress</h4>
+                    <p style="font-size:13px; color:#555;">A timeless silhouette featuring knife-pleated skirts that flare dynamically during footwork, combined with a breathable polo neck.</p>
                     <hr>
-                    <p style="font-size:13px; margin-bottom:4px;"><strong>Bust / Chest:</strong> 82 - 87 cm</p>
-                    <p style="font-size:13px; margin-bottom:4px;"><strong>Waistline:</strong> 64 - 69 cm</p>
-                    <p style="font-size:13px; margin-bottom:4px;"><strong>Dress Length:</strong> 78 cm</p>
-                    <p style="font-size:13px; margin-bottom:0;"><strong>Fit Type:</strong> Compression / Tight</p>
+                    <p style="font-size:13px; margin-bottom:4px;"><strong>Silhouette:</strong> Fitted Bodice & Box Pleats</p>
+                    <p style="font-size:13px; margin-bottom:4px;"><strong>Fabric Tech:</strong> AeroDry Mesh & UV Protection</p>
+                    <p style="font-size:13px; margin-bottom:0;"><strong>Vibe:</strong> Traditional Elegance / Country Club</p>
                 </div>
             </div>
             """, unsafe_allow_html=True)
-            if st.button("🛍️ Order Size S ($110)", key="buy_dress_s"):
-                st.toast("🛍️ Added Size S Dress to cart!")
+            
+            d1_btn1, d1_btn2 = st.columns(2)
+            with d1_btn1:
+                if st.button("🛒 Buy Style 1 ($115)", key="buy_d1"):
+                    st.toast("🛒 Added Classic Pleated Dress to cart!")
+            with d1_btn2:
+                if st.button("🎨 Custom Color", key="color_d1"):
+                    st.toast("🎨 Opening Color Customizer for Design 1...")
 
-        # AI Photo Dress 2 (Recommended)
+        # DESIGN 2: Modern Seamless Minimalist
         with d_col2:
             st.image(
                 "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80",
                 use_container_width=True,
-                caption="AI Model Preview: Size Medium Recommended Fit"
-            )
-            st.markdown("""
-            <div class="dress-card-container" style="border: 2px solid #1A1918;">
-                <div class="dress-card-content">
-                    <span class="badge-recommend">★ AI Match Choice • Size M</span>
-                    <h4 style="margin-top:10px;">Classic Pleated Performance Dress</h4>
-                    <p style="font-size:13px; color:#555;">Optimal balance of upper torso stretch and skirt flare for unrestricted overhead motion.</p>
-                    <hr>
-                    <p style="font-size:13px; margin-bottom:4px;"><strong>Bust / Chest:</strong> 88 - 93 cm</p>
-                    <p style="font-size:13px; margin-bottom:4px;"><strong>Waistline:</strong> 70 - 75 cm</p>
-                    <p style="font-size:13px; margin-bottom:4px;"><strong>Dress Length:</strong> 80 cm</p>
-                    <p style="font-size:13px; margin-bottom:0;"><strong>Fit Type:</strong> Standard Athletic Fit</p>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            if st.button("🛍️ Order Size M ($110) [Recommended]", key="buy_dress_m"):
-                st.toast("🛍️ Added Recommended Size M Dress to cart!")
-
-        # AI Photo Dress 3
-        with d_col3:
-            st.image(
-                "https://images.unsplash.com/photo-1530549387789-4c1017266635?w=600&q=80",
-                use_container_width=True,
-                caption="AI Model Preview: Size Large Comfort Fit"
+                caption="AI Lookbook: Style 2 • Modern Seamless Cut"
             )
             st.markdown("""
             <div class="dress-card-container">
                 <div class="dress-card-content">
-                    <span class="badge-standard">Option 3 • Size L</span>
-                    <h4 style="margin-top:10px;">Breathe-Motion Relaxed Cut</h4>
-                    <p style="font-size:13px; color:#555;">Generous ventilation and comfortable ease around shoulders for hot climate play.</p>
+                    <span class="badge-design">Design 2 • Modern Minimalist</span>
+                    <h4 style="margin-top:10px;">The Contour Aerodynamic Dress</h4>
+                    <p style="font-size:13px; color:#555;">Ultra-sleek, clean-cut aesthetic with zero-friction bonded seams and a subtle side slit for maximum stride freedom.</p>
                     <hr>
-                    <p style="font-size:13px; margin-bottom:4px;"><strong>Bust / Chest:</strong> 94 - 99 cm</p>
-                    <p style="font-size:13px; margin-bottom:4px;"><strong>Waistline:</strong> 76 - 81 cm</p>
-                    <p style="font-size:13px; margin-bottom:4px;"><strong>Dress Length:</strong> 82 cm</p>
-                    <p style="font-size:13px; margin-bottom:0;"><strong>Fit Type:</strong> Comfort / Relaxed</p>
+                    <p style="font-size:13px; margin-bottom:4px;"><strong>Silhouette:</strong> Streamlined Bodycon A-Line</p>
+                    <p style="font-size:13px; margin-bottom:4px;"><strong>Fabric Tech:</strong> 4-Way Stretch Compression</p>
+                    <p style="font-size:13px; margin-bottom:0;"><strong>Vibe:</strong> Contemporary & High-Fashion</p>
                 </div>
             </div>
             """, unsafe_allow_html=True)
-            if st.button("🛍️ Order Size L ($110)", key="buy_dress_l"):
-                st.toast("🛍️ Added Size L Dress to cart!")
+            
+            d2_btn1, d2_btn2 = st.columns(2)
+            with d2_btn1:
+                if st.button("🛒 Buy Style 2 ($125)", key="buy_d2"):
+                    st.toast("🛒 Added Modern Seamless Dress to cart!")
+            with d2_btn2:
+                if st.button("🎨 Custom Color", key="color_d2"):
+                    st.toast("🎨 Opening Color Customizer for Design 2...")
+
+        # DESIGN 3: Dynamic Racerback Performance
+        with d_col3:
+            st.image(
+                "https://images.unsplash.com/photo-1530549387789-4c1017266635?w=600&q=80",
+                use_container_width=True,
+                caption="AI Lookbook: Style 3 • Racerback Performance Cut"
+            )
+            st.markdown("""
+            <div class="dress-card-container">
+                <div class="dress-card-content">
+                    <span class="badge-design">Design 3 • High-Tech Racerback</span>
+                    <h4 style="margin-top:10px;">The Pro-Velocity Racerback</h4>
+                    <p style="font-size:13px; color:#555;">Engineered for aggressive tournament play with keyhole shoulder cutouts for uninhibited overhead serve motion.</p>
+                    <hr>
+                    <p style="font-size:13px; margin-bottom:4px;"><strong>Silhouette:</strong> Ergonomic Cutout Racerback</p>
+                    <p style="font-size:13px; margin-bottom:4px;"><strong>Fabric Tech:</strong> HyperVent Cool Touch Micro-Knit</p>
+                    <p style="font-size:13px; margin-bottom:0;"><strong>Vibe:</strong> Athletic & Dynamic Performance</p>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            d3_btn1, d3_btn2 = st.columns(2)
+            with d3_btn1:
+                if st.button("🛒 Buy Style 3 ($110)", key="buy_d3"):
+                    st.toast("🛒 Added Racerback Performance Dress to cart!")
+            with d3_btn2:
+                if st.button("🎨 Custom Color", key="color_d3"):
+                    st.toast("🎨 Opening Color Customizer for Design 3...")
 
         st.markdown("---")
-        st.success("✅ **Interactive E-Commerce Enabled**: Clicking any button triggers cart alerts and seamless checkout handling.")
+        st.success("✅ **Design Recommendations Updated**: You can choose any of the 3 dress designs or customize colors directly on the cards.")
