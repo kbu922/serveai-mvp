@@ -63,20 +63,22 @@ st.markdown("""
         text-align: center;
         margin-bottom: 15px;
     }
-    .analysis-card {
+    .leaderboard-box {
         background-color: #FFFFFF;
-        border: 1px solid #E2DDD5;
-        border-radius: 10px;
-        padding: 16px;
-        margin-bottom: 12px;
-    }
-    .dress-card-container {
-        border: 1px solid #E2DDD5;
+        border: 2px solid #FFD700;
         border-radius: 12px;
-        background-color: #FFFFFF;
-        overflow: hidden;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.04);
-        margin-bottom: 10px;
+        padding: 16px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(255, 215, 0, 0.15);
+    }
+    .ball-badge {
+        background-color: #CCFF00;
+        color: #1A1918;
+        font-weight: bold;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        border: 1px solid #A2CC00;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -94,12 +96,17 @@ def get_beautiful_ai_image(prompt_details: str, seed: int = None) -> str:
     encoded_prompt = urllib.parse.quote(full_prompt)
     return f"https://image.pollinations.ai/prompt/{encoded_prompt}?seed={seed}&width=600&height=800&nologo=true"
 
-# Initialize Session States
+# Initialize Session States with Default Demo Data
 if "registered_coaches" not in st.session_state:
-    st.session_state.registered_coaches = []
+    st.session_state.registered_coaches = [
+        {"Name": "Coach Alex Rivera", "Email": "alex@tennis.com", "Location": "New York, NY", "MaxStudents": 5, "Score": 88, "Bio": "USPTR Certified Pro focused on youth development."}
+    ]
 
 if "registered_students" not in st.session_state:
-    st.session_state.registered_students = []
+    st.session_state.registered_students = [
+        {"Name": "Sarah Jenkins", "Email": "sarah@example.com", "Phone": "+1 555-0192", "Location": "New York, NY", "Notes": "Super eager beginner looking to master the forehand!", "Balls": 15, "Photo": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400"},
+        {"Name": "Emily Chen", "Email": "emily@example.com", "Phone": "+1 555-0183", "Location": "New York, NY", "Notes": "Practicing serve techniques and backhand slice.", "Balls": 8, "Photo": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400"}
+    ]
 
 if "coach_eval_data" not in st.session_state:
     st.session_state.coach_eval_data = None
@@ -116,7 +123,7 @@ app_mode = st.sidebar.radio(
     [
         "🏆 Register as a Coach (AI Assessment)", 
         "🎾 Register as a Student (Free Lessons)", 
-        "📋 Community Directory (Coaches & Students)",
+        "📋 Community Directory & Ball Leaderboard",
         "👗 AI Tennis Gear & Lookbook"
     ]
 )
@@ -124,18 +131,12 @@ app_mode = st.sidebar.radio(
 st.sidebar.markdown("---")
 
 # ==========================================
-# SECTION 1: COACH REGISTRATION (WITH DETAILED BREAKDOWN)
+# SECTION 1: COACH REGISTRATION
 # ==========================================
 if app_mode == "🏆 Register as a Coach (AI Assessment)":
     st.title("🏆 Coach Certification & AI Motion Breakdown")
     st.write("Upload your footage to analyze your biomechanics and calculate your official Coach Evaluation Score.")
     
-    st.markdown("""
-    > ⚙️ **Verification Threshold**: The AI analyzes 4 key mechanical metrics (Stroke Technique, Footwork Agility, Target Consistency, & Racquet Speed).
-    > * **Score ≥ 60**: Verified to register as a Coach!
-    > * **Score < 60**: Locked out from coaching, but invited to join as a free student.
-    """)
-
     st.markdown("---")
     st.subheader("Step 1: Upload Your Gameplay / Rally Video")
     
@@ -150,22 +151,14 @@ if app_mode == "🏆 Register as a Coach (AI Assessment)":
     with col_v2:
         if coach_vid:
             if st.button("📊 Analyze Video & Breakdown Mechanics"):
-                with st.spinner("🔍 Running computer vision biomechanics analysis... Tracking kinetic chain, wrist snap, and footwork..."):
-                    time.sleep(1.5)
-                    
-                    # Generate realistic scores for the 4 component breakdown
+                with st.spinner("🔍 Running computer vision biomechanics analysis..."):
+                    time.sleep(1.2)
                     stroke_tech = random.randint(50, 98)
                     footwork = random.randint(45, 95)
                     consistency = random.randint(50, 96)
                     speed_power = random.randint(48, 94)
                     
-                    # Weighted overall score formula
-                    overall = int(
-                        (stroke_tech * 0.35) + 
-                        (footwork * 0.25) + 
-                        (consistency * 0.25) + 
-                        (speed_power * 0.15)
-                    )
+                    overall = int((stroke_tech * 0.35) + (footwork * 0.25) + (consistency * 0.25) + (speed_power * 0.15))
                     
                     st.session_state.coach_eval_data = {
                         "overall": overall,
@@ -175,7 +168,6 @@ if app_mode == "🏆 Register as a Coach (AI Assessment)":
                         "speed": speed_power
                     }
 
-    # DETAILED SCORE BREAKDOWN & CONDITIONAL REGISTRATION FORM
     if st.session_state.coach_eval_data is not None:
         eval_d = st.session_state.coach_eval_data
         overall_score = eval_d["overall"]
@@ -183,77 +175,46 @@ if app_mode == "🏆 Register as a Coach (AI Assessment)":
         st.markdown("---")
         st.subheader("Step 2: AI Video Analysis Breakdown")
 
-        # Top Metric Banner
         m1, m2, m3, m4 = st.columns(4)
-        m1.metric("Stroke Mechanics", f"{eval_d['stroke']}/100", "Weight: 35%")
-        m2.metric("Footwork & Kinetic Chain", f"{eval_d['footwork']}/100", "Weight: 25%")
-        m3.metric("Shot Depth & Precision", f"{eval_d['consistency']}/100", "Weight: 25%")
-        m4.metric("Racquet Head Speed", f"{eval_d['speed']}/100", "Weight: 15%")
-
-        # Detailed Progress Bars
-        st.markdown("#### Score Component Details:")
-        
-        st.write("📐 **Kinematic Stroke Technique (35% Weight)**")
-        st.progress(eval_d['stroke'] / 100)
-        st.caption("Measures fluid unit turn, low-to-high swing path, and full shoulder contact finish.")
-
-        st.write("👟 **Footwork Agility & Kinetic Chain (25% Weight)**")
-        st.progress(eval_d['footwork'] / 100)
-        st.caption("Measures split-step timing, dynamic recovery steps, and weight transfer upon contact.")
-
-        st.write("🎯 **Shot Depth & Precision (25% Weight)**")
-        st.progress(eval_d['consistency'] / 100)
-        st.caption("Tracks ball trajectory height over the net and landing clearance past the service line.")
-
-        st.write("⚡ **Racquet Acceleration & Spin (15% Weight)**")
-        st.progress(eval_d['speed'] / 100)
-        st.caption("Calculates topspin RPMs and angular velocity at point of impact.")
-
-        st.markdown("---")
-        st.subheader("Step 3: Verification Verdict")
+        m1.metric("Stroke Mechanics", f"{eval_d['stroke']}/100")
+        m2.metric("Footwork Agility", f"{eval_d['footwork']}/100")
+        m3.metric("Precision", f"{eval_d['consistency']}/100")
+        m4.metric("Racquet Speed", f"{eval_d['speed']}/100")
 
         if overall_score >= 60:
             st.markdown(f'<div class="score-badge-pass">✅ OVERALL SCORE: {overall_score} / 100 — SKILL VERIFIED!</div>', unsafe_allow_html=True)
-            st.success(f"🎉 Great job! Your score of **{overall_score}/100** exceeds the 60-point requirement. You are eligible to register as a coach.")
-
-            st.markdown("### Step 4: Complete Coach Profile")
+            
+            st.markdown("### Step 3: Complete Coach Profile")
             with st.form("coach_form"):
                 c1, c2 = st.columns(2)
                 with c1:
                     c_name = st.text_input("Full Name *", placeholder="Coach Alex Rivera")
-                    c_email = st.text_input("Email / Contact Info *", placeholder="alex.rivera@example.com")
+                    c_email = st.text_input("Email *", placeholder="alex.rivera@example.com")
                 with c2:
                     c_location = st.text_input("Primary Location / City *", placeholder="San Francisco Courts, CA")
                     c_max = st.number_input("Max Students You Can Teach", min_value=1, max_value=10, value=3)
 
-                c_bio = st.text_area("Coaching Philosophy / Bio", placeholder="Share your experience and coaching style...")
+                c_bio = st.text_area("Coaching Philosophy / Bio")
 
                 if st.form_submit_button("🚀 Submit Verified Coach Profile"):
                     if c_name and c_email and c_location:
                         new_coach = {
-                            "Name": c_name,
-                            "Email": c_email,
-                            "Location": c_location,
-                            "MaxStudents": c_max,
-                            "Score": overall_score,
-                            "Bio": c_bio
+                            "Name": c_name, "Email": c_email, "Location": c_location, 
+                            "MaxStudents": c_max, "Score": overall_score, "Bio": c_bio
                         }
                         st.session_state.registered_coaches.append(new_coach)
-                        st.success("🏆 You are now officially registered as a Coach! Students can now view your profile in the directory.")
+                        st.success("🏆 You are now officially registered as a Coach!")
                         st.balloons()
-                    else:
-                        st.error("Please fill in all required fields (*).")
-
         else:
             st.markdown(f'<div class="score-badge-fail">❌ OVERALL SCORE: {overall_score} / 100 — DID NOT MEET THRESHOLD</div>', unsafe_allow_html=True)
-            st.warning(f"Your calculated mechanics score of **{overall_score}/100** is below the **60-point threshold** needed to coach. You can register as a student to receive free coaching from verified mentors!")
+            st.warning("Score below 60 threshold. Join as a student to improve your skills!")
 
 # ==========================================
 # SECTION 2: STUDENT REGISTRATION
 # ==========================================
 elif app_mode == "🎾 Register as a Student (Free Lessons)":
     st.title("🎾 Register as a Student for Free Tennis Lessons")
-    st.write("Join our free academy! Upload your photo and contact details so local verified coaches can reach out and teach you.")
+    st.write("Join our free academy! Upload your photo and details so coaches can connect with you and support your progress.")
 
     st.markdown("---")
 
@@ -262,73 +223,98 @@ elif app_mode == "🎾 Register as a Student (Free Lessons)":
         with s1:
             s_name = st.text_input("Full Name *", placeholder="Sarah Jenkins")
             s_email = st.text_input("Email Address *", placeholder="sarah@example.com")
-            s_phone = st.text_input("Phone Number / WhatsApp *", placeholder="+1 (555) 019-2834")
+            s_phone = st.text_input("Phone Number *", placeholder="+1 (555) 019-2834")
             s_location = st.text_input("City & Preferred Courts *", placeholder="Central Park, NY")
             
         with s2:
-            s_photo = st.file_uploader("Upload Your Profile Photo *", type=["jpg", "jpeg", "png"])
-            s_notes = st.text_area("Notes for your Coach", placeholder="e.g. Complete beginner interested in forehand basics and weekend lessons.")
+            s_photo = st.file_uploader("Upload Profile Photo *", type=["jpg", "jpeg", "png"])
+            s_notes = st.text_area("Notes for your Coach", placeholder="Goals and schedule preferences...")
 
-        if st.form_submit_button("🎉 Register for Free Coaching"):
+        if st.form_submit_button("🎉 Register Profile"):
             if s_name and s_email and s_location and s_photo:
                 new_student = {
-                    "Name": s_name,
-                    "Email": s_email,
-                    "Phone": s_phone,
-                    "Location": s_location,
-                    "Notes": s_notes,
-                    "Photo": s_photo
+                    "Name": s_name, "Email": s_email, "Phone": s_phone, 
+                    "Location": s_location, "Notes": s_notes, "Photo": s_photo, "Balls": 0
                 }
                 st.session_state.registered_students.append(new_student)
-                st.success(f"🎉 Profile created successfully! Verified coaches in {s_location} can now view your card and contact you for free lessons.")
+                st.success("🎉 Profile created! Coaches can now find you and donate tennis balls to boost your ranking.")
                 st.balloons()
-            else:
-                st.error("Please fill in all required fields (*) and upload a profile photo.")
 
 # ==========================================
-# SECTION 3: COMMUNITY DIRECTORY
+# SECTION 3: DIRECTORY, DONATIONS & LEADERBOARD
 # ==========================================
-elif app_mode == "📋 Community Directory (Coaches & Students)":
-    st.title("📋 Community Roster & Directory")
-    st.caption("Coaches can contact students to offer free coaching sessions.")
+elif app_mode == "📋 Community Directory & Ball Leaderboard":
+    st.title("📋 Community Directory & Ball Popularity Contest")
+    st.caption("Coaches can purchase tennis balls and donate them to their favorite students! The student with the most balls wins the Popularity Prize.")
 
     st.markdown("---")
 
-    col_dir1, col_dir2 = st.columns(2)
+    # 🏆 POPULARITY LEADERBOARD HEADER
+    st.subheader("👑 Most Popular Student Leaderboard")
+    
+    if st.session_state.registered_students:
+        # Sort students by ball count (descending)
+        sorted_students = sorted(st.session_state.registered_students, key=lambda x: x.get("Balls", 0), reverse=True)
+        top_student = sorted_students[0]
+
+        st.markdown(f"""
+        <div class="leaderboard-box">
+            <h3>🥇 Current #1 Popular Student: <strong>{top_student['Name']}</strong> 🎉</h3>
+            <p><strong>Total Donated Tennis Balls:</strong> <span class="ball-badge">🎾 {top_student.get('Balls', 0)} Balls</span></p>
+            <p style="color:#555; margin-bottom:0;"><em>Prize: Free Pro Racquet & VIP Training Session!</em></p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("---")
+
+    col_dir1, col_dir2 = st.columns([1, 1.2])
 
     # COACHES LIST
     with col_dir1:
-        st.subheader("🏆 Verified Coaches (Score ≥ 60)")
+        st.subheader("🏆 Verified Coaches")
         if st.session_state.registered_coaches:
             for c in st.session_state.registered_coaches:
-                with st.container():
-                    st.markdown(f"""
-                    **Name**: {c['Name']} ⭐ (AI Score: **{c['Score']}/100**)  
-                    📍 **Location**: {c['Location']}  
-                    📧 **Contact**: `{c['Email']}`  
-                    👥 **Capacity**: Up to {c['MaxStudents']} students  
-                    _{c['Bio']}_
-                    ---
-                    """)
+                st.markdown(f"""
+                **{c['Name']}** ⭐ (AI Score: **{c['Score']}/100**)  
+                📍 *{c['Location']}* | 📧 `{c['Email']}`  
+                👥 Max Capacity: **{c['MaxStudents']} students**  
+                ---
+                """)
         else:
-            st.info("No verified coaches registered yet. Upload a video in the Coach section to qualify!")
+            st.info("No verified coaches registered yet.")
 
-    # STUDENTS LIST WITH PHOTOS & CONTACT
+    # STUDENTS LIST & DONATION PANEL
     with col_dir2:
-        st.subheader("🎾 Enrolled Students (Seeking Free Coaching)")
+        st.subheader("🎾 Enrolled Students & Ball Donations")
         if st.session_state.registered_students:
-            for s in st.session_state.registered_students:
+            for idx, s in enumerate(st.session_state.registered_students):
                 with st.container():
-                    sc1, sc2 = st.columns([1, 2])
+                    sc1, sc2 = st.columns([1, 1.8])
                     with sc1:
                         st.image(s["Photo"], use_container_width=True)
                     with sc2:
-                        st.markdown(f"**Name**: {s['Name']}")
+                        st.markdown(f"### {s['Name']}")
+                        st.markdown(f"🎾 **Tennis Balls Received**: <span class='ball-badge'>{s.get('Balls', 0)} Balls</span>", unsafe_allow_html=True)
                         st.markdown(f"📍 **Location**: {s['Location']}")
                         st.markdown(f"📧 **Email**: `{s['Email']}`")
-                        if s["Phone"]:
-                            st.markdown(f"📞 **Phone**: `{s['Phone']}`")
-                        st.caption(f"📝 Notes: {s['Notes']}")
+                        
+                        # BALL DONATION FORM FOR EACH STUDENT
+                        st.markdown("**🎾 Buy & Donate Tennis Balls:**")
+                        don_col1, don_col2 = st.columns([1, 1])
+                        with don_col1:
+                            ball_pack = st.selectbox("Select Pack", ["3 Balls ($5)", "12 Can ($18)", "50 Bucket ($60)"], key=f"pack_{idx}")
+                        with don_col2:
+                            if st.button(f"🎁 Donate to {s['Name'].split()[0]}", key=f"don_btn_{idx}"):
+                                # Calculate ball amount based on selection
+                                count_map = {"3 Balls ($5)": 3, "12 Can ($18)": 12, "50 Bucket ($60)": 50}
+                                added_balls = count_map[ball_pack]
+                                
+                                # Update student ball count
+                                s["Balls"] = s.get("Balls", 0) + added_balls
+                                st.toast(f"🎉 Successfully donated {added_balls} tennis balls to {s['Name']}!")
+                                time.sleep(0.5)
+                                st.rerun()
+
                     st.markdown("---")
         else:
             st.info("No students registered yet.")
