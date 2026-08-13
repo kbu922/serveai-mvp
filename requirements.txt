@@ -1,4 +1,5 @@
 streamlit
+Pillow
 pandas
 numpy
 opencv-python-headless
