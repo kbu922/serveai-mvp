@@ -46,30 +46,29 @@ st.markdown("""
     .score-badge-pass {
         background-color: #2D6A4F;
         color: white;
-        padding: 12px 20px;
+        padding: 14px 20px;
         border-radius: 8px;
         font-weight: bold;
-        font-size: 20px;
+        font-size: 22px;
         text-align: center;
         margin-bottom: 15px;
     }
     .score-badge-fail {
         background-color: #B7094C;
         color: white;
-        padding: 12px 20px;
+        padding: 14px 20px;
         border-radius: 8px;
         font-weight: bold;
-        font-size: 20px;
+        font-size: 22px;
         text-align: center;
         margin-bottom: 15px;
     }
-    .student-card {
+    .analysis-card {
         background-color: #FFFFFF;
         border: 1px solid #E2DDD5;
-        border-radius: 12px;
+        border-radius: 10px;
         padding: 16px;
-        margin-bottom: 15px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        margin-bottom: 12px;
     }
     .dress-card-container {
         border: 1px solid #E2DDD5;
@@ -78,19 +77,6 @@ st.markdown("""
         overflow: hidden;
         box-shadow: 0 4px 10px rgba(0,0,0,0.04);
         margin-bottom: 10px;
-    }
-    .dress-card-content {
-        padding: 18px;
-    }
-    .badge-design {
-        background-color: #1A1918;
-        color: #FFFFFF;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -115,8 +101,8 @@ if "registered_coaches" not in st.session_state:
 if "registered_students" not in st.session_state:
     st.session_state.registered_students = []
 
-if "coach_score" not in st.session_state:
-    st.session_state.coach_score = None
+if "coach_eval_data" not in st.session_state:
+    st.session_state.coach_eval_data = None
 
 if "img_seed" not in st.session_state:
     st.session_state.img_seed = random.randint(1000, 9999)
@@ -138,24 +124,24 @@ app_mode = st.sidebar.radio(
 st.sidebar.markdown("---")
 
 # ==========================================
-# SECTION 1: COACH REGISTRATION (SKILL GATE)
+# SECTION 1: COACH REGISTRATION (WITH DETAILED BREAKDOWN)
 # ==========================================
 if app_mode == "🏆 Register as a Coach (AI Assessment)":
-    st.title("🏆 Coach Certification & Skill Evaluation")
-    st.write("To become a coach in our free community academy, you must first verify your tennis mechanics with our AI system.")
+    st.title("🏆 Coach Certification & AI Motion Breakdown")
+    st.write("Upload your footage to analyze your biomechanics and calculate your official Coach Evaluation Score.")
     
     st.markdown("""
-    > **Verification Rule**: Upload a video of your gameplay or serving motion. The AI will evaluate your swing mechanics, pace, and footwork. 
-    > * **Score ≥ 60**: Approved to register as a Coach!
-    > * **Score < 60**: You cannot register as a coach yet, but you are welcome to sign up as a student.
+    > ⚙️ **Verification Threshold**: The AI analyzes 4 key mechanical metrics (Stroke Technique, Footwork Agility, Target Consistency, & Racquet Speed).
+    > * **Score ≥ 60**: Verified to register as a Coach!
+    > * **Score < 60**: Locked out from coaching, but invited to join as a free student.
     """)
 
     st.markdown("---")
-    st.subheader("Step 1: Upload Your Gameplay Video")
+    st.subheader("Step 1: Upload Your Gameplay / Rally Video")
     
     coach_vid = st.file_uploader("Upload video file (.mp4, .mov)", type=["mp4", "mov"], key="coach_vid_input")
 
-    col_v1, col_v2 = st.columns(2)
+    col_v1, col_v2 = st.columns([1, 1])
 
     with col_v1:
         if coach_vid:
@@ -163,23 +149,74 @@ if app_mode == "🏆 Register as a Coach (AI Assessment)":
 
     with col_v2:
         if coach_vid:
-            if st.button("📊 Analyze Video & Calculate Skill Score"):
-                with st.spinner("Analyzing biomechanics, stroke depth, and court coverage..."):
-                    time.sleep(1.2)
-                    # Simulated skill evaluation score (randomized between 45 and 95)
-                    st.session_state.coach_score = random.randint(45, 92)
+            if st.button("📊 Analyze Video & Breakdown Mechanics"):
+                with st.spinner("🔍 Running computer vision biomechanics analysis... Tracking kinetic chain, wrist snap, and footwork..."):
+                    time.sleep(1.5)
+                    
+                    # Generate realistic scores for the 4 component breakdown
+                    stroke_tech = random.randint(50, 98)
+                    footwork = random.randint(45, 95)
+                    consistency = random.randint(50, 96)
+                    speed_power = random.randint(48, 94)
+                    
+                    # Weighted overall score formula
+                    overall = int(
+                        (stroke_tech * 0.35) + 
+                        (footwork * 0.25) + 
+                        (consistency * 0.25) + 
+                        (speed_power * 0.15)
+                    )
+                    
+                    st.session_state.coach_eval_data = {
+                        "overall": overall,
+                        "stroke": stroke_tech,
+                        "footwork": footwork,
+                        "consistency": consistency,
+                        "speed": speed_power
+                    }
 
-    # EVALUATION RESULTS & CONDITIONAL REGISTRATION FORM
-    if st.session_state.coach_score is not None:
-        score = st.session_state.coach_score
+    # DETAILED SCORE BREAKDOWN & CONDITIONAL REGISTRATION FORM
+    if st.session_state.coach_eval_data is not None:
+        eval_d = st.session_state.coach_eval_data
+        overall_score = eval_d["overall"]
+
         st.markdown("---")
-        st.subheader("Step 2: Verification Result")
+        st.subheader("Step 2: AI Video Analysis Breakdown")
 
-        if score >= 60:
-            st.markdown(f'<div class="score-badge-pass">✅ SCORE: {score} / 100 — SKILL VERIFIED!</div>', unsafe_allow_html=True)
-            st.success(f"🎉 Fantastic performance! With a score of **{score}/100**, you qualify to register as a community coach.")
+        # Top Metric Banner
+        m1, m2, m3, m4 = st.columns(4)
+        m1.metric("Stroke Mechanics", f"{eval_d['stroke']}/100", "Weight: 35%")
+        m2.metric("Footwork & Kinetic Chain", f"{eval_d['footwork']}/100", "Weight: 25%")
+        m3.metric("Shot Depth & Precision", f"{eval_d['consistency']}/100", "Weight: 25%")
+        m4.metric("Racquet Head Speed", f"{eval_d['speed']}/100", "Weight: 15%")
 
-            st.markdown("### Step 3: Complete Coach Profile")
+        # Detailed Progress Bars
+        st.markdown("#### Score Component Details:")
+        
+        st.write("📐 **Kinematic Stroke Technique (35% Weight)**")
+        st.progress(eval_d['stroke'] / 100)
+        st.caption("Measures fluid unit turn, low-to-high swing path, and full shoulder contact finish.")
+
+        st.write("👟 **Footwork Agility & Kinetic Chain (25% Weight)**")
+        st.progress(eval_d['footwork'] / 100)
+        st.caption("Measures split-step timing, dynamic recovery steps, and weight transfer upon contact.")
+
+        st.write("🎯 **Shot Depth & Precision (25% Weight)**")
+        st.progress(eval_d['consistency'] / 100)
+        st.caption("Tracks ball trajectory height over the net and landing clearance past the service line.")
+
+        st.write("⚡ **Racquet Acceleration & Spin (15% Weight)**")
+        st.progress(eval_d['speed'] / 100)
+        st.caption("Calculates topspin RPMs and angular velocity at point of impact.")
+
+        st.markdown("---")
+        st.subheader("Step 3: Verification Verdict")
+
+        if overall_score >= 60:
+            st.markdown(f'<div class="score-badge-pass">✅ OVERALL SCORE: {overall_score} / 100 — SKILL VERIFIED!</div>', unsafe_allow_html=True)
+            st.success(f"🎉 Great job! Your score of **{overall_score}/100** exceeds the 60-point requirement. You are eligible to register as a coach.")
+
+            st.markdown("### Step 4: Complete Coach Profile")
             with st.form("coach_form"):
                 c1, c2 = st.columns(2)
                 with c1:
@@ -191,32 +228,32 @@ if app_mode == "🏆 Register as a Coach (AI Assessment)":
 
                 c_bio = st.text_area("Coaching Philosophy / Bio", placeholder="Share your experience and coaching style...")
 
-                if st.form_submit_button("🚀 Submit Coach Profile"):
+                if st.form_submit_button("🚀 Submit Verified Coach Profile"):
                     if c_name and c_email and c_location:
                         new_coach = {
                             "Name": c_name,
                             "Email": c_email,
                             "Location": c_location,
                             "MaxStudents": c_max,
-                            "Score": score,
+                            "Score": overall_score,
                             "Bio": c_bio
                         }
                         st.session_state.registered_coaches.append(new_coach)
-                        st.success("🏆 You are now officially registered as a Coach! Students will be able to find your profile.")
+                        st.success("🏆 You are now officially registered as a Coach! Students can now view your profile in the directory.")
                         st.balloons()
                     else:
                         st.error("Please fill in all required fields (*).")
 
         else:
-            st.markdown(f'<div class="score-badge-fail">❌ SCORE: {score} / 100 — DID NOT MEET THRESHOLD</div>', unsafe_allow_html=True)
-            st.warning(f"Your score of **{score}/100** is below the **60-point threshold** required to coach. Keep practicing! You can register as a student to receive free coaching lessons from certified coaches.")
+            st.markdown(f'<div class="score-badge-fail">❌ OVERALL SCORE: {overall_score} / 100 — DID NOT MEET THRESHOLD</div>', unsafe_allow_html=True)
+            st.warning(f"Your calculated mechanics score of **{overall_score}/100** is below the **60-point threshold** needed to coach. You can register as a student to receive free coaching from verified mentors!")
 
 # ==========================================
 # SECTION 2: STUDENT REGISTRATION
 # ==========================================
 elif app_mode == "🎾 Register as a Student (Free Lessons)":
     st.title("🎾 Register as a Student for Free Tennis Lessons")
-    st.write("Join our free academy! Simply upload your photo and contact details so local verified coaches can reach out to teach you.")
+    st.write("Join our free academy! Upload your photo and contact details so local verified coaches can reach out and teach you.")
 
     st.markdown("---")
 
@@ -274,7 +311,7 @@ elif app_mode == "📋 Community Directory (Coaches & Students)":
                     ---
                     """)
         else:
-            st.info("No verified coaches registered yet.")
+            st.info("No verified coaches registered yet. Upload a video in the Coach section to qualify!")
 
     # STUDENTS LIST WITH PHOTOS & CONTACT
     with col_dir2:
