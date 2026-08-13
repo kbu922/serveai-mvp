@@ -7,7 +7,7 @@ import streamlit as st
 # 0. PAGE CONFIG & GLOBAL THEME
 # ==========================================
 st.set_page_config(
-    page_title="Free Tennis Academy & AI Gear Hub",
+    page_title="Free Tennis Academy & Karrot Marketplace",
     page_icon="🎾",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -80,39 +80,74 @@ st.markdown("""
         font-size: 14px;
         border: 1px solid #A2CC00;
     }
+    .karrot-badge {
+        background-color: #FF6F00;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-weight: bold;
+        font-size: 12px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
-# Helper function for high-quality fashion AI photography
-def get_beautiful_ai_image(prompt_details: str, seed: int = None) -> str:
+# Helper function for high-quality item photography
+def get_marketplace_image(prompt_details: str, seed: int = None) -> str:
     if seed is None:
         seed = random.randint(1000, 99999)
-    quality_modifiers = (
-        ", breathtakingly beautiful gorgeous athletic female model, perfect face features, "
-        "fashion editorial photography, shot on 85mm lens, f1.4 bokeh background, golden hour natural light, "
-        "high fashion magazine cover quality, elegant pose on luxury tennis court, ultra clear focus, 8k resolution"
-    )
+    quality_modifiers = ", realistic second hand marketplace photo, clear clean focus, high quality product photography, 8k"
     full_prompt = prompt_details + quality_modifiers
     encoded_prompt = urllib.parse.quote(full_prompt)
-    return f"https://image.pollinations.ai/prompt/{encoded_prompt}?seed={seed}&width=600&height=800&nologo=true"
+    return f"https://image.pollinations.ai/prompt/{encoded_prompt}?seed={seed}&width=500&height=500&nologo=true"
 
-# Initialize Session States with Default Demo Data
+# Initialize Session States
 if "registered_coaches" not in st.session_state:
     st.session_state.registered_coaches = [
-        {"Name": "Coach Alex Rivera", "Email": "alex@tennis.com", "Location": "New York, NY", "MaxStudents": 5, "Score": 88, "Bio": "USPTR Certified Pro focused on youth development."}
+        {"Name": "Coach Alex Rivera", "Email": "alex@tennis.com", "Location": "Gangnam-gu, Seoul", "MaxStudents": 5, "Score": 88, "Bio": "USPTR Certified Pro focused on youth development."}
     ]
 
 if "registered_students" not in st.session_state:
     st.session_state.registered_students = [
-        {"Name": "Sarah Jenkins", "Email": "sarah@example.com", "Phone": "+1 555-0192", "Location": "New York, NY", "Notes": "Super eager beginner looking to master the forehand!", "Balls": 15, "Photo": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400"},
-        {"Name": "Emily Chen", "Email": "emily@example.com", "Phone": "+1 555-0183", "Location": "New York, NY", "Notes": "Practicing serve techniques and backhand slice.", "Balls": 8, "Photo": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400"}
+        {"Name": "Sarah Jenkins", "Email": "sarah@example.com", "Phone": "+1 555-0192", "Location": "Mapo-gu, Seoul", "Notes": "Super eager beginner looking to master the forehand!", "Balls": 15, "Photo": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400"},
+        {"Name": "Emily Chen", "Email": "emily@example.com", "Phone": "+1 555-0183", "Location": "Seocho-gu, Seoul", "Notes": "Practicing serve techniques and backhand slice.", "Balls": 8, "Photo": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400"}
+    ]
+
+if "marketplace_items" not in st.session_state:
+    st.session_state.marketplace_items = [
+        {
+            "title": "Wilson Pro Staff 97 v13 (Near New)",
+            "category": "Racquet",
+            "price": "140,000 ₩",
+            "condition": "Like New (9.5/10)",
+            "location": "Gangnam-gu, Seoul",
+            "seller": "Coach Alex",
+            "desc": "Used only 3 times. Strung with Luxilon ALU Power at 52 lbs.",
+            "image": "https://images.unsplash.com/photo-1617083934555-ac7d4fed8824?w=500"
+        },
+        {
+            "title": "Nikecourt Air Zoom Vapor Pro Shoes (Size 240)",
+            "category": "Shoes",
+            "price": "65,000 ₩",
+            "condition": "Good (8/10)",
+            "location": "Mapo-gu, Seoul",
+            "seller": "Sarah J.",
+            "desc": "Slight wear on outsole, plenty of traction left for hard court.",
+            "image": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500"
+        },
+        {
+            "title": "White Pleated Adidas Tennis Skirt & Top Set",
+            "category": "Dress/Outfit",
+            "price": "35,000 ₩",
+            "condition": "Like New (9/10)",
+            "location": "Seocho-gu, Seoul",
+            "seller": "Emily C.",
+            "desc": "Worn once for a weekend match. Size Small.",
+            "image": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500"
+        }
     ]
 
 if "coach_eval_data" not in st.session_state:
     st.session_state.coach_eval_data = None
-
-if "img_seed" not in st.session_state:
-    st.session_state.img_seed = random.randint(1000, 9999)
 
 # ==========================================
 # 1. NAVIGATION BAR
@@ -124,7 +159,7 @@ app_mode = st.sidebar.radio(
         "🏆 Register as a Coach (AI Assessment)", 
         "🎾 Register as a Student (Free Lessons)", 
         "📋 Community Directory & Ball Leaderboard",
-        "👗 AI Tennis Gear & Lookbook"
+        "🥕 당근 Second-Hand Tennis Market"
     ]
 )
 
@@ -161,11 +196,8 @@ if app_mode == "🏆 Register as a Coach (AI Assessment)":
                     overall = int((stroke_tech * 0.35) + (footwork * 0.25) + (consistency * 0.25) + (speed_power * 0.15))
                     
                     st.session_state.coach_eval_data = {
-                        "overall": overall,
-                        "stroke": stroke_tech,
-                        "footwork": footwork,
-                        "consistency": consistency,
-                        "speed": speed_power
+                        "overall": overall, "stroke": stroke_tech,
+                        "footwork": footwork, "consistency": consistency, "speed": speed_power
                     }
 
     if st.session_state.coach_eval_data is not None:
@@ -191,7 +223,7 @@ if app_mode == "🏆 Register as a Coach (AI Assessment)":
                     c_name = st.text_input("Full Name *", placeholder="Coach Alex Rivera")
                     c_email = st.text_input("Email *", placeholder="alex.rivera@example.com")
                 with c2:
-                    c_location = st.text_input("Primary Location / City *", placeholder="San Francisco Courts, CA")
+                    c_location = st.text_input("Neighborhood / City *", placeholder="Gangnam-gu, Seoul")
                     c_max = st.number_input("Max Students You Can Teach", min_value=1, max_value=10, value=3)
 
                 c_bio = st.text_area("Coaching Philosophy / Bio")
@@ -224,7 +256,7 @@ elif app_mode == "🎾 Register as a Student (Free Lessons)":
             s_name = st.text_input("Full Name *", placeholder="Sarah Jenkins")
             s_email = st.text_input("Email Address *", placeholder="sarah@example.com")
             s_phone = st.text_input("Phone Number *", placeholder="+1 (555) 019-2834")
-            s_location = st.text_input("City & Preferred Courts *", placeholder="Central Park, NY")
+            s_location = st.text_input("Neighborhood & Preferred Courts *", placeholder="Mapo-gu, Seoul")
             
         with s2:
             s_photo = st.file_uploader("Upload Profile Photo *", type=["jpg", "jpeg", "png"])
@@ -241,7 +273,7 @@ elif app_mode == "🎾 Register as a Student (Free Lessons)":
                 st.balloons()
 
 # ==========================================
-# SECTION 3: DIRECTORY, DONATIONS & LEADERBOARD
+# SECTION 3: DIRECTORY & LEADERBOARD
 # ==========================================
 elif app_mode == "📋 Community Directory & Ball Leaderboard":
     st.title("📋 Community Directory & Ball Popularity Contest")
@@ -249,11 +281,10 @@ elif app_mode == "📋 Community Directory & Ball Leaderboard":
 
     st.markdown("---")
 
-    # 🏆 POPULARITY LEADERBOARD HEADER
+    # LEADERBOARD HEADER
     st.subheader("👑 Most Popular Student Leaderboard")
     
     if st.session_state.registered_students:
-        # Sort students by ball count (descending)
         sorted_students = sorted(st.session_state.registered_students, key=lambda x: x.get("Balls", 0), reverse=True)
         top_student = sorted_students[0]
 
@@ -269,7 +300,6 @@ elif app_mode == "📋 Community Directory & Ball Leaderboard":
 
     col_dir1, col_dir2 = st.columns([1, 1.2])
 
-    # COACHES LIST
     with col_dir1:
         st.subheader("🏆 Verified Coaches")
         if st.session_state.registered_coaches:
@@ -280,10 +310,7 @@ elif app_mode == "📋 Community Directory & Ball Leaderboard":
                 👥 Max Capacity: **{c['MaxStudents']} students**  
                 ---
                 """)
-        else:
-            st.info("No verified coaches registered yet.")
 
-    # STUDENTS LIST & DONATION PANEL
     with col_dir2:
         st.subheader("🎾 Enrolled Students & Ball Donations")
         if st.session_state.registered_students:
@@ -298,64 +325,94 @@ elif app_mode == "📋 Community Directory & Ball Leaderboard":
                         st.markdown(f"📍 **Location**: {s['Location']}")
                         st.markdown(f"📧 **Email**: `{s['Email']}`")
                         
-                        # BALL DONATION FORM FOR EACH STUDENT
                         st.markdown("**🎾 Buy & Donate Tennis Balls:**")
                         don_col1, don_col2 = st.columns([1, 1])
                         with don_col1:
                             ball_pack = st.selectbox("Select Pack", ["3 Balls ($5)", "12 Can ($18)", "50 Bucket ($60)"], key=f"pack_{idx}")
                         with don_col2:
                             if st.button(f"🎁 Donate to {s['Name'].split()[0]}", key=f"don_btn_{idx}"):
-                                # Calculate ball amount based on selection
                                 count_map = {"3 Balls ($5)": 3, "12 Can ($18)": 12, "50 Bucket ($60)": 50}
                                 added_balls = count_map[ball_pack]
-                                
-                                # Update student ball count
                                 s["Balls"] = s.get("Balls", 0) + added_balls
                                 st.toast(f"🎉 Successfully donated {added_balls} tennis balls to {s['Name']}!")
                                 time.sleep(0.5)
                                 st.rerun()
 
                     st.markdown("---")
-        else:
-            st.info("No students registered yet.")
 
 # ==========================================
-# SECTION 4: AI GEAR & LOOKBOOK
+# SECTION 4: 🥕 당근 SECOND-HAND MARKETPLACE
 # ==========================================
-elif app_mode == "👗 AI Tennis Gear & Lookbook":
-    st.title("👗 High-Fashion AI Tennis Lookbook & Racquets")
-    st.caption("Explore dynamic AI studio dress renders and match-grade racquets.")
+elif app_mode == "🥕 당근 Second-Hand Tennis Market":
+    st.title("🥕 당근 Tennis Second-Hand Market")
+    st.caption("Buy and sell pre-owned tennis racquets, shoes, dresses, and gear directly with players & coaches in your neighborhood!")
 
     st.markdown("---")
 
-    dress_color = st.selectbox("Select Dress Color Palette", ["Crisp Pure White", "Pastel Soft Mint", "Midnight Navy", "Champagne Gold", "Ruby Red"])
+    # EXPANDER TO POST A NEW ITEM
+    with st.expander("➕ Sell Your Second-Hand Gear (Create Listing)"):
+        with st.form("sell_item_form"):
+            p1, p2 = st.columns(2)
+            with p1:
+                item_title = st.text_input("Item Title *", placeholder="e.g. Head Speed MP 2023 (Used 1 Season)")
+                item_cat = st.selectbox("Category *", ["Racquet", "Shoes", "Dress/Outfit", "Bags/Accessories"])
+                item_price = st.text_input("Price (KRW / USD) *", placeholder="e.g. 80,000 ₩")
+                item_cond = st.selectbox("Condition *", ["Brand New", "Like New (9/10)", "Good (8/10)", "Fair (6/10)"])
 
-    if st.button("✨ Generate New AI Studio Photos"):
-        st.session_state.img_seed = random.randint(10000, 99999)
+            with p2:
+                item_loc = st.text_input("Your Neighborhood / Location *", placeholder="e.g. Gangnam-gu, Seoul")
+                seller_name = st.text_input("Seller Name *", placeholder="e.g. Alex R.")
+                item_photo = st.file_uploader("Upload Photo of Gear", type=["jpg", "png", "jpeg"])
+                item_desc = st.text_area("Item Description", placeholder="Mention string tension, size, or reason for selling...")
 
-    d_col1, d_col2, d_col3 = st.columns(3)
-    base_seed = st.session_state.img_seed
+            if st.form_submit_button("🚀 Post Item to Market"):
+                if item_title and item_price and item_loc and seller_name:
+                    # Default placeholder if user didn't upload photo
+                    img_url = "https://images.unsplash.com/photo-1617083934555-ac7d4fed8824?w=500"
+                    if item_photo:
+                        img_url = item_photo
 
-    prompt_1 = f"photorealistic fashion editorial photo of stunning gorgeous female tennis model wearing a luxury {dress_color} designer pleated tennis dress with subtle golden trim"
-    url_1 = get_beautiful_ai_image(prompt_1, seed=base_seed)
+                    new_item = {
+                        "title": item_title,
+                        "category": item_cat,
+                        "price": item_price,
+                        "condition": item_cond,
+                        "location": item_loc,
+                        "seller": seller_name,
+                        "desc": item_desc,
+                        "image": img_url
+                    }
+                    st.session_state.marketplace_items.insert(0, new_item)
+                    st.success("🥕 Item successfully listed on the 당근 Tennis Market!")
+                    st.rerun()
+                else:
+                    st.error("Please fill in all required fields (*).")
 
-    prompt_2 = f"photorealistic Vogue magazine portrait of beautiful elegant female tennis player wearing a sleek fitted {dress_color} modern high neck tennis dress, graceful holding tennis racket"
-    url_2 = get_beautiful_ai_image(prompt_2, seed=base_seed + 10)
+    st.markdown("### 🛍️ Recent Second-Hand Listings Nearby")
 
-    prompt_3 = f"full length photorealistic action portrait of an attractive female tennis athlete wearing a beautiful {dress_color} racerback luxury tennis dress, sun flare, serene tennis club court background"
-    url_3 = get_beautiful_ai_image(prompt_3, seed=base_seed + 20)
+    # CATEGORY FILTER
+    cat_filter = st.radio("Filter Category:", ["All Gear", "Racquet", "Shoes", "Dress/Outfit", "Bags/Accessories"], horizontal=True)
 
-    with d_col1:
-        st.image(url_1, use_container_width=True, caption="Heritage Pleated Couture")
-        if st.button("🛒 Buy Style 1 ($145)", key="b1"):
-            st.toast("🛒 Added Style 1 to cart!")
+    filtered_items = st.session_state.marketplace_items
+    if cat_filter != "All Gear":
+        filtered_items = [i for i in filtered_items if i["category"] == cat_filter]
 
-    with d_col2:
-        st.image(url_2, use_container_width=True, caption="Modern Minimalist Contour")
-        if st.button("🛒 Buy Style 2 ($155)", key="b2"):
-            st.toast("🛒 Added Style 2 to cart!")
+    st.markdown("<br>", unsafe_allow_html=True)
 
-    with d_col3:
-        st.image(url_3, use_container_width=True, caption="High-Tech Racerback Pro")
-        if st.button("🛒 Buy Style 3 ($135)", key="b3"):
-            st.toast("🛒 Added Style 3 to cart!")
+    # MARKETPLACE GRID (3 COLUMNS)
+    m_cols = st.columns(3)
+
+    for idx, item in enumerate(filtered_items):
+        col = m_cols[idx % 3]
+        with col:
+            with st.container():
+                st.image(item["image"], use_container_width=True)
+                st.markdown(f"<span class='karrot-badge'>📍 {item['location']}</span>", unsafe_allow_html=True)
+                st.markdown(f"#### {item['title']}")
+                st.markdown(f"💰 **Price**: `{item['price']}`")
+                st.caption(f"✨ Condition: **{item['condition']}** | Seller: **{item['seller']}**")
+                st.write(item["desc"])
+
+                if st.button(f"💬 Chat with Seller ({item['seller']})", key=f"chat_{idx}"):
+                    st.toast(f"💬 Direct chat opened with {item['seller']}! Check your messages.")
+                st.markdown("---")
