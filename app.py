@@ -88,6 +88,14 @@ st.markdown("""
         font-weight: bold;
         font-size: 12px;
     }
+    .gift-badge {
+        background-color: #D90429;
+        color: white;
+        padding: 3px 10px;
+        border-radius: 6px;
+        font-weight: bold;
+        font-size: 12px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -100,10 +108,11 @@ def get_marketplace_image(prompt_details: str, seed: int = None) -> str:
     encoded_prompt = urllib.parse.quote(full_prompt)
     return f"https://image.pollinations.ai/prompt/{encoded_prompt}?seed={seed}&width=500&height=500&nologo=true"
 
-# Initialize Session States
+# Initialize Session States with Pre-populated Data
 if "registered_coaches" not in st.session_state:
     st.session_state.registered_coaches = [
-        {"Name": "Coach Alex Rivera", "Email": "alex@tennis.com", "Location": "Gangnam-gu, Seoul", "MaxStudents": 5, "Score": 88, "Bio": "USPTR Certified Pro focused on youth development."}
+        {"Name": "Coach Alex Rivera", "Email": "alex@tennis.com", "Location": "Gangnam-gu, Seoul", "MaxStudents": 5, "Score": 88, "Bio": "USPTR Certified Pro focused on youth development."},
+        {"Name": "Coach Marcus Vance", "Email": "marcus@tennis.com", "Location": "Seocho-gu, Seoul", "MaxStudents": 3, "Score": 92, "Bio": "Former ATP player specializing in advanced stroke bio-mechanics."}
     ]
 
 if "registered_students" not in st.session_state:
@@ -118,31 +127,24 @@ if "marketplace_items" not in st.session_state:
             "title": "Wilson Pro Staff 97 v13 (Near New)",
             "category": "Racquet",
             "price": "140,000 ₩",
+            "is_gift": False,
             "condition": "Like New (9.5/10)",
             "location": "Gangnam-gu, Seoul",
-            "seller": "Coach Alex",
+            "seller": "Coach Alex Rivera",
             "desc": "Used only 3 times. Strung with Luxilon ALU Power at 52 lbs.",
             "image": "https://images.unsplash.com/photo-1617083934555-ac7d4fed8824?w=500"
         },
         {
-            "title": "Nikecourt Air Zoom Vapor Pro Shoes (Size 240)",
-            "category": "Shoes",
-            "price": "65,000 ₩",
+            "title": "Babolat Pure Drive 2021 (Gift for Dedicated Student)",
+            "category": "Racquet",
+            "price": "FREE GIFT 🎁",
+            "is_gift": True,
+            "target_student": "Sarah Jenkins",
             "condition": "Good (8/10)",
-            "location": "Mapo-gu, Seoul",
-            "seller": "Sarah J.",
-            "desc": "Slight wear on outsole, plenty of traction left for hard court.",
-            "image": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500"
-        },
-        {
-            "title": "White Pleated Adidas Tennis Skirt & Top Set",
-            "category": "Dress/Outfit",
-            "price": "35,000 ₩",
-            "condition": "Like New (9/10)",
             "location": "Seocho-gu, Seoul",
-            "seller": "Emily C.",
-            "desc": "Worn once for a weekend match. Size Small.",
-            "image": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500"
+            "seller": "Coach Marcus Vance",
+            "desc": "Donating this racquet to Sarah to help her practice her forehand rallies!",
+            "image": "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=500"
         }
     ]
 
@@ -159,7 +161,7 @@ app_mode = st.sidebar.radio(
         "🏆 Register as a Coach (AI Assessment)", 
         "🎾 Register as a Student (Free Lessons)", 
         "📋 Community Directory & Ball Leaderboard",
-        "🛍️ Neighborhood Second-Hand Market"
+        "🛍️ Coach Second-Hand & Donation Market"
     ]
 )
 
@@ -269,7 +271,7 @@ elif app_mode == "🎾 Register as a Student (Free Lessons)":
                     "Location": s_location, "Notes": s_notes, "Photo": s_photo, "Balls": 0
                 }
                 st.session_state.registered_students.append(new_student)
-                st.success("🎉 Profile created! Coaches can now find you and donate tennis balls to boost your ranking.")
+                st.success("🎉 Profile created! Coaches can now find you, donate tennis balls, or gift you gear!")
                 st.balloons()
 
 # ==========================================
@@ -341,53 +343,70 @@ elif app_mode == "📋 Community Directory & Ball Leaderboard":
                     st.markdown("---")
 
 # ==========================================
-# SECTION 4: 🛍️ NEIGHBORHOOD SECOND-HAND MARKETPLACE
+# SECTION 4: 🛍️ COACH-ONLY MARKETPLACE & GIFT DONATIONS
 # ==========================================
-elif app_mode == "🛍️ Neighborhood Second-Hand Market":
-    st.title("🛍️ Neighborhood Tennis Second-Hand Market")
-    st.caption("Buy and sell pre-owned tennis racquets, shoes, dresses, and gear directly with players & coaches in your area!")
+elif app_mode == "🛍️ Coach Second-Hand & Donation Market":
+    st.title("🛍️ Neighborhood Second-Hand & Gear Donation Market")
+    st.caption("Only verified coaches can list tennis gear for sale or donate equipment as free gifts to students!")
 
     st.markdown("---")
 
-    # EXPANDER TO POST A NEW ITEM
-    with st.expander("➕ Sell Your Pre-Owned Gear (Create Listing)"):
-        with st.form("sell_item_form"):
-            p1, p2 = st.columns(2)
-            with p1:
-                item_title = st.text_input("Item Title *", placeholder="e.g. Head Speed MP 2023 (Used 1 Season)")
-                item_cat = st.selectbox("Category *", ["Racquet", "Shoes", "Dress/Outfit", "Bags/Accessories"])
-                item_price = st.text_input("Price (KRW / USD) *", placeholder="e.g. 80,000 ₩")
-                item_cond = st.selectbox("Condition *", ["Brand New", "Like New (9/10)", "Good (8/10)", "Fair (6/10)"])
+    # EXPANDER TO POST A NEW ITEM (COACHES ONLY)
+    if st.session_state.registered_coaches:
+        coach_names = [c["Name"] for c in st.session_state.registered_coaches]
+        
+        with st.expander("➕ Coaches Only: Sell or Donate Gear (Create Listing)"):
+            with st.form("coach_sell_form"):
+                p1, p2 = st.columns(2)
+                with p1:
+                    selected_coach = st.selectbox("Posting as Coach *", coach_names)
+                    item_title = st.text_input("Item Title *", placeholder="e.g. Head Speed MP 2023")
+                    item_cat = st.selectbox("Category *", ["Racquet", "Shoes", "Dress/Outfit", "Bags/Accessories"])
+                    item_cond = st.selectbox("Condition *", ["Brand New", "Like New (9/10)", "Good (8/10)", "Fair (6/10)"])
 
-            with p2:
-                item_loc = st.text_input("Your Neighborhood / Location *", placeholder="e.g. Gangnam-gu, Seoul")
-                seller_name = st.text_input("Seller Name *", placeholder="e.g. Alex R.")
-                item_photo = st.file_uploader("Upload Photo of Gear", type=["jpg", "png", "jpeg"])
-                item_desc = st.text_area("Item Description", placeholder="Mention string tension, size, or reason for selling...")
+                with p2:
+                    is_donation = st.checkbox("🎁 Donate as a FREE GIFT to a Student", value=False)
+                    item_price = st.text_input("Price (KRW / USD)", placeholder="e.g. 80,000 ₩", disabled=is_donation)
+                    
+                    student_options = ["Anyone / Any Student"] + [s["Name"] for s in st.session_state.registered_students]
+                    target_student = st.selectbox("Gift Destination Student", student_options, disabled=not is_donation)
+                    
+                    item_photo = st.file_uploader("Upload Photo of Gear", type=["jpg", "png", "jpeg"])
+                    item_desc = st.text_area("Item Description", placeholder="Mention strings, condition, or why you are gifting this...")
 
-            if st.form_submit_button("🚀 Post Item to Market"):
-                if item_title and item_price and item_loc and seller_name:
-                    img_url = "https://images.unsplash.com/photo-1617083934555-ac7d4fed8824?w=500"
-                    if item_photo:
-                        img_url = item_photo
+                if st.form_submit_button("🚀 Publish Listing"):
+                    if item_title:
+                        img_url = "https://images.unsplash.com/photo-1617083934555-ac7d4fed8824?w=500"
+                        if item_photo:
+                            img_url = item_photo
 
-                    new_item = {
-                        "title": item_title,
-                        "category": item_cat,
-                        "price": item_price,
-                        "condition": item_cond,
-                        "location": item_loc,
-                        "seller": seller_name,
-                        "desc": item_desc,
-                        "image": img_url
-                    }
-                    st.session_state.marketplace_items.insert(0, new_item)
-                    st.success("🎉 Item successfully listed on the Second-Hand Tennis Market!")
-                    st.rerun()
-                else:
-                    st.error("Please fill in all required fields (*).")
+                        # Find coach location
+                        coach_obj = next((c for c in st.session_state.registered_coaches if c["Name"] == selected_coach), None)
+                        loc = coach_obj["Location"] if coach_obj else "Seoul"
 
-    st.markdown("### 🛍️ Recent Pre-Owned Listings Nearby")
+                        final_price = "FREE GIFT 🎁" if is_donation else (item_price if item_price else "Contact for Price")
+
+                        new_item = {
+                            "title": item_title,
+                            "category": item_cat,
+                            "price": final_price,
+                            "is_gift": is_donation,
+                            "target_student": target_student if is_donation else None,
+                            "condition": item_cond,
+                            "location": loc,
+                            "seller": selected_coach,
+                            "desc": item_desc,
+                            "image": img_url
+                        }
+                        st.session_state.marketplace_items.insert(0, new_item)
+                        st.success(f"🎉 Listing published by {selected_coach}!")
+                        st.rerun()
+                    else:
+                        st.error("Please fill in the Item Title.")
+    else:
+        st.warning("🔒 Only verified coaches can list items. Please register as a coach first!")
+
+    st.markdown("### 🛍️ Available Gear & Free Student Gifts")
 
     # CATEGORY FILTER
     cat_filter = st.radio("Filter Category:", ["All Gear", "Racquet", "Shoes", "Dress/Outfit", "Bags/Accessories"], horizontal=True)
@@ -406,12 +425,26 @@ elif app_mode == "🛍️ Neighborhood Second-Hand Market":
         with col:
             with st.container():
                 st.image(item["image"], use_container_width=True)
-                st.markdown(f"<span class='location-badge'>📍 {item['location']}</span>", unsafe_allow_html=True)
+                
+                # Badge rendering (Location vs Gift)
+                if item.get("is_gift"):
+                    st.markdown(f"<span class='gift-badge'>🎁 DONATION GIFT</span> <span class='location-badge'>📍 {item['location']}</span>", unsafe_allow_html=True)
+                else:
+                    st.markdown(f"<span class='location-badge'>📍 {item['location']}</span>", unsafe_allow_html=True)
+                
                 st.markdown(f"#### {item['title']}")
                 st.markdown(f"💰 **Price**: `{item['price']}`")
-                st.caption(f"✨ Condition: **{item['condition']}** | Seller: **{item['seller']}**")
+                
+                if item.get("is_gift") and item.get("target_student"):
+                    st.caption(f"🎁 Reserved for: **{item['target_student']}**")
+                
+                st.caption(f"✨ Condition: **{item['condition']}** | Coach Seller: **{item['seller']}**")
                 st.write(item["desc"])
 
-                if st.button(f"💬 Chat with Seller ({item['seller']})", key=f"chat_{idx}"):
-                    st.toast(f"💬 Direct chat opened with {item['seller']}! Check your messages.")
+                if item.get("is_gift"):
+                    if st.button(f"🎁 Claim Free Gift from {item['seller'].split()[0]}", key=f"gift_{idx}"):
+                        st.toast(f"🎉 Gift request sent to {item['seller']}!")
+                else:
+                    if st.button(f"💬 Chat with {item['seller'].split()[0]}", key=f"chat_{idx}"):
+                        st.toast(f"💬 Direct chat opened with {item['seller']}!")
                 st.markdown("---")
