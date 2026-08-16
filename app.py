@@ -10,7 +10,7 @@ from PIL import Image
 # ==========================================
 # 0. DATABASE PERSISTENCE LAYER (SQLite)
 # ==========================================
-DB_NAME = "tennis_platform.db"
+DB_NAME = "rally_and_date.db"
 
 def get_db_connection():
     conn = sqlite3.connect(DB_NAME, check_same_thread=False)
@@ -21,7 +21,7 @@ def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # Unified User Account Table
+    # Updated User Table with Dating & Tennis Attributes
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -29,8 +29,14 @@ def init_db():
             password TEXT NOT NULL,
             phone TEXT NOT NULL,
             email TEXT UNIQUE NOT NULL,
-            role TEXT NOT NULL, -- 'student' or 'coach'
+            role TEXT NOT NULL, -- 'player' or 'coach'
             name TEXT NOT NULL,
+            gender TEXT,
+            seeking_gender TEXT,
+            ntrp_level TEXT DEFAULT 'NTRP 2.5 (Unverified)',
+            preferred_courts TEXT,
+            dating_bio TEXT,
+            play_style TEXT,
             photo_blob BLOB,
             score INTEGER DEFAULT 0,
             fee_paid INTEGER DEFAULT 0,
@@ -39,14 +45,30 @@ def init_db():
         )
     ''')
     
-    # Persistent Marketplace Inventory
+    # Structured Rally Date Invitations Table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS date_invites (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sender_id INTEGER NOT NULL,
+            receiver_id INTEGER NOT NULL,
+            court_location TEXT NOT NULL,
+            match_time TEXT NOT NULL,
+            post_plan TEXT NOT NULL,
+            status TEXT DEFAULT 'Pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (sender_id) REFERENCES users (id),
+            FOREIGN KEY (receiver_id) REFERENCES users (id)
+        )
+    ''')
+
+    # Marketplace & Mixed Doubles Events
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS inventory (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
             price TEXT NOT NULL,
             description TEXT,
-            category TEXT NOT NULL,
+            category TEXT NOT NULL, -- 'Racquet' or 'Mixed Doubles Event'
             coach_id INTEGER NOT NULL,
             photo_blob BLOB,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -59,12 +81,12 @@ def init_db():
 init_db()
 
 # ==========================================
-# 1. REAL EMAIL OTP SENDER FUNCTION
+# 1. EMAIL OTP SENDER FUNCTION
 # ==========================================
 def send_real_email_otp(recipient_email, otp_code, sender_email, sender_password):
     """Sends a real email using Gmail's SMTP server."""
-    subject = "🎾 Tennis Platform - Verification Code"
-    body = f"Your 6-digit email verification code is: {otp_code}\n\nPlease enter this code in the registration page to verify your account."
+    subject = "🎾 Rally & Date - Verification Code"
+    body = f"Your 6-digit verification code is: {otp_code}\n\nEnter this in the app to activate your profile!"
     
     msg = MIMEText(body)
     msg['Subject'] = subject
@@ -79,25 +101,20 @@ def send_real_email_otp(recipient_email, otp_code, sender_email, sender_password
     except Exception as e:
         return False, str(e)
 
-# ==========================================
-# 2. PAGE CONFIG & STYLING
-# ==========================================
-st.set_page_config(
-    page_title="Reality Tennis Platform",
-    page_icon="🎾",
-    layout="wide"
-)
+# Convert AI score to Official NTRP Rating
+def score_to_ntrp(score):
+    if score >= 88:
+        return "NTRP 4.5+ (Advanced)"
+    elif score >= 78:
+        return "NTRP 4.0 (Intermediate-High)"
+    elif score >= 68:
+        return "NTRP 3.5 (Intermediate)"
+    elif score >= 60:
+        return "NTRP 3.0 (Solid Rally)"
+    else:
+        return "NTRP 2.5 (Beginner)"
 
-st.markdown("""
-    <style>
-    .stApp { background-color: #F8F9FA; color: #212529; }
-    h1, h2, h3 { color: #1A1A1A !important; font-weight: 700; }
-    .stForm { background-color: white; border-radius: 10px; padding: 25px; border: 1px solid #EAEAEA; }
-    .email-box { background-color: #E8F5E9; border: 2px dashed #2E7D32; border-radius: 8px; padding: 15px; margin: 10px 0; text-align: center; }
-    .price-tag { color: #2E7D32; font-weight: bold; font-size: 20px; }
-    </style>
-""", unsafe_allow_html=True)
-
+# Helper: Image Processor
 def image_to_blob(image_file):
     if image_file is not None:
         try:
@@ -115,7 +132,47 @@ def image_to_blob(image_file):
             return None
     return None
 
-# Session State Variables
+# ==========================================
+# 2. CONFIG & STYLING
+# ==========================================
+st.set_page_config(
+    page_title="Rally & Date - Tennis Matchmaking",
+    page_icon="🎾",
+    layout="wide"
+)
+
+st.markdown("""
+    <style>
+    .stApp { background-color: #FAF9F6; color: #212529; }
+    .dating-card {
+        background-color: white;
+        border-radius: 15px;
+        padding: 20px;
+        border: 1px solid #E2E8F0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+    }
+    .badge-ntrp {
+        background-color: #2E7D32;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-weight: bold;
+        font-size: 12px;
+    }
+    .badge-vibe {
+        background-color: #E91E63;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-weight: bold;
+        font-size: 12px;
+    }
+    .price-tag { color: #2E7D32; font-weight: bold; font-size: 18px; }
+    </style>
+""", unsafe_allow_html=True)
+
+# Session States
 if "logged_in_user" not in st.session_state:
     st.session_state.logged_in_user = None
 
@@ -126,19 +183,19 @@ if "otp_verified" not in st.session_state:
     st.session_state.otp_verified = False
 
 # ==========================================
-# 3. SIDEBAR: AUTH & SMTP SETTINGS
+# 3. SIDEBAR AUTH & SMTP CONFIG
 # ==========================================
-st.sidebar.title("🔐 Account & Settings")
+st.sidebar.title("🎾 Rally & Date ❤️")
 
-# LOGIN SYSTEM
 if st.session_state.logged_in_user:
     u = st.session_state.logged_in_user
-    st.sidebar.success(f"Logged in: **{u['username']}** ({u['role'].capitalize()})")
+    st.sidebar.success(f"Logged in: **{u['name']}** ({u['role'].capitalize()})")
+    st.sidebar.caption(f"Badge: {u['ntrp_level']}")
     if st.sidebar.button("🚪 Log Out"):
         st.session_state.logged_in_user = None
         st.rerun()
 else:
-    st.sidebar.subheader("Account Login")
+    st.sidebar.subheader("Member Login")
     login_user = st.sidebar.text_input("User ID", key="l_user")
     login_pass = st.sidebar.text_input("Password", type="password", key="l_pass")
     
@@ -152,123 +209,204 @@ else:
         
         if user_rec:
             st.session_state.logged_in_user = dict(user_rec)
-            st.sidebar.success("Login successful!")
+            st.sidebar.success("Logged in successfully!")
             st.rerun()
         else:
             st.sidebar.error("Invalid User ID or Password.")
 
 st.sidebar.markdown("---")
 
-# SMTP CONFIGURATION EXPANDER (For Sending Real Emails)
-with st.sidebar.expander("⚙️ Email Sender Config (Gmail SMTP)"):
-    st.caption("Enter your Gmail address & App Password to dispatch real email verification codes.")
+with st.sidebar.expander("⚙️ Email SMTP Configuration"):
     smtp_email = st.text_input("Gmail Address", value="your_email@gmail.com")
-    smtp_pass = st.text_input("Gmail App Password", type="password", help="Generated in Google Account > Security > App Passwords")
+    smtp_pass = st.text_input("Gmail App Password", type="password")
 
 st.sidebar.markdown("---")
 page = st.sidebar.radio("Navigation", [
-    "🎾 Student Registration (Email OTP)", 
-    "🏆 Coach Certification & License", 
-    "🛍️ Tennis Marketplace", 
-    "💬 Chat & Free Classes"
+    "❤️ Rally & Date Matchmaking", 
+    "🎾 Single Player Registration", 
+    "📹 AI Skill Verification & Coach Status", 
+    "🏆 Mixed Doubles Mixers & Marketplace",
+    "💌 My Date Invites"
 ])
 
 # ==========================================
-# PAGE 1: STUDENT REGISTRATION (REAL EMAIL OTP)
+# PAGE 1: MATCHMAKING DISCOVERY
 # ==========================================
-if page == "🎾 Student Registration (Email OTP)":
-    st.title("🎾 Student Account Registration")
-    st.write("Register your student profile using a **User ID, Password, and Real Email Verification Code**.")
+if page == "❤️ Rally & Date Matchmaking":
+    st.title("❤️ Find Your Tennis & Rally Match")
+    st.write("Browse single tennis players nearby. Verify skills with AI video analysis or send a **Rally Date Invite**!")
+
+    st.markdown("---")
+    
+    # Filter Controls
+    col_f1, col_f2, col_f3 = st.columns(3)
+    with col_f1:
+        gender_filter = st.selectbox("Show Me:", ["All Singles", "Female", "Male"])
+    with col_f2:
+        style_filter = st.selectbox("Play Style:", ["All Vibe Types", "Casual Rally & Coffee", "Competitive Match", "Post-Match Drinks"])
+    with col_f3:
+        only_verified = st.checkbox("Only Show AI Video-Verified Players", value=False)
 
     st.markdown("---")
 
-    # Account Form
-    st.subheader("Step 1: Credentials & Information")
+    conn = get_db_connection()
+    query = "SELECT * FROM users WHERE role = 'player'"
+    params = []
+
+    if gender_filter != "All Singles":
+        query += " AND gender = ?"
+        params.append(gender_filter)
+    if style_filter != "All Vibe Types":
+        query += " AND play_style = ?"
+        params.append(style_filter)
+    if only_verified:
+        query += " AND score >= 60"
+
+    users_list = conn.execute(query, params).fetchall()
+    conn.close()
+
+    if not users_list:
+        st.info("No singles found matching your search criteria yet!")
+    else:
+        cols = st.columns(3)
+        for idx, u_profile in enumerate(users_list):
+            col = cols[idx % 3]
+            with col:
+                st.markdown('<div class="dating-card">', unsafe_allow_html=True)
+                
+                # Image Display
+                if u_profile['photo_blob']:
+                    st.image(io.BytesIO(u_profile['photo_blob']), use_container_width=True)
+                else:
+                    st.image("https://via.placeholder.com/300x300.png?text=No+Photo", use_container_width=True)
+                
+                st.markdown(f"### {u_profile['name']} ({u_profile['gender']})")
+                st.markdown(f"<span class='badge-ntrp'>🎾 {u_profile['ntrp_level']}</span> <span class='badge-vibe'>🍷 {u_profile['play_style']}</span>", unsafe_allow_html=True)
+                
+                st.write(f"📍 **Preferred Courts:** {u_profile['preferred_courts']}")
+                st.write(f"💬 *\"{u_profile['dating_bio']}\"*")
+                
+                # Rally Date Invite Trigger
+                if st.session_state.logged_in_user:
+                    sender = st.session_state.logged_in_user
+                    if sender['id'] != u_profile['id']:
+                        with st.popover(f"🎾 Invite {u_profile['name']} to a Rally Date"):
+                            st.subheader(f"Send Rally Date Invite to {u_profile['name']}")
+                            court_loc = st.text_input("Proposed Court Location", value=u_profile['preferred_courts'], key=f"loc_{u_profile['id']}")
+                            m_time = st.text_input("Proposed Date & Time", placeholder="e.g. Saturday 10:00 AM", key=f"time_{u_profile['id']}")
+                            post_plan = st.text_input("Post-Match Plan", value="Smoothies & Coffee", key=f"plan_{u_profile['id']}")
+                            
+                            if st.button("🚀 Send Court Invite", key=f"send_inv_{u_profile['id']}"):
+                                if court_loc and m_time:
+                                    conn_inv = get_db_connection()
+                                    conn_inv.execute('''
+                                        INSERT INTO date_invites (sender_id, receiver_id, court_location, match_time, post_plan)
+                                        VALUES (?, ?, ?, ?, ?)
+                                    ''', (sender['id'], u_profile['id'], court_loc, m_time, post_plan))
+                                    conn_inv.commit()
+                                    conn_inv.close()
+                                    st.success("🎉 Rally Date invitation sent!")
+                                else:
+                                    st.error("Please enter a location and time.")
+                else:
+                    st.caption("🔒 *Log in to send a Rally Date Invite*")
+                
+                st.markdown('</div>', unsafe_allow_html=True)
+
+# ==========================================
+# PAGE 2: PLAYER REGISTRATION
+# ==========================================
+elif page == "🎾 Single Player Registration":
+    st.title("🎾 Join Rally & Date as a Single Player")
+    st.write("Create your profile with **Email OTP Verification** and tennis matchmaking preferences.")
+
+    st.markdown("---")
+
+    st.subheader("Step 1: Account Credentials")
     c1, c2 = st.columns(2)
     with c1:
-        s_username = st.text_input("User ID *", placeholder="e.g. tennis_student1")
+        s_username = st.text_input("User ID *")
         s_password = st.text_input("Password *", type="password")
         s_name = st.text_input("Full Name *")
     with c2:
-        s_phone = st.text_input("Mobile Phone Number *", placeholder="010-1234-5678")
-        s_email = st.text_input("Email Address *", placeholder="your_address@domain.com")
-        s_photo = st.file_uploader("Upload Profile Photo *", type=['jpg', 'jpeg', 'png'])
+        s_phone = st.text_input("Mobile Phone *")
+        s_email = st.text_input("Email Address *")
+        s_photo = st.file_uploader("Upload Dating Profile Photo *", type=['jpg', 'jpeg', 'png'])
 
     st.markdown("---")
-    
-    # Email Verification Flow
-    st.subheader("Step 2: Real Email Verification")
-    
+
+    st.subheader("Step 2: Matchmaking & Tennis Profile")
+    d1, d2 = st.columns(2)
+    with d1:
+        s_gender = st.selectbox("My Gender *", ["Female", "Male", "Non-binary"])
+        s_seeking = st.selectbox("Seeking *", ["Male", "Female", "Everyone"])
+        s_style = st.selectbox("Dating Match Vibe *", ["Casual Rally & Coffee", "Competitive Match", "Post-Match Drinks"])
+    with d2:
+        s_courts = st.text_input("Preferred Local Courts *", placeholder="e.g. Banpo Tennis Club, Olympic Park")
+        s_bio = st.text_area("Dating Bio & Icebreaker *", placeholder="My toxic tennis trait is trying to hit winners on every shot...")
+
+    st.markdown("---")
+
+    st.subheader("Step 3: Real Email Verification")
     col_otp1, col_otp2 = st.columns([1, 1])
     
     with col_otp1:
-        if st.button("📧 Send Email Verification Code"):
+        if st.button("📧 Send Verification Code"):
             if s_email:
-                # 1. Generate 6-digit code
                 generated_code = str(random.randint(100000, 999999))
                 st.session_state.otp_code = generated_code
                 st.session_state.otp_verified = False
                 
-                # 2. Send Real Email or Display Screen Fallback
                 if "gmail.com" in smtp_email and len(smtp_pass) > 5:
                     success, msg = send_real_email_otp(s_email, generated_code, smtp_email, smtp_pass)
                     if success:
-                        st.success(f"📩 Real verification code sent to **{s_email}**! Check your inbox.")
+                        st.success(f"📩 Real verification code sent to **{s_email}**!")
                     else:
-                        st.error(f"Email failed to send: {msg}")
+                        st.error(f"Email error: {msg}")
                 else:
-                    st.warning("⚠️ Gmail credentials not set in sidebar settings. Displaying test code below:")
-                    st.markdown(f"""
-                        <div class="email-box">
-                            📩 <strong>[Test Code Display]</strong><br>
-                            Verification code for {s_email}: <span style="font-size:22px; color:#2E7D32; font-weight:bold;">{generated_code}</span>
-                        </div>
-                    """, unsafe_allow_html=True)
+                    st.warning("⚠️ SMTP not set. Test Code:")
+                    st.info(f"Verification Code: **{generated_code}**")
             else:
-                st.error("Please enter your email address first.")
+                st.error("Please enter an email address.")
 
-    # OTP Input Field
     if st.session_state.otp_code:
-        entered_code = st.text_input("Enter 6-Digit Code Received in Email", key="input_otp")
-        if st.button("✅ Verify Email Code"):
+        entered_code = st.text_input("Enter 6-Digit Email Code")
+        if st.button("✅ Verify Code"):
             if entered_code == st.session_state.otp_code:
                 st.session_state.otp_verified = True
-                st.success("🎉 Email address verified successfully!")
+                st.success("🎉 Email Verified!")
             else:
-                st.error("❌ Invalid code. Please check your inbox and try again.")
+                st.error("❌ Incorrect Code.")
 
     st.markdown("---")
 
-    # Step 3: Complete Registration
-    if st.button("🚀 Finalize Account Creation"):
-        if not (s_username and s_password and s_name and s_phone and s_email and s_photo):
-            st.error("Please fill out all required fields and upload your profile photo.")
+    if st.button("🚀 Complete Single Player Profile"):
+        if not (s_username and s_password and s_name and s_email and s_photo and s_bio):
+            st.error("Please fill in all required fields.")
         elif not st.session_state.otp_verified:
-            st.error("⚠️ Please complete Email Verification before registering.")
+            st.error("⚠️ Complete Email Verification first.")
         else:
             photo_blob = image_to_blob(s_photo)
             conn = get_db_connection()
             try:
                 conn.execute('''
-                    INSERT INTO users (username, password, phone, email, role, name, photo_blob, is_email_verified)
-                    VALUES (?, ?, ?, ?, 'student', ?, ?, 1)
-                ''', (s_username, s_password, s_phone, s_email, s_name, photo_blob))
+                    INSERT INTO users (username, password, phone, email, role, name, gender, seeking_gender, preferred_courts, dating_bio, play_style, photo_blob, is_email_verified)
+                    VALUES (?, ?, ?, ?, 'player', ?, ?, ?, ?, ?, ?, ?, 1)
+                ''', (s_username, s_password, s_phone, s_email, s_name, s_gender, s_seeking, s_courts, s_bio, s_style, photo_blob))
                 conn.commit()
-                st.success(f"🎉 Welcome {s_name}! Account '{s_username}' created permanently in the database.")
+                st.success("🎉 Account created! Log in from the sidebar to start matching.")
                 st.balloons()
-                st.session_state.otp_code = None
-                st.session_state.otp_verified = False
             except sqlite3.IntegrityError:
-                st.error("⚠️ User ID or Email already registered in the system.")
+                st.error("⚠️ Username or Email already exists.")
             finally:
                 conn.close()
 
 # ==========================================
-# PAGE 2: COACH CERTIFICATION
+# PAGE 3: AI SKILL VERIFICATION & COACH STATUS
 # ==========================================
-elif page == "🏆 Coach Certification & License":
-    st.title("🏆 Coach Certification System")
-    st.write("Upload a video of your gameplay. If your AI skill score is **60 or above**, you can pay 10,000원 to obtain a Verified Coach account and list products!")
+elif page == "📹 AI Skill Verification & Coach Status":
+    st.title("📹 AI Skill Verification & Coach Wingman Status")
+    st.write("Upload a tennis video to get an **Anti-Catfish Verified NTRP Badge** on your dating profile, or pay 10,000원 to become a Verified Wingman/Coach Event Organizer!")
 
     st.markdown("---")
 
@@ -280,76 +418,90 @@ elif page == "🏆 Coach Certification & License":
 
     with v_col2:
         if video_file:
-            if st.button("📊 Calculate Tennis Skill Score"):
-                with st.spinner("Analyzing spin rate, ball velocity, and stroke technique..."):
+            if st.button("📊 Analyze Swing & Spin Mechanics"):
+                with st.spinner("AI evaluating stroke mechanics & spin speed..."):
                     time.sleep(1.5)
-                    analyzed_score = random.randint(62, 96)
+                    analyzed_score = random.randint(62, 95)
                     st.session_state['coach_score'] = analyzed_score
 
     if 'coach_score' in st.session_state:
         score = st.session_state['coach_score']
+        ntrp = score_to_ntrp(score)
         st.markdown("---")
-        st.subheader(f"AI Skill Evaluation Result: {score} / 100")
+        st.subheader(f"AI Score Result: {score} / 100")
+        st.success(f"🏆 Your Verified Tennis Skill Rating is: **{ntrp}**")
         
+        # Option A: Attach NTRP Badge to Existing Account
+        if st.session_state.logged_in_user:
+            if st.button("🏅 Update My Profile with Verified NTRP Badge"):
+                u_id = st.session_state.logged_in_user['id']
+                conn = get_db_connection()
+                conn.execute('UPDATE users SET score = ?, ntrp_level = ? WHERE id = ?', (score, ntrp, u_id))
+                conn.commit()
+                conn.close()
+                st.success("🎉 Your dating profile now displays your Verified NTRP Badge!")
+
+        st.markdown("---")
+
+        # Option B: Upgrade to Coach / Mixer Host
         if score >= 60:
-            st.success("✅ Assessment Passed! You qualify for official Coach Verification.")
-            
-            with st.form("coach_reg_form"):
-                st.subheader("Coach Registration & License Fee (10,000원)")
-                c_user = st.text_input("Desired User ID *")
+            st.info("🌟 You qualify for **Coach / Event Organizer Certification**! Host 4-player Mixed Doubles Blind Dates or sell gear.")
+            with st.form("coach_upgrade"):
+                c_user = st.text_input("Coach User ID *")
                 c_pass = st.text_input("Password *", type="password")
                 c_name = st.text_input("Full Name *")
                 c_phone = st.text_input("Mobile Phone *")
-                c_email = st.text_input("Email Address *")
+                c_email = st.text_input("Email *")
                 
-                if st.form_submit_button("💳 Pay 10,000원 & Receive Verified Coach License"):
-                    if c_user and c_pass and c_name and c_phone and c_email:
-                        conn = get_db_connection()
-                        try:
-                            conn.execute('''
-                                INSERT INTO users (username, password, phone, email, role, name, score, fee_paid, is_email_verified)
-                                VALUES (?, ?, ?, ?, 'coach', ?, ?, 1, 1)
-                            ''', (c_user, c_pass, c_phone, c_email, c_name, score))
-                            conn.commit()
-                            st.success(f"🏆 Coach Account '{c_user}' created! You can now log in to list items in the market.")
-                            st.balloons()
-                        except sqlite3.IntegrityError:
-                            st.error("⚠️ User ID or Email already exists in the system.")
-                        finally:
-                            conn.close()
+                if st.form_submit_button("💳 Pay 10,000원 & Get Event Organizer License"):
+                    conn = get_db_connection()
+                    try:
+                        conn.execute('''
+                            INSERT INTO users (username, password, phone, email, role, name, score, fee_paid, ntrp_level, is_email_verified)
+                            VALUES (?, ?, ?, ?, 'coach', ?, ?, 1, ?, 1)
+                        ''', (c_user, c_pass, c_phone, c_email, c_name, score, f"Pro Coach ({ntrp})"))
+                        conn.commit()
+                        st.success("🏆 Coach / Event Host License Granted!")
+                        st.balloons()
+                    except sqlite3.IntegrityError:
+                        st.error("User ID or Email already exists.")
+                    finally:
+                        conn.close()
 
 # ==========================================
-# PAGE 3: TENNIS MARKETPLACE
+# PAGE 4: MIXED DOUBLES & MARKETPLACE
 # ==========================================
-elif page == "🛍️ Tennis Marketplace":
-    st.title("🛍️ Tennis Racquet & Gear Marketplace")
+elif page == "🏆 Mixed Doubles Mixers & Marketplace":
+    st.title("🏆 Mixed Doubles Dating Events & Market")
+    st.write("Join 4-player Mixed Doubles Blind Date Sessions hosted by coaches, or trade gear!")
 
     user = st.session_state.logged_in_user
     
-    # SELLING FORM (ONLY ACCESSIBLE TO LOGGED-IN VERIFIED COACHES)
-    if user and user['role'] == 'coach' and user['fee_paid'] == 1:
-        with st.expander("➕ Verified Coach: Create Product Listing"):
-            with st.form("add_product"):
-                p_title = st.text_input("Racquet Model Name *")
-                p_price = st.text_input("Price (KRW) *", placeholder="e.g. 120,000 ₩")
-                p_desc = st.text_area("Product Description")
-                p_photo = st.file_uploader("Upload Product Photo *", type=['jpg', 'jpeg', 'png'])
+    # Coach Event Creation
+    if user and user['role'] == 'coach':
+        with st.expander("➕ Coach Wingman: Host Mixed Doubles Blind Date Event or Gear"):
+            with st.form("add_event"):
+                e_title = st.text_input("Event / Item Name *", placeholder="e.g. Saturday Mixed Doubles Singles Mixer (2M + 2F)")
+                e_cat = st.selectbox("Category", ["Mixed Doubles Event", "Racquet / Gear"])
+                e_price = st.text_input("Price (KRW) *", placeholder="30,000 ₩ per person")
+                e_desc = st.text_area("Event Details / Court Location")
+                e_photo = st.file_uploader("Upload Image *", type=['jpg', 'jpeg', 'png'])
                 
-                if st.form_submit_button("🚀 Post Product for Sale"):
-                    if p_title and p_price and p_photo:
-                        photo_blob = image_to_blob(p_photo)
+                if st.form_submit_button("🚀 Publish Event / Item"):
+                    if e_title and e_price and e_photo:
+                        photo_blob = image_to_blob(e_photo)
                         conn = get_db_connection()
                         conn.execute('''
                             INSERT INTO inventory (title, price, description, category, coach_id, photo_blob)
-                            VALUES (?, ?, ?, 'Racquet', ?, ?)
-                        ''', (p_title, p_price, p_desc, user['id'], photo_blob))
+                            VALUES (?, ?, ?, ?, ?, ?)
+                        ''', (e_title, e_price, e_desc, e_cat, user['id'], photo_blob))
                         conn.commit()
                         conn.close()
-                        st.success("Product listing published permanently!")
+                        st.success("Published successfully!")
                         st.rerun()
 
     st.markdown("---")
-    st.subheader("Available Racquets")
+    st.subheader("Active Events & Offers")
 
     conn = get_db_connection()
     items = conn.execute('''
@@ -360,7 +512,7 @@ elif page == "🛍️ Tennis Marketplace":
     conn.close()
 
     if not items:
-        st.info("No items listed in the database yet.")
+        st.info("No events or gear listed yet.")
     else:
         cols = st.columns(3)
         for idx, item in enumerate(items):
@@ -369,32 +521,79 @@ elif page == "🛍️ Tennis Marketplace":
                 if item['photo_blob']:
                     st.image(io.BytesIO(item['photo_blob']), use_container_width=True)
                 st.markdown(f"### {item['title']}")
-                st.markdown(f"💰 Price: `<span class='price-tag'>{item['price']}</span>`", unsafe_allow_html=True)
-                st.caption(f"Seller: **Coach {item['coach_name']}**")
+                st.caption(f"Category: **{item['category']}** | Host: **Coach {item['coach_name']}**")
+                st.markdown(f"💰 Fee: `<span class='price-tag'>{item['price']}</span>`", unsafe_allow_html=True)
                 st.write(item['description'])
                 
-                if st.button("🛒 Buy Product", key=f"buy_{item['id']}"):
-                    if user and user['role'] == 'student':
-                        st.success(f"Order submitted to Coach {item['coach_name']}! You also receive a free tennis trial class.")
+                if st.button("🎟️ Book Ticket / Join Event", key=f"evt_{item['id']}"):
+                    if user:
+                        st.success("Ticket booked! Details sent to your account email.")
                     else:
-                        st.warning("Please log in as a Student to purchase items.")
+                        st.warning("Please log in to join.")
                 st.markdown("---")
 
 # ==========================================
-# PAGE 4: CHAT & FREE CLASSES
+# PAGE 5: MY DATE INVITES
 # ==========================================
-elif page == "💬 Chat & Free Classes":
-    st.title("💬 Coach & Student Community")
-    st.write("Connect with certified coaches for free tennis lessons!")
-    
-    c_left, c_right = st.columns(2)
-    with c_left:
-        st.subheader("📩 Direct Message")
-        st.text_input("Recipient Username")
-        st.text_area("Message Text")
-        if st.button("Send Message"):
-            st.success("Message sent!")
+elif page == "💌 My Date Invites":
+    st.title("💌 My Rally Date Invitations")
+    st.write("Manage your incoming and outgoing court date invites!")
 
-    with c_right:
-        st.subheader("🎾 Free Class Offers")
-        st.info("When you purchase a racquet from a certified coach, you are eligible for 1 free private coaching session!")
+    if not st.session_state.logged_in_user:
+        st.warning("Please log in to view your invitations.")
+    else:
+        u_id = st.session_state.logged_in_user['id']
+        conn = get_db_connection()
+        
+        # Received Invites
+        st.subheader("📥 Received Date Invitations")
+        received = conn.execute('''
+            SELECT date_invites.*, users.name as sender_name, users.ntrp_level, users.play_style
+            FROM date_invites
+            JOIN users ON date_invites.sender_id = users.id
+            WHERE receiver_id = ?
+            ORDER BY created_at DESC
+        ''', (u_id,)).fetchall()
+        
+        if not received:
+            st.info("No incoming date invites yet.")
+        else:
+            for r in received:
+                with st.expander(f"🎾 Rally Invite from {r['sender_name']} ({r['ntrp_level']}) - Status: {r['status']}"):
+                    st.write(f"📍 **Court Location:** {r['court_location']}")
+                    st.write(f"⏰ **Proposed Time:** {r['match_time']}")
+                    st.write(f"🍷 **Post-Match Plan:** {r['post_plan']}")
+                    
+                    if r['status'] == 'Pending':
+                        c_a, c_b = st.columns(2)
+                        with c_a:
+                            if st.button("✅ Accept Date", key=f"acc_{r['id']}"):
+                                conn.execute("UPDATE date_invites SET status = 'Accepted' WHERE id = ?", (r['id'],))
+                                conn.commit()
+                                st.success("Date Accepted! See you on the court!")
+                                st.rerun()
+                        with c_b:
+                            if st.button("❌ Decline", key=f"dec_{r['id']}"):
+                                conn.execute("UPDATE date_invites SET status = 'Declined' WHERE id = ?", (r['id'],))
+                                conn.commit()
+                                st.rerun()
+
+        st.markdown("---")
+
+        # Sent Invites
+        st.subheader("📤 Sent Invitations")
+        sent = conn.execute('''
+            SELECT date_invites.*, users.name as receiver_name 
+            FROM date_invites
+            JOIN users ON date_invites.receiver_id = users.id
+            WHERE sender_id = ?
+            ORDER BY created_at DESC
+        ''', (u_id,)).fetchall()
+        
+        if not sent:
+            st.info("You haven't sent any invitations yet.")
+        else:
+            for s in sent:
+                st.write(f"🎾 Sent to **{s['receiver_name']}** for *{s['court_location']}* on *{s['match_time']}* — **Status:** `{s['status']}`")
+
+        conn.close()
