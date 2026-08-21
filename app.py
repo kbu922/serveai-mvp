@@ -1,86 +1,72 @@
 import os
 import random
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from werkzeug.utils import secure_filename
-from models import db, User, ForumPost,Comment, RacketListing
+from models import db, User, ForumPost, Comment, RacketListing
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'tennis-serve-ai-secret-key-12345'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tennis_serve_ai.db'
+app.config['SECRET_KEY'] = 'serve-ai-secret-key-123'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///serve_ai.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
-app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # Max 100MB upload size
+app.config['UPLOAD_FOLDER'] = 'uploads'
 
 db.init_app(app)
 
-# Create database tables automatically
 with app.app_context():
     db.create_all()
 
-# Helper function: NTRP mapping logic
 def calculate_ntrp(score):
-    if score >= 88:
-        return "NTRP 4.5+ (Advanced)"
-    elif score >= 78:
-        return "NTRP 4.0 (Intermediate-High)"
-    elif score >= 68:
-        return "NTRP 3.5 (Intermediate)"
-    elif score >= 60:
-        return "NTRP 3.0 (Solid Rally)"
+    if score >= 85:
+        return "4.5+"
+    elif score >= 75:
+        return "4.0"
+    elif score >= 65:
+        return "3.5"
     else:
-        return "NTRP 2.5 (Beginner)"
+        return "3.0"
 
-# -----------------------------------------------------------------------------
-# SUBPAGE 1: REGISTER & LOGIN
-# -----------------------------------------------------------------------------
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/auth', methods=['GET', 'POST'])
 def auth():
     if request.method == 'POST':
         action = request.form.get('action')
-        
-        # Handle Registration
+        username = request.form.get('username')
+        password = request.form.get('password')
+
         if action == 'register':
-            username = request.form['username'].strip()
-            email = request.form['email'].strip()
-            password = request.form['password'].strip()
-            
-            existing_user = User.query.filter(
-                (User.username == username) | (User.email == email)
-            ).first()
-            
-            if existing_user:
-                flash('Username or Email already registered.', 'danger')
+            email = request.form.get('email')
+            if User.query.filter_by(username=username).first():
+                flash('Username already exists.', 'danger')
             else:
                 new_user = User(username=username, email=email, password=password)
                 db.session.add(new_user)
                 db.session.commit()
-                flash('Registration successful! Please log in.', 'success')
-                
-        # Handle Login
+                session['user_id'] = new_user.id
+                session['username'] = new_user.username
+                flash('Registration successful!', 'success')
+                return redirect(url_for('analysis_and_match'))
+
         elif action == 'login':
-            username = request.form['username'].strip()
-            password = request.form['password'].strip()
-            
             user = User.query.filter_by(username=username, password=password).first()
             if user:
                 session['user_id'] = user.id
                 session['username'] = user.username
-                flash(f'Welcome back, {user.username}!', 'success')
+                flash('Logged in successfully!', 'success')
                 return redirect(url_for('analysis_and_match'))
             else:
-                flash('Invalid username or password.', 'danger')
-                
+                flash('Invalid credentials.', 'danger')
+
     return render_template('auth.html')
 
 @app.route('/logout')
 def logout():
     session.clear()
     flash('Logged out successfully.', 'info')
-    return redirect(url_for('auth'))
+    return redirect(url_for('index'))
 
-# -----------------------------------------------------------------------------
-# SUBPAGE 2: AI VIDEO ANALYSIS & PLAYER MATCHMAKING
-# -----------------------------------------------------------------------------
 @app.route('/analysis', methods=['GET', 'POST'])
 def analysis_and_match():
     if 'user_id' not in session:
@@ -88,11 +74,9 @@ def analysis_and_match():
         return redirect(url_for('auth'))
         
     current_user = User.query.get(session['user_id'])
-
-    # Fix: Prevent 'NoneType' error if user ID is missing from DB
     if not current_user:
         session.pop('user_id', None)
-        flash('Session expired or user not found. Please log in again.', 'warning')
+        flash('Session expired. Please log in again.', 'warning')
         return redirect(url_for('auth'))
 
     matched_players = []
@@ -106,7 +90,6 @@ def analysis_and_match():
                 filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 file.save(filepath)
 
-                # Simulated AI Technique Analysis Engine
                 ai_score = random.randint(62, 95)
                 ntrp = calculate_ntrp(ai_score)
 
@@ -116,7 +99,6 @@ def analysis_and_match():
                 db.session.commit()
                 flash('Video analyzed successfully! Skill level updated.', 'success')
 
-    # Matchmaking Engine: Fetch users with skill level within +-12 points safely
     if current_user.skill_score and current_user.skill_score > 0:
         matched_players = User.query.filter(
             User.id != current_user.id,
@@ -125,47 +107,27 @@ def analysis_and_match():
 
     return render_template('analysis.html', user=current_user, matches=matched_players)
 
-# -----------------------------------------------------------------------------
-# SUBPAGE 3: DISCUSSION ZONE & COMMENTS
-# -----------------------------------------------------------------------------
 @app.route('/forum', methods=['GET', 'POST'])
 def forum():
-    if 'user_id' not in session:
-        flash('Please log in to access the discussion forum.', 'warning')
-        return redirect(url_for('auth'))
-
     if request.method == 'POST':
-        action = request.form.get('action')
+        title = request.form.get('title')
+        content = request.form.get('content')
+        author = session.get('username', 'Anonymous')
         
-        # Post a new discussion thread
-        if action == 'create_post':
-            title = request.form['title'].strip()
-            content = request.form['content'].strip()
-            if title and content:
-                new_post = Post(title=title, content=content, user_id=session['user_id'])
-                db.session.add(new_post)
-                db.session.commit()
-                flash('Discussion post published!', 'success')
-                
-        # Comment on an existing thread
-        elif action == 'create_comment':
-            content = request.form['comment_content'].strip()
-            post_id = request.form['post_id']
-            if content and post_id:
-                new_comment = Comment(content=content, post_id=post_id, user_id=session['user_id'])
-                db.session.add(new_comment)
-                db.session.commit()
-                flash('Comment added!', 'success')
-
-    posts = Post.query.order_by(Post.created_at.desc()).all()
+        new_post = ForumPost(title=title, content=content, author=author)
+        db.session.add(new_post)
+        db.session.commit()
+        return redirect(url_for('forum'))
+        
+    posts = ForumPost.query.order_by(ForumPost.id.desc()).all()
     return render_template('forum.html', posts=posts)
 
-if __name__ == '__main__':
-    app.run(debug=True)
-
 @app.route('/marketplace', methods=['GET', 'POST'])
-@login_required
 def marketplace():
+    if 'user_id' not in session:
+        flash('Please log in to access the marketplace.', 'warning')
+        return redirect(url_for('auth'))
+
     if request.method == 'POST':
         title = request.form.get('title')
         brand = request.form.get('brand')
@@ -188,3 +150,6 @@ def marketplace():
 
     listings = RacketListing.query.order_by(RacketListing.id.desc()).all()
     return render_template('marketplace.html', listings=listings)
+
+if __name__ == '__main__':
+    app.run(debug=True)
