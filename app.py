@@ -155,3 +155,25 @@ def forum():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+@app.route('/marketplace', methods=['GET', 'POST'])
+def marketplace():
+    if request.method == 'POST':
+        title = request.form.get('title')
+        brand = request.form.get('brand')
+        price = request.form.get('price')
+        condition = request.form.get('condition')
+        description = request.form.get('description')
+        seller_contact = request.form.get('seller_contact')
+
+        new_item = RacketListing(
+            title=title, brand=brand, price=int(price),
+            condition=condition, description=description,
+            seller_contact=seller_contact
+        )
+        db.session.add(new_item)
+        db.session.commit()
+        return redirect(url_for('marketplace'))
+
+    listings = RacketListing.query.order_by(RacketListing.id.desc()).all()
+    return render_template('marketplace.html', listings=listings)
