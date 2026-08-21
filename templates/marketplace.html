@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Serve AI - Used Racket Marketplace</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #0d1b2a; color: #f1f5f9; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .card { background-color: #1e293b; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+        input, select, textarea, button { width: 100%; padding: 10px; margin-top: 8px; margin-bottom: 12px; border-radius: 5px; border: none; }
+        button { background-color: #10b981; color: white; font-weight: bold; cursor: pointer; }
+        .badge { background: #10b981; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎾 2nd-Hand Racket Marketplace</h1>
+        
+        <!-- Post a Racket Form -->
+        <div class="card">
+            <h2>Sell Your Racket</h2>
+            <form method="POST" action="/marketplace">
+                <input type="text" name="title" placeholder="Listing Title (e.g., Wilson Pro Staff 97)" required>
+                <select name="brand" required>
+                    <option value="">Select Brand</option>
+                    <option value="Wilson">Wilson</option>
+                    <option value="Babolat">Babolat</option>
+                    <option value="HEAD">HEAD</option>
+                    <option value="Yonex">Yonex</option>
+                    <option value="Other">Other</option>
+                </select>
+                <input type="number" name="price" placeholder="Price (KRW / USD)" required>
+                <select name="condition" required>
+                    <option value="Like New">Like New</option>
+                    <option value="Good">Good</option>
+                    <option value="Fair">Fair</option>
+                </select>
+                <textarea name="description" placeholder="Grip size, string type, usage detail..." required></textarea>
+                <input type="text" name="seller_contact" placeholder="Kakao ID or Phone Number" required>
+                <button type="submit">List Racket</button>
+            </form>
+        </div>
+
+        <!-- Marketplace Feed -->
+        <h2>Available Rackets</h2>
+        <div class="grid">
+            {% for item in listings %}
+            <div class="card">
+                <span class="badge">{{ item.brand }}</span>
+                <h3>{{ item.title }}</h3>
+                <p><strong>Price:</strong> {{ item.price }} | <strong>Condition:</strong> {{ item.condition }}</p>
+                <p>{{ item.description }}</p>
+                <p><strong>Contact Seller:</strong> {{ item.seller_contact }}</p>
+            </div>
+            {% else %}
+            <p>No rackets listed yet. Be the first to list one!</p>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
