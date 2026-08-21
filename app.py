@@ -89,6 +89,13 @@ def analysis_and_match():
         return redirect(url_for('auth'))
         
     current_user = User.query.get(session['user_id'])
+
+    # Fix: Prevent 'NoneType' error if user ID is missing from DB
+    if not current_user:
+        session.pop('user_id', None)
+        flash('Session expired or user not found. Please log in again.', 'warning')
+        return redirect(url_for('auth'))
+
     matched_players = []
 
     if request.method == 'POST':
@@ -110,8 +117,8 @@ def analysis_and_match():
                 db.session.commit()
                 flash('Video analyzed successfully! Skill level updated.', 'success')
 
-    # Matchmaking Engine: Fetch users with skill level within +-12 points
-    if current_user.skill_score > 0:
+    # Matchmaking Engine: Fetch users with skill level within +-12 points safely
+    if current_user.skill_score and current_user.skill_score > 0:
         matched_players = User.query.filter(
             User.id != current_user.id,
             User.skill_score.between(current_user.skill_score - 12, current_user.skill_score + 12)
