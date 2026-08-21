@@ -37,3 +37,12 @@ class Comment(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=False)
+
+class RacketListing(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    brand = db.Column(db.String(50), nullable=False)
+    price = db.Column(db.Integer, nullable=False)
+    condition = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    seller_contact = db.Column(db.String(100), nullable=False)
