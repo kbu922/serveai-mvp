@@ -165,6 +165,7 @@ if __name__ == '__main__':
     app.run(debug=True)
 
 @app.route('/marketplace', methods=['GET', 'POST'])
+@login_required
 def marketplace():
     if request.method == 'POST':
         title = request.form.get('title')
@@ -175,8 +176,11 @@ def marketplace():
         seller_contact = request.form.get('seller_contact')
 
         new_item = RacketListing(
-            title=title, brand=brand, price=int(price),
-            condition=condition, description=description,
+            title=title,
+            brand=brand,
+            price=int(price) if price else 0,
+            condition=condition,
+            description=description,
             seller_contact=seller_contact
         )
         db.session.add(new_item)
