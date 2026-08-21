@@ -2,7 +2,6 @@ import os
 import random
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.utils import secure_filename
-from flask_login import LoginManager, login_required, current_user, login_user, logout_user
 from models import db, User, ForumPost,Comment, RacketListing
 
 app = Flask(__name__)
