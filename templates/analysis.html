@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-5">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <h4 class="m-0">📹 Serve AI Video Analyzer</h4>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('analysis_and_match') }}" method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">Upload Tennis Serve / Gameplay Video</label>
+                        <input type="file" name="video" class="form-control" accept="video/*" required>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Analyze Video & Update NTRP</button>
+                </form>
+
+                {% if user.skill_score > 0 %}
+                    <hr>
+                    <h5>Your AI Verification Result:</h5>
+                    <p class="mb-1"><strong>Skill Score:</strong> {{ user.skill_score }} / 100</p>
+                    <p class="mb-0"><strong>Verified Level:</strong> <span class="badge bg-success">{{ user.ntrp_level }}</span></p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h4 class="m-0">🤝 Matched Tennis Players</h4>
+            </div>
+            <div class="card-body">
+                {% if matches %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Player</th>
+                                    <th>NTRP Level</th>
+                                    <th>AI Score</th>
+                                    <th>Contact</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for player in matches %}
+                                    <tr>
+                                        <td><strong>{{ player.username }}</strong></td>
+                                        <td><span class="badge bg-info text-dark">{{ player.ntrp_level }}</span></td>
+                                        <td>{{ player.skill_score }}</td>
+                                        <td><a href="mailto:{{ player.email }}" class="btn btn-sm btn-outline-primary">Contact</a></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% elif user.skill_score == 0 %}
+                    <p class="text-muted">Please upload a tennis video to get your AI skill score and view matched players.</p>
+                {% else %}
+                    <p class="text-muted">No matching players found nearby in your skill range yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
